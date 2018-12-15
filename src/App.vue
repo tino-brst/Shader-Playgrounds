@@ -1,18 +1,22 @@
 <template>
     <div id="app">
-        <v-editor></v-editor>
+        <v-editor v-model="code"></v-editor>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
 import Editor from "./components/editor/Editor.vue"
+import sampleCode from "./sample-code"
 
 export default Vue.extend( {
     name: "app",
     components: {
         "v-editor": Editor
-    }
+    },
+    data: () => ( {
+        code: sampleCode
+    } )
 } )
 </script>
 
