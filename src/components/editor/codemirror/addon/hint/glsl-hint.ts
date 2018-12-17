@@ -4,6 +4,7 @@ import fuzzysort from "fuzzysort"
 interface Completion {
     name: string
     type: string
+    docs?: string
 }
 
 CodeMirror.registerHelper( "hint", "x-shader/x-vertex", ( editor: CodeMirror.Editor, options: any ) => {
@@ -16,12 +17,19 @@ CodeMirror.registerHelper( "hint", "x-shader/x-vertex", ( editor: CodeMirror.Edi
     const end   = cursor.ch
 
     const completions: Completion[] = [
-        { name: "dot",      type: "function" },
-        { name: "vec2",     type: "type" },
+        { name: "dot",      type: "function",   docs: "docs ..." },
+        { name: "vec2 .. asd. asd. asd. asd",     type: "type" },
         { name: "vec3",     type: "type" },
         { name: "vec4",     type: "type" },
-        { name: "uniform",  type: "keyword" },
-        { name: "#version", type: "keyword" }
+        { name: "mat2",     type: "type",       docs: "docs ..." },
+        { name: "mat3",     type: "type",       docs: "docs ..." },
+        { name: "mat4",     type: "type",       docs: "docs ..." },
+        { name: "bvec2",    type: "type",       docs: "docs ..." },
+        { name: "bvec3",    type: "type",       docs: "docs ..." },
+        { name: "bvec4",    type: "type",       docs: "docs ..." },
+        { name: "uniform",  type: "keyword",    docs: "super ultra mega long docs ..." },
+        { name: "varying",  type: "keyword",    docs: "super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega long docs ..." },
+        { name: "#version", type: "keyword",    docs: "docs ..." }
     ]
 
     const results = fuzzysort.go<Completion>( token.string, completions, { key: "name" } )
@@ -31,7 +39,8 @@ CodeMirror.registerHelper( "hint", "x-shader/x-vertex", ( editor: CodeMirror.Edi
         displayText: result.obj.name + " ...",
         className: classForType( result.obj.type ),
         render,
-        indexes: result.indexes
+        indexes: result.indexes,
+        docs: result.obj.docs ? result.obj.name + " " + result.obj.docs : ""
     } ) )
 
     const from = CodeMirror.Pos( cursor.line, start )

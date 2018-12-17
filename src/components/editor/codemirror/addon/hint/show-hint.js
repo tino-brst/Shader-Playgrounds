@@ -209,7 +209,11 @@
     hintsList.className = "CodeMirror-hints-list " + theme;
     this.selectedHint = data.selectedHint || 0;
 
+    var activeHintDocs = this.activeHintDocs = ownerDocument.createElement("div");
+    activeHintDocs.className = "CodeMirror-hint-active-docs " + theme;
+
     hints.appendChild(hintsList)
+    hints.appendChild(activeHintDocs)
 
     var completions = data.list;
     for (var i = 0; i < completions.length; ++i) {
@@ -304,6 +308,7 @@
       setTimeout(function(){cm.focus();}, 20);
     });
 
+    widget.updateDocs()
     CodeMirror.signal(data, "select", completions[this.selectedHint], hintsList.childNodes[this.selectedHint]);
     return true;
   }
@@ -348,11 +353,22 @@
         this.hintsList.scrollTop = node.offsetTop - 3;
       else if (node.offsetTop + node.offsetHeight > this.hintsList.scrollTop + this.hintsList.clientHeight)
         this.hintsList.scrollTop = node.offsetTop + node.offsetHeight - this.hintsList.clientHeight + 3;
+
+      this.updateDocs()
       CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
     },
 
     screenAmount: function() {
       return Math.floor(this.hints.clientHeight / this.hintsList.firstChild.offsetHeight) || 1;
+    },
+
+    updateDocs: function() {
+      if (this.data.list[this.selectedHint].docs) {
+        this.activeHintDocs.innerHTML = this.data.list[this.selectedHint].docs
+        this.hints.classList.add( "docs-visible" )
+      } else {
+        this.hints.classList.remove( "docs-visible" )
+      }
     }
   };
 

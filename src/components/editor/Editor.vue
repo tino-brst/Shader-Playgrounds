@@ -191,30 +191,45 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     position: absolute;
     transform: translateX( -30px );
     z-index: 10;
+    overflow: hidden;
+    min-width: 200px;
+
+    font-size: 14px;
+    font-family: IBM Plex Mono;
+    font-weight: normal;
+
+    box-shadow: 0px 2px 5px rgba(0,0,0,.2);
+    border-radius: 4px;
+    border: 1px solid rgb(200, 200, 200);
 }
 
 .CodeMirror-hints-list {
-    /* position: absolute;
-    transform: translateX( -30px );
-    z-index: 10; */
-    overflow: hidden;
     list-style: none;
 
     margin: 0;
     padding: 0;
 
-    box-shadow: 0px 2px 5px rgba(0,0,0,.2);
-    border-radius: 4px;
-    border: 1px solid rgb(200, 200, 200);
     background: white;
 
-    max-height: 20em;
-    min-width: 200px;
+    max-height: 12em;
     overflow-y: auto;
+}
 
-    font-size: 14px;
-    font-family: IBM Plex Mono;
-    font-weight: normal;
+.CodeMirror-hint-active-docs {
+    display: none;
+    padding: 8px;
+    pointer-events: none;
+    user-select: none;
+    border-top: 1px solid rgb(200, 200, 200);
+    background: rgb(245, 245, 245);
+    font-family: IBM Plex Sans;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    word-wrap: normal;
+}
+
+.CodeMirror-hints.docs-visible > .CodeMirror-hint-active-docs {
+    display: block;
 }
 
 .CodeMirror-hint {
@@ -274,10 +289,5 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     border: solid 1px white;
     background: orange;
 }
-
-/* .CodeMirror-hints.docs-active {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-} */
 
 </style>

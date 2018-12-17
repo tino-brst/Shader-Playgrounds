@@ -30,6 +30,7 @@ declare module "../../lib/codemirror" {
         render?: ( element: HTMLLIElement, data: Hints, cur: Hint ) => void
         /** Indexes in the text property that match the search (used in render for highlighting) */
         indexes?: number[]
+        docs?: string
     }
 
     interface Editor {
