@@ -201,14 +201,19 @@
     var ownerDocument = cm.getInputField().ownerDocument;
     var parentWindow = ownerDocument.defaultView || ownerDocument.parentWindow;
 
-    var hints = this.hints = ownerDocument.createElement("ul");
-    var theme = completion.cm.options.theme;
+    var hints = this.hints = ownerDocument.createElement("div");
     hints.className = "CodeMirror-hints " + theme;
+
+    var hintsList = this.hintsList = ownerDocument.createElement("ul");
+    var theme = completion.cm.options.theme;
+    hintsList.className = "CodeMirror-hints-list " + theme;
     this.selectedHint = data.selectedHint || 0;
+
+    hints.appendChild(hintsList)
 
     var completions = data.list;
     for (var i = 0; i < completions.length; ++i) {
-      var elt = hints.appendChild(ownerDocument.createElement("li")), cur = completions[i];
+      var elt = hintsList.appendChild(ownerDocument.createElement("li")), cur = completions[i];
       var className = HINT_ELEMENT_CLASS + (i != this.selectedHint ? "" : " " + ACTIVE_HINT_ELEMENT_CLASS);
       if (cur.className != null) className = cur.className + " " + className;
       elt.className = className;
@@ -226,7 +231,7 @@
     var winH = parentWindow.innerHeight || Math.max(ownerDocument.body.offsetHeight, ownerDocument.documentElement.offsetHeight);
     (completion.options.container || ownerDocument.body).appendChild(hints);
     var box = hints.getBoundingClientRect(), overlapY = box.bottom - winH;
-    var scrolls = hints.scrollHeight > hints.clientHeight + 1
+    var scrolls = hintsList.scrollHeight > hintsList.clientHeight + 1
     var startScroll = cm.getScrollInfo();
 
     if (overlapY > 0) {
@@ -253,7 +258,7 @@
       }
       hints.style.left = (left = pos.left - overlapX) + "px";
     }
-    if (scrolls) for (var node = hints.firstChild; node; node = node.nextSibling)
+    if (scrolls) for (var node = hintsList.firstChild; node; node = node.nextSibling)
       node.style.paddingRight = cm.display.nativeBarWidth + "px"
 
     cm.addKeyMap(this.keyMap = buildKeyMap(completion, {
@@ -282,24 +287,24 @@
       hints.style.left = (left + startScroll.left - curScroll.left) + "px";
     });
 
-    CodeMirror.on(hints, "dblclick", function(e) {
-      var t = getHintElement(hints, e.target || e.srcElement);
+    CodeMirror.on(hintsList, "dblclick", function(e) {
+      var t = getHintElement(hintsList, e.target || e.srcElement);
       if (t && t.hintId != null) {widget.changeActive(t.hintId); widget.pick();}
     });
 
-    CodeMirror.on(hints, "click", function(e) {
-      var t = getHintElement(hints, e.target || e.srcElement);
+    CodeMirror.on(hintsList, "click", function(e) {
+      var t = getHintElement(hintsList, e.target || e.srcElement);
       if (t && t.hintId != null) {
         widget.changeActive(t.hintId);
         if (completion.options.completeOnSingleClick) widget.pick();
       }
     });
 
-    CodeMirror.on(hints, "mousedown", function() {
+    CodeMirror.on(hintsList, "mousedown", function() {
       setTimeout(function(){cm.focus();}, 20);
     });
 
-    CodeMirror.signal(data, "select", completions[this.selectedHint], hints.childNodes[this.selectedHint]);
+    CodeMirror.signal(data, "select", completions[this.selectedHint], hintsList.childNodes[this.selectedHint]);
     return true;
   }
 
@@ -335,19 +340,19 @@
       else if (i < 0)
         i = avoidWrap ? 0  : this.data.list.length - 1;
       if (this.selectedHint == i) return;
-      var node = this.hints.childNodes[this.selectedHint];
+      var node = this.hintsList.childNodes[this.selectedHint];
       if (node) node.className = node.className.replace(" " + ACTIVE_HINT_ELEMENT_CLASS, "");
-      node = this.hints.childNodes[this.selectedHint = i];
+      node = this.hintsList.childNodes[this.selectedHint = i];
       node.className += " " + ACTIVE_HINT_ELEMENT_CLASS;
-      if (node.offsetTop < this.hints.scrollTop)
-        this.hints.scrollTop = node.offsetTop - 3;
-      else if (node.offsetTop + node.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
-        this.hints.scrollTop = node.offsetTop + node.offsetHeight - this.hints.clientHeight + 3;
+      if (node.offsetTop < this.hintsList.scrollTop)
+        this.hintsList.scrollTop = node.offsetTop - 3;
+      else if (node.offsetTop + node.offsetHeight > this.hintsList.scrollTop + this.hintsList.clientHeight)
+        this.hintsList.scrollTop = node.offsetTop + node.offsetHeight - this.hintsList.clientHeight + 3;
       CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
     },
 
     screenAmount: function() {
-      return Math.floor(this.hints.clientHeight / this.hints.firstChild.offsetHeight) || 1;
+      return Math.floor(this.hints.clientHeight / this.hintsList.firstChild.offsetHeight) || 1;
     }
   };
 

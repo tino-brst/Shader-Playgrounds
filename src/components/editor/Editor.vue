@@ -191,6 +191,12 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     position: absolute;
     transform: translateX( -30px );
     z-index: 10;
+}
+
+.CodeMirror-hints-list {
+    /* position: absolute;
+    transform: translateX( -30px );
+    z-index: 10; */
     overflow: hidden;
     list-style: none;
 
@@ -203,6 +209,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     background: white;
 
     max-height: 20em;
+    min-width: 200px;
     overflow-y: auto;
 
     font-size: 14px;
@@ -267,4 +274,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     border: solid 1px white;
     background: orange;
 }
+
+/* .CodeMirror-hints.docs-active {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+} */
+
 </style>

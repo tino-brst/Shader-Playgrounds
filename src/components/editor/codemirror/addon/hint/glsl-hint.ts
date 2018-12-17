@@ -1,6 +1,11 @@
 import CodeMirror from "../../lib/codemirror"
 import fuzzysort from "fuzzysort"
 
+interface Completion {
+    name: string
+    type: string
+}
+
 CodeMirror.registerHelper( "hint", "x-shader/x-vertex", ( editor: CodeMirror.Editor, options: any ) => {
     // @ts-ignore
     const cursor = editor.getCursor()
@@ -10,27 +15,36 @@ CodeMirror.registerHelper( "hint", "x-shader/x-vertex", ( editor: CodeMirror.Edi
     const start = cursorFollowsWhitespace ? cursor.ch : token.start // si no hay caracteres previos al activar el autocomplete lo alineo con el cursor ()
     const end   = cursor.ch
 
-    const completions: CodeMirror.Hint[] = [
-        { text: "dot",      displayText: "dot ...",         className: "class1" },
-        { text: "vec2",     displayText: "vec2 ...",        className: "class2" },
-        { text: "vec3",     displayText: "vec3 ...",        className: "class2" },
-        { text: "vec4",     displayText: "vec4 ...",        className: "class2" },
-        { text: "uniform",  displayText: "uniform ...",     className: "class3" },
-        { text: "#version", displayText: "#version ...",    className: "class3" }
+    const completions: Completion[] = [
+        { name: "dot",      type: "function" },
+        { name: "vec2",     type: "type" },
+        { name: "vec3",     type: "type" },
+        { name: "vec4",     type: "type" },
+        { name: "uniform",  type: "keyword" },
+        { name: "#version", type: "keyword" }
     ]
 
-    const list = fuzzysort.go<CodeMirror.Hint>( token.string, completions, { key: "text" } ).map( result => ( { ...result.obj, render, indexes: result.indexes } ) )
+    const results = fuzzysort.go<Completion>( token.string, completions, { key: "name" } )
+
+    const list: CodeMirror.Hint[] = results.map( ( result ): CodeMirror.Hint => ( {
+        text: result.obj.name,
+        displayText: result.obj.name + " ...",
+        className: classForType( result.obj.type ),
+        render,
+        indexes: result.indexes
+    } ) )
+
     const from = CodeMirror.Pos( cursor.line, start )
     const to   = CodeMirror.Pos( cursor.line, end )
 
-    return { list, from, to, render }
+    return { list, from, to }
 } )
 
 function render( element: HTMLLIElement, data: CodeMirror.Hints, cur: CodeMirror.Hint ) {
     const textSpan = document.createElement( "span" )
 
     textSpan.classList.add( "display-text" )
-    textSpan.innerHTML = highlight( cur.displayText || cur.text, cur.indexes || [], "<b>", "</b>" )
+    textSpan.innerHTML = highlight( cur.displayText || cur.text, cur.indexes || [] )
 
     element.appendChild( textSpan )
 }
@@ -67,4 +81,12 @@ function highlight( text: string, indexes: number[] = [], openingMark: string = 
     }
 
     return highlighted
+}
+
+function classForType( type: string ) {
+    switch ( type ) {
+        case "function":    return "class1"
+        case "type":        return "class2"
+        case "keyword":     return "class3"
+    }
 }

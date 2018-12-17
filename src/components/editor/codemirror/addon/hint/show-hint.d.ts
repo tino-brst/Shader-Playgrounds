@@ -24,10 +24,11 @@ declare module "../../lib/codemirror" {
         className?: string
         displayText?: string
         from?: Position
+        to?: Position
         /** Called if a completion is picked. If provided *you* are responsible for applying the completion */
         hint?: ( cm: CodeMirror.Editor, data: Hints, cur: Hint ) => void
         render?: ( element: HTMLLIElement, data: Hints, cur: Hint ) => void
-        to?: Position
+        /** Indexes in the text property that match the search (used in render for highlighting) */
         indexes?: number[]
     }
 
