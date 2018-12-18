@@ -192,7 +192,11 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     transform: translateX( -30px );
     z-index: 10;
     overflow: hidden;
-    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 300px;
+    width: min-content;
 
     font-size: 14px;
     font-family: IBM Plex Mono;
@@ -225,7 +229,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     font-family: IBM Plex Sans;
     font-size: 13px;
     letter-spacing: 0.1em;
-    word-wrap: normal;
 }
 
 .CodeMirror-hints.docs-visible > .CodeMirror-hint-active-docs {
@@ -237,7 +240,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     align-items: center;
     margin: 0;
     padding: 6px 8px;
-    white-space: pre;
+    white-space: nowrap;
     cursor: pointer;
 }
 .CodeMirror-hint .display-text {

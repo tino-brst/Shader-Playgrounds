@@ -18,7 +18,7 @@ CodeMirror.registerHelper( "hint", "x-shader/x-vertex", ( editor: CodeMirror.Edi
 
     const completions: Completion[] = [
         { name: "dot",      type: "function",   docs: "docs ..." },
-        { name: "vec2 .. asd. asd. asd. asd",     type: "type" },
+        { name: "vec2",     type: "type" },
         { name: "vec3",     type: "type" },
         { name: "vec4",     type: "type" },
         { name: "mat2",     type: "type",       docs: "docs ..." },

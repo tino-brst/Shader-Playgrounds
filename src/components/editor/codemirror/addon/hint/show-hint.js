@@ -262,8 +262,9 @@
       }
       hints.style.left = (left = pos.left - overlapX) + "px";
     }
-    if (scrolls) for (var node = hintsList.firstChild; node; node = node.nextSibling)
-      node.style.paddingRight = cm.display.nativeBarWidth + "px"
+    // agrega padding cuando se activa la barra de scroll
+    // if (scrolls) for (var node = hintsList.firstChild; node; node = node.nextSibling)
+    //   node.style.paddingRight = cm.display.nativeBarWidth + "px"
 
     cm.addKeyMap(this.keyMap = buildKeyMap(completion, {
       moveFocus: function(n, avoidWrap) { widget.changeActive(widget.selectedHint + n, avoidWrap); },
@@ -364,7 +365,7 @@
 
     updateDocs: function() {
       if (this.data.list[this.selectedHint].docs) {
-        this.activeHintDocs.innerHTML = this.data.list[this.selectedHint].docs
+        this.activeHintDocs.innerText = this.data.list[this.selectedHint].docs
         this.hints.classList.add( "docs-visible" )
       } else {
         this.hints.classList.remove( "docs-visible" )
