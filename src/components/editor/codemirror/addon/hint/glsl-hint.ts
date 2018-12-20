@@ -7,7 +7,7 @@ interface Completion {
     docs?: string
 }
 
-CodeMirror.registerHelper( "hint", "x-shader/x-vertex", ( editor: CodeMirror.Editor, options: any ) => {
+CodeMirror.registerHelper( "hint", "glsl", ( editor: CodeMirror.Editor, options: any ) => {
     // @ts-ignore
     const cursor = editor.getCursor()
     const token  = editor.getTokenAt( cursor )

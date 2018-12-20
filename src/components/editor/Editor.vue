@@ -6,7 +6,8 @@
 import Vue from "vue"
 import CodeMirror from "./codemirror/lib/codemirror"
 import "./codemirror/lib/codemirror.css"
-import "./codemirror/mode/clike/clike"
+import "./codemirror/theme/light-syntax.css"
+import "./codemirror/mode/glsl/glsl"
 import "./codemirror/addon/selection/active-line"
 import "./codemirror/addon/edit/matchbrackets"
 import "./codemirror/addon/edit/closebrackets"
@@ -35,7 +36,7 @@ export default Vue.extend( {
     mounted() {
         this.editor = CodeMirror( this.$refs.editor as HTMLElement, {
             value: this.value,
-            mode: "x-shader/x-vertex",
+            mode: "glsl",
             lineNumbers: true,
             indentUnit: 4,
             gutters: [ "CodeMirror-linenumbers", "CodeMirror-foldgutter" ],  // define el orden de los items en el margen
