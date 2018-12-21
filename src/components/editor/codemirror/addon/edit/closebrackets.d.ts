@@ -3,6 +3,6 @@ import CodeMirror from "../../lib/codemirror"
 declare module "../../lib/codemirror" {
     interface EditorConfiguration {
         /** Defines an option autoCloseBrackets that will auto-close brackets and quotes when typed. By default, it'll auto-close ()[]{}''"".  */
-        autoCloseBrackets?: boolean;
+        autoCloseBrackets?: boolean | { pairs?: string, explode?: string } ;
     }
 }

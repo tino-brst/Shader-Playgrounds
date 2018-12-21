@@ -41,7 +41,7 @@ export default Vue.extend( {
             extraKeys: { "Ctrl-Q": "toggleFold", "Ctrl-Space": "autocomplete" },
             styleActiveLine: true,
             matchBrackets: true,
-            autoCloseBrackets: true,
+            autoCloseBrackets: { pairs: "()[]{}''\"\"", explode: "[]{}()" },
             scrollPastEnd: true,
             foldGutter: true,
             foldOptions: { widget: "•••", minFoldSize: 1 },
