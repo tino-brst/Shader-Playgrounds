@@ -53,12 +53,12 @@ CodeMirror.defineSimpleMode( "glsl", {
         { regex: asRegExp( types ), token: "type" },
         { regex: asRegExp( functions ), token: "builtin" },
         { regex: asRegExp( keywords ), token: "keyword" },
-        { regex: asRegExp( preprocessor, { prefix: "#" } ), token: "meta" },
         { regex: asRegExp( variablesAndConstants, { prefix: "gl_" } ), token: "atom" },
+        { regex: asRegExp( preprocessor, { prefix: "#" } ), token: "meta" },
         // attributes
         { regex: /(\.)([a-zA-Z_][\w]*)/, token: [ "punctuation", "attribute" ] },
         // boolean values
-        { regex: /true|false/, token: "keyword boolean" },
+        { regex: /true|false/, token: "boolean" },
         // remaining identifiers
         { regex: /[a-zA-Z_][\w]*/, token: "identifier" },
         // numbers
@@ -71,7 +71,7 @@ CodeMirror.defineSimpleMode( "glsl", {
         { regex: /\/\/.*/, token: "comment" },
         { regex: /\/\*/, token: "comment", next: "comment" },
         // operators
-        { regex: asRegExp( operators, { wholeWord: false } ), token: "operator" },
+        { regex: asRegExp( operators ), token: "operator" },
         // punctuation
         { regex: /\.|;|,/, token: "punctuation" },
         // brackets, indentation
@@ -87,16 +87,14 @@ CodeMirror.defineSimpleMode( "glsl", {
     }
 } )
 
-function asRegExp( values: string[], options?: { prefix?: string, wholeWord?: boolean } ) {
+function asRegExp( values: string[], options?: { prefix?: string } ) {
     options = options || {}
     if ( options.prefix === undefined ) options.prefix = ""
-    if ( options.wholeWord === undefined ) options.wholeWord = true
 
     // @ts-ignore
     if ( options.prefix.length > 0 ) values = values.map( value => value.slice( options.prefix.length ) )
     const valuesEscaped = values.map( value => escapeSpecialCharacters( value ) )
     let regexString = options.prefix + "(" + valuesEscaped.join( "|" ) + ")"
-    if ( options.wholeWord ) regexString = "\\b" + regexString + "\\b"
 
     return new RegExp( regexString )
 }
