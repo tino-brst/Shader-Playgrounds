@@ -122,11 +122,11 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     background: rgb(80, 80, 80);
     border-radius: 2px;
 }
-div.CodeMirror span.CodeMirror-nonmatchingbracket {
-    /* display: inline-block;
-    color: rgb(236, 127, 127);
-    background: rgba(220, 20, 60, 0.3);
-    border-radius: 2px; */
+
+/* 🎨 Selection */
+
+.CodeMirror-selected {
+    background: rgb(59, 63, 75);
 }
 
 /* 🎨 Code hints ⚠️ */
@@ -316,14 +316,11 @@ div.CodeMirror-dragcursors {
     visibility: visible;
 }
 
-.CodeMirror-selected { background: #d9d9d9; }
-.CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }
 .CodeMirror-crosshair { cursor: crosshair; }
 .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #d7d4f0; }
 .CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #d7d4f0; }
 
 .cm-searching {
-    background-color: #ffa;
     background-color: rgba(255, 255, 0, .4);
 }
 
