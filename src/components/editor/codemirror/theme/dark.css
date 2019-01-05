@@ -215,9 +215,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     text-decoration: underline solid white;
 }
 
-.CodeMirror-hint::before,
-.class2.CodeMirror-hint::before,
-.class3.CodeMirror-hint::before {
+.CodeMirror-hint::before {
     content: "";
     display: inline-flex;
     align-items: center;
@@ -234,6 +232,10 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 .class3.CodeMirror-hint::before {
     border: solid 1px white;
     background: orange;
+}
+.class4.CodeMirror-hint::before {
+    border: solid 1px white;
+    background: lightsteelblue;
 }
 
 /* 🎨 Color scheme */

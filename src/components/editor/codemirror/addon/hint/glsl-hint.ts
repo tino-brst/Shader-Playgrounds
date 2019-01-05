@@ -10,13 +10,13 @@ interface Completion {
 CodeMirror.registerHelper( "hint", "glsl", ( editor: CodeMirror.Editor, options: any ) => {
     // @ts-ignore
     const cursor = editor.getCursor()
-    const token  = editor.getTokenAt( cursor )
-    const cursorFollowsWhitespace = token.string.trimLeft().length === 0
+    const tokenAtCursor  = editor.getTokenAt( cursor )
+    const cursorFollowsWhitespace = tokenAtCursor.string.trimLeft().length === 0
 
-    const start = cursorFollowsWhitespace ? cursor.ch : token.start // si no hay caracteres previos al activar el autocomplete lo alineo con el cursor ()
+    const start = cursorFollowsWhitespace ? cursor.ch : tokenAtCursor.start // si no hay caracteres previos al activar el autocomplete lo alineo con el cursor ()
     const end   = cursor.ch
 
-    const completions: Completion[] = [
+    const predefined: Completion[] = [
         { name: "dot",      type: "function",   docs: "docs ..." },
         { name: "vec2",     type: "type" },
         { name: "vec3",     type: "type" },
@@ -31,13 +31,15 @@ CodeMirror.registerHelper( "hint", "glsl", ( editor: CodeMirror.Editor, options:
         { name: "varying",  type: "keyword",    docs: "super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega super ultra mega long docs ..." },
         { name: "#version", type: "keyword",    docs: "docs ..." }
     ]
+    const localIdentifiers: Completion[] = getLocalIdentifiers( editor ).map( identifier => ( { name: identifier, type: "local" } ) )
 
-    const results = fuzzysort.go<Completion>( token.string, completions, { key: "name" } )
+    const completions = predefined.concat( localIdentifiers )
+    const results = fuzzysort.go<Completion>( tokenAtCursor.string, completions, { key: "name" } )
 
     const list: CodeMirror.Hint[] = results.map( ( result ): CodeMirror.Hint => ( {
         text: result.obj.name,
         displayText: result.obj.name + " ...",
-        className: classForType( result.obj.type ),
+        className: getClassForType( result.obj.type ),
         render,
         indexes: result.indexes,
         docs: result.obj.docs ? result.obj.name + " " + result.obj.docs : ""
@@ -92,10 +94,35 @@ function highlight( text: string, indexes: number[] = [], openingMark: string = 
     return highlighted
 }
 
-function classForType( type: string ) {
+function getClassForType( type: string ) {
     switch ( type ) {
         case "function":    return "class1"
         case "type":        return "class2"
         case "keyword":     return "class3"
+        case "local":       return "class4"
     }
+}
+
+function getLocalIdentifiers( editor: CodeMirror.Editor ): string[] {
+    const identifiers: Set<string> = new Set()
+
+    const document   = editor.getDoc()
+    const firstLine  = document.firstLine()
+    const lastLine   = document.lastLine()
+
+    for ( let line = firstLine; line <= lastLine; line ++ ) {
+        const tokens = editor.getLineTokens( line )
+
+        for ( let token of tokens ) {
+            if ( token.type === "identifier" ) identifiers.add( token.string )
+        }
+    }
+
+    // ignoro el identificador que se esta tipeando
+    // @ts-ignore
+    const cursor = editor.getCursor()
+    const tokenAtCursor = editor.getTokenAt( cursor )
+    identifiers.delete( tokenAtCursor.string )
+
+    return Array.from( identifiers )
 }

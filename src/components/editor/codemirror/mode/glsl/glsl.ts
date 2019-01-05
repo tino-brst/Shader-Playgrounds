@@ -54,9 +54,10 @@ CodeMirror.defineSimpleMode( "glsl", {
         { regex: asRegExp( functions ), token: "builtin" },
         { regex: asRegExp( keywords ), token: "keyword" },
         { regex: asRegExp( variablesAndConstants, { prefix: "gl_" } ), token: "atom" },
-        { regex: asRegExp( preprocessor, { prefix: "#" } ), token: "meta" },
         // attributes
         { regex: /(\.)([a-zA-Z_][\w]*)/, token: [ "punctuation", "attribute" ] },
+        // preprocessor
+        { regex: /#[a-z]*/, token: "meta" },
         // boolean values
         { regex: /true|false/, token: "boolean" },
         // remaining identifiers
