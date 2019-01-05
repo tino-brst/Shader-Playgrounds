@@ -132,7 +132,6 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {
     font-size: 13px;
     letter-spacing: 0.1em;
 }
-
 .CodeMirror-hints.docs-visible > .CodeMirror-hint-active-docs {
     display: block;
 }

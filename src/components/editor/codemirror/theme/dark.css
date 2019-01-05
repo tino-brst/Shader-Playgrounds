@@ -12,6 +12,7 @@
     font-size: 14px;
     color: white;
     background: rgb(41, 42, 47);
+    overflow: hidden;
 }
 
 /* 🎨 Padding */
@@ -129,7 +130,111 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     background: rgb(59, 63, 75);
 }
 
-/* 🎨 Code hints ⚠️ */
+/* 🎨 Hints ⚠️ */
+
+.CodeMirror-hints {
+    position: absolute;
+    transform: translateX( -30px );
+    z-index: 10;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 300px;
+    width: min-content;
+
+    font-size: 14px;
+    font-family: IBM Plex Mono;
+    font-weight: normal;
+
+    box-shadow: 0px 2px 5px rgba(0,0,0,.2);
+    border-radius: 6px;
+}
+
+.CodeMirror-hints-list {
+    list-style: none;
+
+    margin: 0;
+    padding: 0;
+
+    background: white;
+
+    max-height: 12em;
+    overflow-y: auto;
+}
+
+.CodeMirror-hint-active-docs {
+    display: none;
+    padding: 8px;
+    pointer-events: none;
+    user-select: none;
+    border-top: 1px solid rgb(200, 200, 200);
+    background: rgb(245, 245, 245);
+    font-family: IBM Plex Sans;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+}
+.CodeMirror-hints.docs-visible > .CodeMirror-hint-active-docs {
+    display: block;
+}
+
+.CodeMirror-hint {
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 6px 8px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.CodeMirror-hint .display-text {
+    color: black;
+}
+.CodeMirror-hint .display-text b {
+    /* font-weight: bold; */
+    padding: 1px 0;
+    font-weight: normal;
+    background-color: rgba(255, 217, 0, 0.3);
+    text-decoration: underline solid orange;
+    border-radius: 2px;
+}
+
+.CodeMirror-hint:hover {
+    background: rgba(65, 105, 225, 0.2);
+}
+
+.CodeMirror-hint-active,
+.CodeMirror-hint-active:hover {
+    background: royalblue;
+}
+
+.CodeMirror-hint-active .display-text {
+    color: white;
+}
+.CodeMirror-hint-active .display-text b {
+    background-color: rgba(255, 255, 255, 0.2);
+    text-decoration: underline solid white;
+}
+
+.CodeMirror-hint::before,
+.class2.CodeMirror-hint::before,
+.class3.CodeMirror-hint::before {
+    content: "";
+    display: inline-flex;
+    align-items: center;
+    width: 12px;
+    height: 12px;
+    margin-right: 8px;
+    border-radius: 3px;
+    border: solid 1px transparent;
+}
+.class2.CodeMirror-hint::before {
+    border: solid 1px white;
+    background: yellowgreen;
+}
+.class3.CodeMirror-hint::before {
+    border: solid 1px white;
+    background: orange;
+}
 
 /* 🎨 Color scheme */
 
