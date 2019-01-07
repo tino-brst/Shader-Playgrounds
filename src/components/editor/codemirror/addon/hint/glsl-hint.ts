@@ -233,19 +233,24 @@ function getLocalIdentifiers( editor: CodeMirror.Editor ): string[] {
     const firstLine  = document.firstLine()
     const lastLine   = document.lastLine()
 
+    // @ts-ignore
+    const cursor = editor.getCursor() as CodeMirror.Position
+
     for ( let line = firstLine; line <= lastLine; line ++ ) {
         const tokens = editor.getLineTokens( line )
 
-        for ( let token of tokens ) {
-            if ( token.type === "identifier" ) identifiers.add( token.string )
+        if ( line !== cursor.line ) {
+            // cuando la linea no corresponde a la del cursor agrego todos los identificadores
+            for ( let token of tokens ) {
+                if ( token.type === "identifier" ) identifiers.add( token.string )
+            }
+        } else {
+            // cuando coincide con la del cursor me fijo de no estar agregando al token que se esta tipeando
+            for ( let token of tokens ) {
+                if ( token.end !== cursor.ch && token.type === "identifier" ) identifiers.add( token.string )
+            }
         }
     }
-
-    // ignoro el identificador que se esta tipeando
-    // @ts-ignore
-    const cursor = editor.getCursor()
-    const tokenAtCursor = editor.getTokenAt( cursor )
-    identifiers.delete( tokenAtCursor.string )
 
     return Array.from( identifiers )
 }
@@ -253,7 +258,7 @@ function getLocalIdentifiers( editor: CodeMirror.Editor ): string[] {
 CodeMirror.registerHelper( "hint", "glsl", ( editor: CodeMirror.Editor, options: any ) => {
     // @ts-ignore
     const cursor = editor.getCursor()
-    const tokenAtCursor  = editor.getTokenAt( cursor )
+    const tokenAtCursor = editor.getTokenAt( cursor )
     const cursorFollowsWhitespace = tokenAtCursor.string.trimLeft().length === 0
 
     const start = cursorFollowsWhitespace ? cursor.ch : tokenAtCursor.start // si no hay caracteres previos al activar el autocomplete lo alineo con el cursor ()
@@ -261,9 +266,9 @@ CodeMirror.registerHelper( "hint", "glsl", ( editor: CodeMirror.Editor, options:
 
     const localIdentifiers: Completion[] = getLocalIdentifiers( editor ).map( identifier => ( { name: identifier, type: CompletionType.LocalIdentifier } ) )
 
-    // en caso de estar tipeando un atributo solo paso la lista de identificadores
+    // en caso de estar tipeando un atributo, solo paso la lista de identificadores
     const completions = tokenAtCursor.type === "attribute" ? localIdentifiers : predefinedCompletions.concat( localIdentifiers )
-    const results = fuzzysort.go<Completion>( tokenAtCursor.string, completions, { key: "name" } )
+    const results     = fuzzysort.go<Completion>( tokenAtCursor.string, completions, { key: "name" } )
 
     const list: CodeMirror.Hint[] = results.map( ( result ): CodeMirror.Hint => ( {
         text: result.obj.name,
