@@ -150,6 +150,10 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     box-shadow: 0px 2px 5px rgba(0,0,0,.2);
     border-radius: 6px;
 }
+.CodeMirror-hints-list-container {
+    max-height: 10rem;
+    overflow: auto;
+}
 
 .CodeMirror-hints-list {
     list-style: none;
@@ -159,8 +163,8 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 
     background: white;
 
-    max-height: 12em;
-    overflow-y: auto;
+    min-height: fit-content;
+    min-width: fit-content;
 }
 
 .CodeMirror-hint-active-docs {

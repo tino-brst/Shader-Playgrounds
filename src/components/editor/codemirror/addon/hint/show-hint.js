@@ -204,6 +204,9 @@
     var hints = this.hints = ownerDocument.createElement("div");
     hints.className = "CodeMirror-hints " + theme;
 
+    var hintsListContainer = this.hintsListContainer = ownerDocument.createElement("div");
+    hintsListContainer.className = "CodeMirror-hints-list-container " + theme;
+
     var hintsList = this.hintsList = ownerDocument.createElement("ul");
     var theme = completion.cm.options.theme;
     hintsList.className = "CodeMirror-hints-list " + theme;
@@ -212,8 +215,9 @@
     var activeHintDocs = this.activeHintDocs = ownerDocument.createElement("div");
     activeHintDocs.className = "CodeMirror-hint-active-docs " + theme;
 
-    hints.appendChild(hintsList)
+    hints.appendChild(hintsListContainer)
     hints.appendChild(activeHintDocs)
+    hintsListContainer.appendChild(hintsList)
 
     var completions = data.list;
     for (var i = 0; i < completions.length; ++i) {
@@ -257,10 +261,10 @@
     var overlapX = box.right - winW;
     if (overlapX > 0) {
       if (box.right - box.left > winW) {
-        hints.style.width = (winW - 5) + "px";
+        hints.style.width = (winW - 10) + "px";
         overlapX -= (box.right - box.left) - winW;
       }
-      hints.style.left = (left = pos.left - overlapX) + "px";
+      hints.style.left = (left = pos.left + 5 - overlapX) + "px";
     }
     // agrega padding cuando se activa la barra de scroll
     // if (scrolls) for (var node = hintsList.firstChild; node; node = node.nextSibling)
@@ -350,10 +354,10 @@
       if (node) node.className = node.className.replace(" " + ACTIVE_HINT_ELEMENT_CLASS, "");
       node = this.hintsList.childNodes[this.selectedHint = i];
       node.className += " " + ACTIVE_HINT_ELEMENT_CLASS;
-      if (node.offsetTop < this.hintsList.scrollTop)
-        this.hintsList.scrollTop = node.offsetTop - 3;
-      else if (node.offsetTop + node.offsetHeight > this.hintsList.scrollTop + this.hintsList.clientHeight)
-        this.hintsList.scrollTop = node.offsetTop + node.offsetHeight - this.hintsList.clientHeight + 3;
+      if (node.offsetTop < this.hintsListContainer.scrollTop)
+        this.hintsListContainer.scrollTop = node.offsetTop - 3;
+      else if (node.offsetTop + node.offsetHeight > this.hintsListContainer.scrollTop + this.hintsListContainer.clientHeight)
+        this.hintsListContainer.scrollTop = node.offsetTop + node.offsetHeight - this.hintsListContainer.clientHeight + 3;
 
       this.updateDocs()
       CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
