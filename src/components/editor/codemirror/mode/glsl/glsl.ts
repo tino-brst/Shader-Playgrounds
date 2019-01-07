@@ -27,7 +27,7 @@ const functions = [
     "length", "distance", "dot", "cross", "normalize", "faceforward", "reflect", "refract",
     "matrixCompMult",
     "lessThan", "lessThanEqual", "greaterThan", "greaterThanEqual", "equal", "notEqual", "any", "all", "not",
-    "texture2DLod", "texture2DProjLod", "texture2DProjLod", "textureCubeLod", "texture2D", "texture2DProj", "texture2DProj", "textureCube", "texture2D", "texture2DProj", "texture2DProj", "textureCube"
+    "texture2DLod", "texture2DProjLod", "textureCubeLod", "textureCube", "texture2D"
 ]
 const variablesAndConstants = [
     "gl_Position", "gl_PointSize",

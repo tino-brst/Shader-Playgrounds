@@ -140,7 +140,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    min-width: 300px;
+    min-width: 350px;
     width: min-content;
 
     font-size: 14px;
@@ -165,10 +165,11 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 
 .CodeMirror-hint-active-docs {
     display: none;
-    padding: 8px;
+    padding: 4px 8px;
     pointer-events: none;
     user-select: none;
     border-top: 1px solid rgb(200, 200, 200);
+    box-sizing: border-box;
     background: rgb(245, 245, 245);
     font-family: IBM Plex Sans;
     font-size: 13px;
@@ -341,8 +342,8 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 
 .CodeMirror-hint.iteration .icon {
     box-shadow:0 0 0 1px white;
-    background: rgb(235, 130, 151);
-    border-color: rgb(221, 84, 112);
+    background: rgb(167, 152, 255);
+    border-color: rgb(127, 115, 192);
 }
 .CodeMirror-hint.iteration .icon::before {
     display: inline-block;
@@ -351,7 +352,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     content: "";
     mask: url("./icons/repeat.svg");
     mask-size: cover;
-    background-color: rgb(134, 12, 36);
+    background-color: rgb(74, 65, 129);
 }
 
 .CodeMirror-hint.selection .icon {
@@ -361,12 +362,12 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 }
 .CodeMirror-hint.selection .icon::before {
     display: inline-block;
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
     content: "";
     mask: url("./icons/option-symbol.svg");
     mask-size: cover;
-    background-color: rgb(34, 30, 56);
+    background-color: rgb(55, 47, 104);
 }
 
 /* 🎨 Color scheme */
