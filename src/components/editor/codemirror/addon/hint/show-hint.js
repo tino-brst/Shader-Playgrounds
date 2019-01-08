@@ -240,7 +240,7 @@
     var winW = parentWindow.innerWidth || Math.max(ownerDocument.body.offsetWidth, ownerDocument.documentElement.offsetWidth);
     var winH = parentWindow.innerHeight || Math.max(ownerDocument.body.offsetHeight, ownerDocument.documentElement.offsetHeight);
     (completion.options.container || ownerDocument.body).appendChild(hints);
-    var box = hints.getBoundingClientRect(), overlapY = box.bottom - winH;
+    var box = hints.getBoundingClientRect(), overlapY = ( box.bottom + 80 ) - winH;
     var scrolls = hintsList.scrollHeight > hintsList.clientHeight + 1
     var startScroll = cm.getScrollInfo();
 
@@ -262,13 +262,15 @@
         }
       }
     }
-    var overlapX = box.right - winW;
+    var overlapX = box.right - winW + 5;
     if (overlapX > 0) {
       if (box.right - box.left > winW) {
         hints.style.width = (winW - 10) + "px";
         overlapX -= (box.right - box.left) - winW;
+        hints.style.left = (left = pos.left - overlapX + 10) + "px";
+      } else {
+        hints.style.left = (left = pos.left - overlapX) + "px";
       }
-      hints.style.left = (left = pos.left + 5 - overlapX) + "px";
     }
     // agrega padding cuando se activa la barra de scroll
     // if (scrolls) for (var node = hintsList.firstChild; node; node = node.nextSibling)
