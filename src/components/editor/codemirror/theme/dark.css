@@ -305,7 +305,19 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     font-size: 12px;
 }
 
-.CodeMirror-hint.type .icon,
+.CodeMirror-hint.type .icon {
+    box-shadow:0 0 0 1px white;
+    background: wheat;
+    border-color: tan;
+}
+.CodeMirror-hint.type .icon::before {
+    content: "T";
+    color: sienna;
+    font-family: IBM Plex Sans;
+    font-size: 12px;
+    font-weight: normal;
+}
+
 .CodeMirror-hint.storage-qualifier .icon,
 .CodeMirror-hint.parameter-qualifier .icon,
 .CodeMirror-hint.precision-qualifier .icon,
@@ -314,7 +326,6 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     background: rgb(247, 207, 207);
     border-color: rgb(240, 159, 159);
 }
-.CodeMirror-hint.type .icon::before,
 .CodeMirror-hint.storage-qualifier .icon::before,
 .CodeMirror-hint.parameter-qualifier .icon::before,
 .CodeMirror-hint.precision-qualifier .icon::before,
@@ -323,9 +334,6 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     font-family: IBM Plex Sans;
     font-size: 12px;
     font-weight: normal;
-}
-.CodeMirror-hint.type .icon::before {
-    content: "T";
 }
 .CodeMirror-hint.storage-qualifier .icon::before {
     content: "S";
@@ -346,7 +354,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 .CodeMirror-hint.constant .icon {
     box-shadow:0 0 0 1px white;
     background: lightblue;
-    border-color: rgb(95, 126, 219);
+    border-color: rgb(134, 158, 230);
 }
 .CodeMirror-hint.variable .icon::before,
 .CodeMirror-hint.constant .icon::before {
