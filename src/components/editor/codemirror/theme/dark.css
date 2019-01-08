@@ -136,23 +136,23 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     position: absolute;
     transform: translateX( -36px );
     z-index: 10;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     min-width: 350px;
     width: min-content;
-
-    font-size: 14px;
-    font-family: IBM Plex Mono;
-    font-weight: normal;
-
-    box-shadow: 0px 2px 5px rgba(0,0,0,.2);
-    border-radius: 6px;
 }
+
 .CodeMirror-hints-list-container {
     max-height: 10rem;
     overflow: auto;
+    border-radius: 6px;
+}
+.CodeMirror-hints.docs-visible > .CodeMirror-hints-list-container {
+    border-radius: 0 0 6px 6px;
+}
+.CodeMirror-hints.docs-visible.below > .CodeMirror-hints-list-container {
+    border-radius: 6px 6px 0 0;
 }
 
 .CodeMirror-hints-list {
@@ -163,25 +163,43 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 
     background: white;
 
+    font-size: 14px;
+    font-family: IBM Plex Mono;
+    font-weight: normal;
+
     min-height: fit-content;
     min-width: fit-content;
 }
 
 .CodeMirror-hint-active-docs {
     display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    min-height: fit-content;
     padding: 4px 8px;
     pointer-events: none;
     user-select: none;
-    border-top: 1px solid rgb(200, 200, 200);
+    border-bottom: 1px solid rgb(200, 200, 200);
+    border-top: none;
+    border-radius: 6px 6px 0 0;
     box-sizing: border-box;
     background: rgb(245, 245, 245);
     font-family: IBM Plex Sans;
     font-size: 13px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
+}
+.CodeMirror-hints.below > .CodeMirror-hint-active-docs {
+    top: 100%;
+    border-top: 1px solid rgb(200, 200, 200);
+    border-bottom: none;
+    border-radius: 0 0 6px 6px;
 }
 .CodeMirror-hints.docs-visible > .CodeMirror-hint-active-docs {
     display: block;
 }
+
 
 .CodeMirror-hint {
     display: flex;

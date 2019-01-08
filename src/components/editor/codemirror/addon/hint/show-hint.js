@@ -230,6 +230,8 @@
       elt.hintId = i;
     }
 
+    widget.updateDocs()
+
     var pos = cm.cursorCoords(completion.options.alignWithWord ? data.from : null);
     var left = pos.left, top = pos.bottom, below = true;
     hints.style.left = left + "px";
@@ -242,11 +244,13 @@
     var scrolls = hintsList.scrollHeight > hintsList.clientHeight + 1
     var startScroll = cm.getScrollInfo();
 
+    hints.classList.add( "below" );
     if (overlapY > 0) {
       var height = box.bottom - box.top, curTop = pos.top - (pos.bottom - box.top);
       if (curTop - height > 0) { // Fits above cursor
         hints.style.top = (top = pos.top - height) + "px";
         below = false;
+        hints.classList.remove( "below" );
       } else if (height > winH) {
         hints.style.height = (winH - 5) + "px";
         hints.style.top = (top = pos.bottom - box.top) + "px";
@@ -313,7 +317,6 @@
       setTimeout(function(){cm.focus();}, 20);
     });
 
-    widget.updateDocs()
     CodeMirror.signal(data, "select", completions[this.selectedHint], hintsList.childNodes[this.selectedHint]);
     return true;
   }
