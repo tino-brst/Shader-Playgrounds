@@ -247,7 +247,7 @@ function getLocalIdentifiers( editor: CodeMirror.Editor ): string[] {
         } else {
             // cuando coincide con la del cursor me fijo de no estar agregando al token que se esta tipeando
             for ( let token of tokens ) {
-                if ( token.end !== cursor.ch && token.type === "identifier" ) identifiers.add( token.string )
+                if ( ! ( token.start <= cursor.ch && cursor.ch <= token.end ) && token.type === "identifier" ) identifiers.add( token.string )
             }
         }
     }

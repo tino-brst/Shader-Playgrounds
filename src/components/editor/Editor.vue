@@ -17,16 +17,27 @@ import "./codemirror/addon/fold/comment-fold"
 import "./codemirror/addon/hint/show-hint"
 import "./codemirror/addon/hint/glsl-hint"
 
+export interface LogEntry {
+    type: "error" | "warning",
+    line: number,
+    description: string
+}
+
 export default Vue.extend( {
     name: "editor",
     props: {
         value: {
             type: String,
             default: ""
+        },
+        log: {
+            type: Array as () => LogEntry[],
+            default: () => []
         }
     },
     data: () => ( {
-        editor: {} as CodeMirror.Editor
+        editor: {} as CodeMirror.Editor,
+        document: {} as CodeMirror.Doc
     } ),
     model: {
         event: "change"
@@ -47,6 +58,8 @@ export default Vue.extend( {
             foldOptions: { widget: "•••", minFoldSize: 1 },
             hintOptions: { completeSingle: false, alignWithWord: true }
         } )
+
+        this.document = this.editor.getDoc()
 
         this.editor.on( "change", this.updateValue )
         this.editor.on( "keydown", this.handleShowHints )
@@ -86,9 +99,29 @@ export default Vue.extend( {
         }
     },
     watch: {
-        value( newValue ) {
+        value( newValue: string ) {
             if ( newValue !== this.editor.getValue() ) {
                 this.editor.setValue( newValue )
+            }
+        },
+        log( newLog: LogEntry[] ) {
+            for ( let logEntry of newLog ) {
+                const line = logEntry.line - 1 // one-based -> zero-based
+                this.editor.addLineClass( line, "wrap", logEntry.type === "error" ? "CodeMirror-errorline" : "CodeMirror-warningline" )
+                this.editor.addLineClass( line, "gutter", logEntry.type === "error" ? "CodeMirror-errorline-gutter" : "CodeMirror-warningline-gutter" )
+
+                const lineHandle = this.document.getLineHandle( line )
+
+                // @ts-ignore
+                lineHandle.on( "change", ( lineHandle: CodeMirror.LineHandle, change: CodeMirror.EditorChange ) => {
+                    // obtengo el numero de linea actualizado (puede haber cambiado por ediciones)
+                    const currentLineNumber = this.document.getLineNumber( lineHandle )
+
+                    this.editor.removeLineClass( currentLineNumber, "wrap", "CodeMirror-errorline" )
+                    this.editor.removeLineClass( currentLineNumber, "wrap", "CodeMirror-warningline" )
+                    this.editor.removeLineClass( currentLineNumber, "gutter", "CodeMirror-errorline-gutter" )
+                    this.editor.removeLineClass( currentLineNumber, "gutter", "CodeMirror-warningline-gutter" )
+                } )
             }
         }
     }

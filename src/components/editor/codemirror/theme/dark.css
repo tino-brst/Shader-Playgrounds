@@ -7,6 +7,8 @@
     /* Set height, width, borders, and global font properties here */
     height: 100%;
     font-family: IBM Plex Mono;
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
     direction: ltr;
     line-height: 1.8rem;
     font-size: 14px;
@@ -56,7 +58,7 @@
     font-family: IBM Plex Sans;
     font-size: 14px;
     text-align: right;
-    color: rgb(100, 100, 100);
+    color: rgb(90, 95, 107);
     white-space: nowrap;
 }
 
@@ -120,14 +122,14 @@
 div.CodeMirror span.CodeMirror-matchingbracket {
     display: inline-block;
     color: white;
-    background: rgb(80, 80, 80);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 2px;
 }
 
 /* 🎨 Selection */
 
 .CodeMirror-selected {
-    background: rgb(59, 63, 75);
+    background: rgba(179, 199, 255, 0.12);
 }
 
 /* 🎨 Hints Widget */
@@ -400,11 +402,39 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     background-color: rgb(55, 47, 104);
 }
 
+/* Errors & Warnings */
+
+.CodeMirror-errorline {
+    background: rgba(220, 20, 60, 0.17);
+}
+.CodeMirror-errorline-gutter {
+    background: rgba(220, 20, 60, 0.17);
+}
+.CodeMirror-errorline .CodeMirror-linenumber {
+    color: rgb(214, 66, 95);
+}
+
+.CodeMirror-activeline.CodeMirror-errorline {
+    background: none;
+}
+.CodeMirror-activeline.CodeMirror-errorline .CodeMirror-activeline-background {
+    background: rgba(220, 20, 60, 0.25);
+}
+.CodeMirror-activeline-gutter.CodeMirror-errorline-gutter {
+    background: rgba(220, 20, 60, 0.25);
+}
+.CodeMirror-activeline-gutter.CodeMirror-errorline-gutter .CodeMirror-linenumber {
+    color: rgb(235, 74, 106);
+}
+
+
+
+
 /* 🎨 Color scheme */
 
 .cm-s-default .cm-keyword { color: rgb(239, 113, 168); font-weight: 500; }
 .cm-s-default .cm-type { color: rgb(117, 180, 146); }
-.cm-s-default .cm-atom { color: rgb(239, 113, 168); font-style: italic; }
+.cm-s-default .cm-atom { color: rgb(239, 113, 168); font-style: italic; font-weight: 600; }
 .cm-s-default .cm-meta { color: rgb(122, 201, 175); }
 .cm-s-default .cm-builtin { color: rgb(145, 212, 98); }
 .cm-s-default .cm-identifier { color: white; }
