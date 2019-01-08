@@ -267,17 +267,29 @@ CodeMirror.registerHelper( "hint", "glsl", ( editor: CodeMirror.Editor, options:
     const localIdentifiers: Completion[] = getLocalIdentifiers( editor ).map( identifier => ( { name: identifier, type: CompletionType.LocalIdentifier } ) )
 
     // en caso de estar tipeando un atributo, solo paso la lista de identificadores
-    const completions = tokenAtCursor.type === "attribute" ? localIdentifiers : predefinedCompletions.concat( localIdentifiers )
-    const results     = fuzzysort.go<Completion>( tokenAtCursor.string, completions, { key: "name" } )
+    const completions = tokenAtCursor.type === "attribute" || tokenAtCursor.string === "." ? localIdentifiers : predefinedCompletions.concat( localIdentifiers )
+    const results = fuzzysort.go<Completion>( tokenAtCursor.string, completions, { key: "name" } )
 
-    const list: CodeMirror.Hint[] = results.map( ( result ): CodeMirror.Hint => ( {
-        text: result.obj.name,
-        displayText: result.obj.name + ( result.obj.extraInfo === undefined ? "" : result.obj.extraInfo ),
-        className: result.obj.type,
-        render,
-        indexes: result.indexes,
-        docs: result.obj.docs
-    } ) )
+    let list: CodeMirror.Hint[]
+
+    if ( options.trigger === undefined && results.length === 0 ) {
+        list = completions.map( ( completion ): CodeMirror.Hint => ( {
+            text: completion.name,
+            displayText: completion.name + ( completion.extraInfo === undefined ? "" : completion.extraInfo ),
+            className: completion.type,
+            render,
+            docs: completion.docs
+        } ) )
+    } else {
+        list = results.map( ( result ): CodeMirror.Hint => ( {
+            text: result.obj.name,
+            displayText: result.obj.name + ( result.obj.extraInfo === undefined ? "" : result.obj.extraInfo ),
+            className: result.obj.type,
+            render,
+            indexes: result.indexes,
+            docs: result.obj.docs
+        } ) )
+    }
 
     const from = CodeMirror.Pos( cursor.line, start )
     const to   = CodeMirror.Pos( cursor.line, end )

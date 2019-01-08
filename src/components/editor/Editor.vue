@@ -77,7 +77,8 @@ export default Vue.extend( {
                         const isValidIdentifierLetter = isLetterKey && ( ( key >= "a" && key <= "z" ) || ( key >= "A" && key <= "z" ) )
 
                         if ( isValidIdentifierLetter || ( key === "_" ) || ( key === "#" ) ) {
-                            this.editor.execCommand( "autocomplete" )
+                            // @ts-ignore
+                            this.editor.showHint( { trigger: key } )
                         }
                     }
                 }

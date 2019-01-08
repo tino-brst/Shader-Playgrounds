@@ -95,7 +95,7 @@ function asRegExp( values: string[], options?: { prefix?: string } ) {
     // @ts-ignore
     if ( options.prefix.length > 0 ) values = values.map( value => value.slice( options.prefix.length ) )
     const valuesEscaped = values.map( value => escapeSpecialCharacters( value ) )
-    let regexString = options.prefix + "(" + valuesEscaped.join( "|" ) + ")"
+    let regexString = "\\b" + options.prefix + "(" + valuesEscaped.join( "|" ) + ")" + "\\b"
 
     return new RegExp( regexString )
 }
