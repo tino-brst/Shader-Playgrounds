@@ -311,15 +311,15 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 .CodeMirror-hint.precision-qualifier .icon,
 .CodeMirror-hint.invariance-qualifier .icon {
     box-shadow:0 0 0 1px white;
-    background: rgb(206, 230, 206);
-    border-color: rgb(120, 182, 147);
+    background: rgb(247, 207, 207);
+    border-color: rgb(240, 159, 159);
 }
 .CodeMirror-hint.type .icon::before,
 .CodeMirror-hint.storage-qualifier .icon::before,
 .CodeMirror-hint.parameter-qualifier .icon::before,
 .CodeMirror-hint.precision-qualifier .icon::before,
 .CodeMirror-hint.invariance-qualifier .icon::before {
-    color: rgb(35, 122, 73);
+    color: rgb(189, 66, 66);
     font-family: IBM Plex Sans;
     font-size: 12px;
     font-weight: normal;
