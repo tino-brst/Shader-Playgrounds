@@ -49,7 +49,7 @@ export default Vue.extend( {
         } )
 
         this.editor.on( "change", this.updateValue )
-        this.editor.on( "keydown", this.showHints )
+        this.editor.on( "keydown", this.handleShowHints )
     },
     methods: {
         updateValue() {
@@ -58,7 +58,7 @@ export default Vue.extend( {
                 this.$emit( "change", value )
             }
         },
-        showHints( editor: CodeMirror.Editor, event: Event ) {
+        handleShowHints( editor: CodeMirror.Editor, event: Event ) {
             if ( ! editor.state.completionActive ) {    // evito reactivacion innecesaria de hints
                 // @ts-ignore
                 const cursor = editor.getCursor()

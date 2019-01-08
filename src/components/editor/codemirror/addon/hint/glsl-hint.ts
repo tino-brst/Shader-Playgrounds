@@ -44,25 +44,6 @@ const predefinedCompletions: Completion[] = [
     { name: "mat4",         type: CompletionType.Type, docs: "Data type used for 4×4 floating point matrices (in column major order)." },
     { name: "sampler2D",    type: CompletionType.Type, docs: "Data type used to provide access to a 2D texture. It's a reference to data that has been loaded to a texture unit." },
     { name: "samplerCube",  type: CompletionType.Type, docs: "Data type used to provide access to a cubemap texture. It's a reference to data that has been loaded to a texture unit." },
-    // Preprocessor
-    { name: "#define",    type: CompletionType.Preprocessor },
-    { name: "#undef",     type: CompletionType.Preprocessor },
-    { name: "#if",        type: CompletionType.Preprocessor },
-    { name: "#ifdef",     type: CompletionType.Preprocessor },
-    { name: "#ifndef",    type: CompletionType.Preprocessor },
-    { name: "#else",      type: CompletionType.Preprocessor },
-    { name: "#elif",      type: CompletionType.Preprocessor },
-    { name: "#endif",     type: CompletionType.Preprocessor },
-    { name: "#error",     type: CompletionType.Preprocessor },
-    { name: "#pragma",    type: CompletionType.Preprocessor },
-    { name: "#extension", type: CompletionType.Preprocessor },
-    { name: "#version",   type: CompletionType.Preprocessor },
-    { name: "#line",      type: CompletionType.Preprocessor },
-    // Macros
-    { name: "__LINE__",                   type: CompletionType.Macro },
-    { name: "__VERSION__",                type: CompletionType.Macro },
-    { name: "GL_ES",                      type: CompletionType.Macro },
-    { name: "GL_FRAGMENT_PRECISION_HIGH", type: CompletionType.Macro },
     // Storage Qualifiers
     { name: "const",     type: CompletionType.StorageQualifier, docs: "Declares a compile-time constant or a read-only function parameter." },
     { name: "attribute", type: CompletionType.StorageQualifier, docs: "Declares a variable shared between the WebGL environment and the vertex shader. Attributes are used to specify per-vertex data." },
@@ -172,6 +153,25 @@ const predefinedCompletions: Completion[] = [
     // Selection
     { name: "if",   type: CompletionType.Selection },
     { name: "else", type: CompletionType.Selection },
+    // Preprocessor
+    { name: "#define",    type: CompletionType.Preprocessor },
+    { name: "#undef",     type: CompletionType.Preprocessor },
+    { name: "#if",        type: CompletionType.Preprocessor },
+    { name: "#ifdef",     type: CompletionType.Preprocessor },
+    { name: "#ifndef",    type: CompletionType.Preprocessor },
+    { name: "#else",      type: CompletionType.Preprocessor },
+    { name: "#elif",      type: CompletionType.Preprocessor },
+    { name: "#endif",     type: CompletionType.Preprocessor },
+    { name: "#error",     type: CompletionType.Preprocessor },
+    { name: "#pragma",    type: CompletionType.Preprocessor },
+    { name: "#extension", type: CompletionType.Preprocessor },
+    { name: "#version",   type: CompletionType.Preprocessor },
+    { name: "#line",      type: CompletionType.Preprocessor },
+    // Macros
+    { name: "__LINE__",                   type: CompletionType.Macro },
+    { name: "__VERSION__",                type: CompletionType.Macro },
+    { name: "GL_ES",                      type: CompletionType.Macro },
+    { name: "GL_FRAGMENT_PRECISION_HIGH", type: CompletionType.Macro },
     // Others
     { name: "gl_DepthRangeParameters" },
     { name: "struct", docs: "Declares a custom data structure based on standard data types." },
@@ -262,7 +262,7 @@ CodeMirror.registerHelper( "hint", "glsl", ( editor: CodeMirror.Editor, options:
     const cursorFollowsWhitespace = tokenAtCursor.string.trimLeft().length === 0
 
     const start = cursorFollowsWhitespace ? cursor.ch : tokenAtCursor.start // si no hay caracteres previos al activar el autocomplete lo alineo con el cursor ()
-    const end   = cursor.ch
+    const end   = tokenAtCursor.end > cursor.ch ? tokenAtCursor.end : cursor.ch
 
     const localIdentifiers: Completion[] = getLocalIdentifiers( editor ).map( identifier => ( { name: identifier, type: CompletionType.LocalIdentifier } ) )
 
