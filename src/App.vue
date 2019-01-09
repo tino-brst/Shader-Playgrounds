@@ -21,7 +21,7 @@ export default Vue.extend( {
     mounted() {
         // 📝 el log va a tener entradas tanto para el shader de vertices como de fragmentos
         this.log = [
-            { type: "error", line: 3, description: "danger! danger!" },
+            { type: "error", line: 4, description: "danger! danger!" },
             { type: "error", line: 9, description: "danger! danger!" },
             { type: "error", line: 19, description: "danger! danger!" },
             { type: "warning", line: 15, description: "just be careful" }

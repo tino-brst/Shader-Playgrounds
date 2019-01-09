@@ -32,13 +32,13 @@
 
 /* 🎨 Active line */
 
-.CodeMirror-activeline-background {
+.CodeMirror-activeline {
     background: rgb(45, 48, 56);
 }
-.CodeMirror-activeline-gutter {
+.CodeMirror-activeline .CodeMirror-gutter-background {
     background: rgb(45, 48, 56);
 }
-.CodeMirror-activeline-gutter .CodeMirror-linenumber {
+.CodeMirror-activeline .CodeMirror-linenumber {
     color: rgb(200, 200, 200);
 }
 
@@ -108,13 +108,12 @@
     filter: brightness(1.2);
 }
 
-.CodeMirror-logmarkers {
+.CodeMirror-markers {
     width: 20px;
 }
-.CodeMirror-logmarker-error {
+.CodeMirror-marker-error {
     position: relative;
     background: crimson;
-    opacity: 0.5;
     width: 15px;
     height: 28px;
     border-top-right-radius: 2px;
@@ -417,23 +416,20 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 
 /* Errors & Warnings */
 
-.CodeMirror-errorline {
+.CodeMirror-markedline-error {
     background: rgba(220, 20, 60, 0.17);
 }
-.CodeMirror-errorline-gutter {
+.CodeMirror-markedline-error .CodeMirror-gutter-background {
     background: rgba(220, 20, 60, 0.17);
 }
-.CodeMirror-errorline .CodeMirror-linenumber {
+.CodeMirror-markedline-error .CodeMirror-linenumber {
     color: rgb(223, 70, 100);
 }
 
-.CodeMirror-activeline.CodeMirror-errorline {
-    background: none;
-}
-.CodeMirror-activeline.CodeMirror-errorline .CodeMirror-activeline-background {
+.CodeMirror-activeline.CodeMirror-markedline-error {
     background: rgba(220, 20, 60, 0.25);
 }
-.CodeMirror-activeline-gutter.CodeMirror-errorline-gutter {
+.CodeMirror-activeline.CodeMirror-markedline-error .CodeMirror-gutter-background {
     background: rgba(220, 20, 60, 0.25);
 }
 
