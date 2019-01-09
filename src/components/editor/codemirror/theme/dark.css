@@ -10,7 +10,7 @@
     font-weight: 500;
     -webkit-font-smoothing: antialiased;
     direction: ltr;
-    line-height: 1.8rem;
+    line-height: 28px;
     font-size: 14px;
     color: white;
     background: rgb(41, 42, 47);
@@ -58,7 +58,7 @@
     font-family: IBM Plex Sans;
     font-size: 14px;
     text-align: right;
-    color: rgb(90, 95, 107);
+    color: rgb(95, 95, 100);
     white-space: nowrap;
 }
 
@@ -106,6 +106,19 @@
 }
 .CodeMirror-foldmarker:hover {
     filter: brightness(1.2);
+}
+
+.CodeMirror-logmarkers {
+    width: 20px;
+}
+.CodeMirror-logmarker-error {
+    position: relative;
+    background: crimson;
+    opacity: 0.5;
+    width: 15px;
+    height: 28px;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
 }
 
 /* 🎨 Cursor */
@@ -411,7 +424,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     background: rgba(220, 20, 60, 0.17);
 }
 .CodeMirror-errorline .CodeMirror-linenumber {
-    color: rgb(214, 66, 95);
+    color: rgb(223, 70, 100);
 }
 
 .CodeMirror-activeline.CodeMirror-errorline {
@@ -423,12 +436,6 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 .CodeMirror-activeline-gutter.CodeMirror-errorline-gutter {
     background: rgba(220, 20, 60, 0.25);
 }
-.CodeMirror-activeline-gutter.CodeMirror-errorline-gutter .CodeMirror-linenumber {
-    color: rgb(235, 74, 106);
-}
-
-
-
 
 /* 🎨 Color scheme */
 

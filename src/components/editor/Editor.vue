@@ -48,7 +48,7 @@ export default Vue.extend( {
             mode: "glsl",
             lineNumbers: true,
             indentUnit: 4,
-            gutters: [ "CodeMirror-linenumbers", "CodeMirror-foldgutter" ],  // define el orden de los items en el margen
+            gutters: [ "CodeMirror-logmarkers", "CodeMirror-linenumbers", "CodeMirror-foldgutter" ],  // define el orden de los items en el margen
             extraKeys: { "Ctrl-Q": "toggleFold", "Ctrl-Space": "autocomplete" },
             styleActiveLine: true,
             matchBrackets: true,
@@ -107,20 +107,26 @@ export default Vue.extend( {
         log( newLog: LogEntry[] ) {
             for ( let logEntry of newLog ) {
                 const line = logEntry.line - 1 // one-based -> zero-based
+
+                const marker = document.createElement( "div" )
+                marker.classList.add( logEntry.type === "error" ? "CodeMirror-logmarker-error" : "CodeMirror-logmarker-warning"  )
+
+                const lineHandle = this.editor.setGutterMarker( line, "CodeMirror-logmarkers", marker )
+
                 this.editor.addLineClass( line, "wrap", logEntry.type === "error" ? "CodeMirror-errorline" : "CodeMirror-warningline" )
                 this.editor.addLineClass( line, "gutter", logEntry.type === "error" ? "CodeMirror-errorline-gutter" : "CodeMirror-warningline-gutter" )
-
-                const lineHandle = this.document.getLineHandle( line )
 
                 // @ts-ignore
                 lineHandle.on( "change", ( lineHandle: CodeMirror.LineHandle, change: CodeMirror.EditorChange ) => {
                     // obtengo el numero de linea actualizado (puede haber cambiado por ediciones)
-                    const currentLineNumber = this.document.getLineNumber( lineHandle )
+                    const currentLine = this.document.getLineNumber( lineHandle )
 
-                    this.editor.removeLineClass( currentLineNumber, "wrap", "CodeMirror-errorline" )
-                    this.editor.removeLineClass( currentLineNumber, "wrap", "CodeMirror-warningline" )
-                    this.editor.removeLineClass( currentLineNumber, "gutter", "CodeMirror-errorline-gutter" )
-                    this.editor.removeLineClass( currentLineNumber, "gutter", "CodeMirror-warningline-gutter" )
+                    this.editor.setGutterMarker( currentLine, "CodeMirror-logmarkers", null )
+
+                    this.editor.removeLineClass( currentLine, "wrap", "CodeMirror-errorline" )
+                    this.editor.removeLineClass( currentLine, "wrap", "CodeMirror-warningline" )
+                    this.editor.removeLineClass( currentLine, "gutter", "CodeMirror-errorline-gutter" )
+                    this.editor.removeLineClass( currentLine, "gutter", "CodeMirror-warningline-gutter" )
                 } )
             }
         }
