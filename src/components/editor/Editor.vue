@@ -23,6 +23,11 @@ export interface LogEntry {
     description: string
 }
 
+enum LogEntryType {
+    Error = "error",
+    Warning = "warning"
+}
+
 export default Vue.extend( {
     name: "editor",
     props: {
@@ -96,6 +101,45 @@ export default Vue.extend( {
                     }
                 }
             }
+        },
+        showLog( entries: Map < number, string[] >, type: LogEntryType ) {
+            entries.forEach( ( descriptions, line ) => {
+                const marker = document.createElement( "div" )
+                marker.className = "CodeMirror-marker-" + type
+
+                const markerTooltip = document.createElement( "ul" )
+                markerTooltip.className = "CodeMirror-marker-tooltip"
+                marker.appendChild( markerTooltip )
+
+                for ( let description of descriptions ) {
+                    const descriptionListItem = document.createElement( "li" )
+                    descriptionListItem.textContent = description
+                    markerTooltip.appendChild( descriptionListItem )
+                }
+
+                marker.addEventListener( "mouseenter", () => {
+                    markerTooltip.classList.add( "visible" )
+                } )
+                marker.addEventListener( "mouseout", () => {
+                    markerTooltip.classList.remove( "visible" )
+                } )
+
+                const lineHandle = this.editor.setGutterMarker( line, "CodeMirror-markers", marker )
+
+                this.editor.addLineClass( line, "wrap", "CodeMirror-markedline-" + type )
+                this.editor.addLineClass( line, "gutter", "CodeMirror-markedline-gutter-" + type )
+
+                // @ts-ignore
+                lineHandle.on( "change", ( lineHandle: CodeMirror.LineHandle, change: CodeMirror.EditorChange ) => {
+                    // obtengo el numero de linea actualizado (puede haber cambiado por ediciones)
+                    const currentLine = this.document.getLineNumber( lineHandle )
+
+                    this.editor.setGutterMarker( currentLine, "CodeMirror-markers", null )
+
+                    this.editor.removeLineClass( currentLine, "wrap", "CodeMirror-markedline-" + type )
+                    this.editor.removeLineClass( currentLine, "gutter", "CodeMirror-markedline-gutter-" + type )
+                } )
+            } )
         }
     },
     watch: {
@@ -105,27 +149,26 @@ export default Vue.extend( {
             }
         },
         log( newLog: LogEntry[] ) {
-            for ( let logEntry of newLog ) {
-                const line = logEntry.line - 1 // one-based -> zero-based
+            const errors: Map < number, string[] > = new Map()
+            const warnings: Map < number, string[] > = new Map()
 
-                const marker = document.createElement( "div" )
-                marker.className = "CodeMirror-marker-" + logEntry.type
+            // separo el log en errores y warnings, agrupandolos por nro. de linea
+            for ( let entry of newLog ) {
+                const target = entry.type === LogEntryType.Error ? errors : warnings
+                const line = entry.line - 1 // one-based -> zero-based
+                const lineEntries = target.get( line )
 
-                const lineHandle = this.editor.setGutterMarker( line, "CodeMirror-markers", marker )
+                if ( lineEntries === undefined ) {
+                    target.set( line, [ entry.description ] )
+                } else {
+                    lineEntries.push( entry.description )
+                }
+            }
 
-                this.editor.addLineClass( line, "wrap", "CodeMirror-markedline-" + logEntry.type )
-                this.editor.addLineClass( line, "gutter", "CodeMirror-markedline-gutter-" + logEntry.type )
+            this.showLog( errors, LogEntryType.Error )
 
-                // @ts-ignore
-                lineHandle.on( "change", ( lineHandle: CodeMirror.LineHandle, change: CodeMirror.EditorChange ) => {
-                    // obtengo el numero de linea actualizado (puede haber cambiado por ediciones)
-                    const currentLine = this.document.getLineNumber( lineHandle )
-
-                    this.editor.setGutterMarker( currentLine, "CodeMirror-markers", null )
-
-                    this.editor.removeLineClass( currentLine, "wrap", "CodeMirror-markedline-" + logEntry.type )
-                    this.editor.removeLineClass( currentLine, "gutter", "CodeMirror-markedline-gutter-" + logEntry.type )
-                } )
+            if ( errors.size === 0 ) {
+                this.showLog( warnings, LogEntryType.Warning )
             }
         }
     }

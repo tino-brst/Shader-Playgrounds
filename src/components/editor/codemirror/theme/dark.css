@@ -13,7 +13,7 @@
     line-height: 28px;
     font-size: 14px;
     color: white;
-    background: rgb(41, 42, 47);
+    background: rgb(36, 38, 40);
     overflow: hidden;
 }
 
@@ -23,7 +23,7 @@
     padding: 4px 0; /* Vertical padding around content */
 }
 .CodeMirror pre {
-    padding: 0 4px; /* Horizontal padding of content */
+    padding: 0 6px; /* Horizontal padding of content */
 }
 
 .CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
@@ -33,13 +33,13 @@
 /* 🎨 Active line */
 
 .CodeMirror-activeline {
-    background: rgb(45, 48, 56);
+    background: rgba( 255, 255, 255, 0.05 );
 }
 .CodeMirror-activeline .CodeMirror-gutter-background {
-    background: rgb(45, 48, 56);
+    background: rgba( 255, 255, 255, 0.05 );
 }
 .CodeMirror-activeline .CodeMirror-linenumber {
-    color: rgb(200, 200, 200);
+    color: rgb(170, 170, 170);
 }
 
 /* 🎨 Gutters */
@@ -47,7 +47,7 @@
 .CodeMirror-gutters {
     left: 0; /* ⚠️ sacar y ver si no se arregla con PADDING 👆🏼 */
     border: none;
-    background: rgb(41, 42, 47);
+    background: rgb(36, 38, 40);
     white-space: nowrap;
 }
 
@@ -58,7 +58,7 @@
     font-family: IBM Plex Sans;
     font-size: 14px;
     text-align: right;
-    color: rgb(95, 95, 100);
+    color: rgb(95, 95, 95);
     white-space: nowrap;
 }
 
@@ -109,15 +109,87 @@
 }
 
 .CodeMirror-markers {
-    width: 20px;
+    width: 22px;
 }
-.CodeMirror-marker-error {
+.CodeMirror-marker-error,
+.CodeMirror-marker-warning {
     position: relative;
-    background: crimson;
-    width: 15px;
+    width: 20px;
     height: 28px;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+.CodeMirror-marker-error::before {
+    display: block;
+    position: absolute;
+    left: 6px;
+    width: 14px;
+    height: 14px;
+    content: "";
+    mask: url("./icons/error.svg");
+    mask-size: cover;
+    background: rgba(218, 47, 81, 0.8);
+}
+.CodeMirror-marker-warning::before {
+    display: block;
+    position: absolute;
+    left: 6px;
+    width: 15px;
+    height: 13px;
+    content: "";
+    mask: url("./icons/warning.svg");
+    mask-size: cover;
+    background: orange;
+}
+
+.CodeMirror-marker-tooltip {
+    display: block;
+    margin: 0;
+    padding: 2px 8px 4px 8px;
+    list-style: none;
+    position: absolute;
+    pointer-events: none;
+    left: 64px;
+    top: calc(100% + 2px);
+    width: fit-content;
+    height: fit-content;
+    background: rgb( 50, 50, 50 );
+    color: white;
+    font-family: IBM Plex Sans;
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    line-height: 21px;
+    border-radius: 3px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    border: 1px solid rgb( 30, 30, 30 );
+    opacity: 0;
+    transform: translateY( -2px );
+    transition: all 0.1s;
+}
+.CodeMirror-marker-tooltip.visible {
+    opacity: 1;
+    transform: none;
+}
+.CodeMirror-marker-tooltip > li {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.CodeMirror-marker-error .CodeMirror-marker-tooltip > li::before,
+.CodeMirror-marker-warning .CodeMirror-marker-tooltip > li::before {
+    content: "•";
+    font-size: 20px;
+    margin-right: 6px;
+    padding-bottom: 1px;
+}
+.CodeMirror-marker-error .CodeMirror-marker-tooltip > li::before {
+    color: rgb(187, 44, 72);
+}
+.CodeMirror-marker-warning .CodeMirror-marker-tooltip > li::before {
+    color: orange;
 }
 
 /* 🎨 Cursor */
@@ -141,7 +213,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 /* 🎨 Selection */
 
 .CodeMirror-selected {
-    background: rgba(179, 199, 255, 0.12);
+    background: rgba( 255, 255, 255, 0.1);
 }
 
 /* 🎨 Hints Widget */
@@ -292,7 +364,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     width: 16px;
     height: 16px;
     content: "";
-    mask: url("./icons/search-content.svg");
+    mask: url("./icons/local.svg");
     mask-size: cover;
     background-color: rgb(105, 117, 133);
 }
@@ -394,7 +466,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     width: 16px;
     height: 16px;
     content: "";
-    mask: url("./icons/repeat.svg");
+    mask: url("./icons/iteration.svg");
     mask-size: cover;
     background-color: rgb(74, 65, 129);
 }
@@ -409,7 +481,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     width: 15px;
     height: 15px;
     content: "";
-    mask: url("./icons/option-symbol.svg");
+    mask: url("./icons/selection.svg");
     mask-size: cover;
     background-color: rgb(55, 47, 104);
 }
@@ -417,13 +489,14 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 /* Errors & Warnings */
 
 .CodeMirror-markedline-error {
-    background: rgba(220, 20, 60, 0.17);
+    background: rgba(220, 20, 60, 0.15);
 }
 .CodeMirror-markedline-error .CodeMirror-gutter-background {
-    background: rgba(220, 20, 60, 0.17);
+    background: rgba(220, 20, 60, 0.15);
+
 }
 .CodeMirror-markedline-error .CodeMirror-linenumber {
-    color: rgb(223, 70, 100);
+    color: rgba(199, 61, 89, 0.7);
 }
 
 .CodeMirror-activeline.CodeMirror-markedline-error {
@@ -431,6 +504,30 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 }
 .CodeMirror-activeline.CodeMirror-markedline-error .CodeMirror-gutter-background {
     background: rgba(220, 20, 60, 0.25);
+}
+.CodeMirror-activeline.CodeMirror-markedline-error .CodeMirror-linenumber{
+    color: rgb(199, 61, 89);
+}
+
+.CodeMirror-markedline-warning {
+    background: rgba(255, 166, 0, 0.1);
+}
+.CodeMirror-markedline-warning .CodeMirror-gutter-background {
+    background: rgba(255, 166, 0, 0.1);
+}
+.CodeMirror-markedline-warning .CodeMirror-linenumber {
+    color: rgba(255, 166, 0, 0.6);
+}
+
+.CodeMirror-activeline.CodeMirror-markedline-warning {
+    background: rgba(255, 166, 0, 0.15);
+
+}
+.CodeMirror-activeline.CodeMirror-markedline-warning .CodeMirror-gutter-background {
+    background: rgba(255, 166, 0, 0.15);
+}
+.CodeMirror-activeline.CodeMirror-markedline-warning .CodeMirror-linenumber{
+    color: rgba(255, 166, 0, 1);
 }
 
 /* 🎨 Color scheme */
