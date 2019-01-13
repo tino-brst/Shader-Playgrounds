@@ -1,5 +1,10 @@
 <template>
-    <div class="editor" ref="editor"></div>
+    <div
+        class="editor"
+        ref="editor"
+        @keydown.alt="enableUniformsButtons()"
+        @keyup="disableUniformsButtons()"
+    />
 </template>
 
 <script lang="ts">
@@ -17,15 +22,25 @@ import "./codemirror/addon/fold/comment-fold"
 import "./codemirror/addon/hint/show-hint"
 import "./codemirror/addon/hint/glsl-hint"
 
+enum LogEntryType {
+    Error = "error",
+    Warning = "warning"
+}
+
 export interface LogEntry {
     type: "error" | "warning",
     line: number,
     description: string
 }
-
-enum LogEntryType {
-    Error = "error",
-    Warning = "warning"
+export interface UniformEditor {
+    target: string
+    type: "int" | "float"
+    locked: boolean
+    // setValue: ( value: any ) => void
+}
+interface Range {
+    from: CodeMirror.Position
+    to: CodeMirror.Position
 }
 
 export default Vue.extend( {
@@ -38,11 +53,17 @@ export default Vue.extend( {
         log: {
             type: Array as () => LogEntry[],
             default: () => []
+        },
+        uniformsEditors: {
+            type: Array as () => UniformEditor[],
+            default: () => []
         }
     },
     data: () => ( {
         editor: {} as CodeMirror.Editor,
-        document: {} as CodeMirror.Doc
+        document: {} as CodeMirror.Doc,
+        uniforms: new Map() as Map< Range, UniformEditor >,
+        uniformsPickers: [] as CodeMirror.TextMarker[]
     } ),
     model: {
         event: "change"
@@ -68,6 +89,7 @@ export default Vue.extend( {
 
         this.editor.on( "change", this.updateValue )
         this.editor.on( "keydown", this.handleShowHints )
+        this.editor.focus()
     },
     methods: {
         updateValue() {
@@ -140,6 +162,40 @@ export default Vue.extend( {
                     this.editor.removeLineClass( currentLine, "gutter", "CodeMirror-markedline-gutter-" + type )
                 } )
             } )
+        },
+        enableUniformsButtons() {
+            this.uniformsPickers = []
+
+            this.uniforms.forEach( ( editor, range ) => {
+                const uniformButton = document.createElement( "span" )
+                uniformButton.className = "uniform-button"
+
+                const nameParts = editor.target.split( "." )
+                const identifier = document.createElement( "span" )
+                identifier.className = "cm-identifier editable"
+                identifier.innerText = nameParts[ 0 ]
+                uniformButton.appendChild( identifier )
+
+                if ( nameParts.length > 1 ) {
+                    const punctuation = document.createElement( "span" )
+                    punctuation.className = "cm-punctuation editable"
+                    punctuation.innerText = "."
+                    uniformButton.appendChild( punctuation )
+
+                    const attribute = document.createElement( "span" )
+                    attribute.className = "cm-attribute editable"
+                    attribute.innerText = nameParts[ 1 ]
+                    uniformButton.appendChild( attribute )
+                }
+
+                const widget = this.document.markText( range.from, range.to, { replacedWith: uniformButton } )
+                this.uniformsPickers.push( widget )
+            } )
+        },
+        disableUniformsButtons() {
+            for ( let widget of this.uniformsPickers ) {
+                widget.clear()
+            }
         }
     },
     watch: {
@@ -170,6 +226,77 @@ export default Vue.extend( {
             if ( errors.size === 0 ) {
                 this.showLog( warnings, LogEntryType.Warning )
             }
+        },
+        uniformsEditors( newUniformsEditors: UniformEditor[] ) {
+            // ⚠️ contemplar que se deberian poder editar solo cuando no hay errores
+
+            const uniformsEditors: Map <string, UniformEditor> = new Map()
+            const uniformsNames: Array <string> = []
+
+            for ( let editor of newUniformsEditors ) {
+                // mapa para acceso rapido de editores
+                uniformsEditors.set( editor.target, editor )
+                // nombres de uniforms desarmados:
+                //  • "viewMatrix"     -> [ "viewMatrix" ]
+                //  • "light.position" -> [ "light", "position" ]
+                uniformsNames.push( editor.target )
+            }
+
+            // los separo en "basicos" y "estructuras" (con sus componentes)
+            const basic: string[] = [] // [ "viewMatrix", ... ]
+            const structs: Map < string, string[] > = new Map() // "light" -> [ "position", "color", ... ]
+
+            for ( let name of uniformsNames ) {
+                const nameParts = name.split( "." )
+                if ( nameParts.length === 1 ) {
+                    // [ "viewMatrix" ]
+                    const identifier = nameParts[ 0 ]
+                    basic.push( identifier )
+                } else {
+                    // [ "light", "position" ]
+                    const structIdentifier = nameParts[ 0 ]
+                    const structAttribute = nameParts[ 1 ]
+                    const structAttributes = structs.get( structIdentifier )
+                    if ( structAttributes !== undefined ) {
+                        structAttributes.push( structAttribute )
+                    } else {
+                        structs.set( structIdentifier, [ structAttribute ] )
+                    }
+                }
+            }
+
+            // encuentro los rangos en el codigo que ocupan los uniforms
+            this.uniforms.clear()
+            const lineCount = this.document.lineCount()
+
+            for ( let lineNumber = 0; lineNumber < lineCount; lineNumber ++ ) {
+                const lineTokens = this.editor.getLineTokens( lineNumber )
+                for ( let tokenNumber = 0; tokenNumber < lineTokens.length; tokenNumber ++ ) {
+                    const token = lineTokens[ tokenNumber ]
+                    if ( token.type === "identifier" ) {
+                        if ( basic.includes( token.string ) ) {
+                            const from: CodeMirror.Position = { line: lineNumber, ch: token.start }
+                            const to: CodeMirror.Position   = { line: lineNumber, ch: token.end }
+                            this.uniforms.set( { from, to }, uniformsEditors.get( token.string ) as UniformEditor )
+                        } else {
+                            const structComponents = structs.get( token.string )
+                            if ( structComponents !== undefined ) {
+                                const possibleAttribute = lineTokens[ tokenNumber + 2 ] // [ ... "light", ".", >"position"< ... ]
+                                if ( possibleAttribute && possibleAttribute.type === "attribute" && structComponents.includes( possibleAttribute.string ) ) {
+                                    const from: CodeMirror.Position = { line: lineNumber, ch: token.start }
+                                    const to: CodeMirror.Position   = { line: lineNumber, ch: possibleAttribute.end }
+                                    this.uniforms.set( { from, to }, uniformsEditors.get( token.string + "." + possibleAttribute.string ) as UniformEditor )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // resalto rangos encontrados
+            this.uniforms.forEach( ( editor, range ) => {
+                this.document.markText( range.from, range.to, { className: "editable" } )
+            } )
         }
     }
 } )

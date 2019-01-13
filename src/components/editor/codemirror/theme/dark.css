@@ -204,10 +204,11 @@
 /* 🎨 Matching brackets */
 
 div.CodeMirror span.CodeMirror-matchingbracket {
-    display: inline-block;
     color: white;
     background: rgba(255, 255, 255, 0.15);
     border-radius: 2px;
+    padding: 2px 0px;
+    font-weight: bold;
 }
 
 /* 🎨 Selection */
@@ -551,6 +552,47 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 .cm-s-default .cm-comment { color: rgb(108, 121, 134); font-style: italic; }
 
 .CodeMirror-composing { border-bottom: 2px solid; }
+
+/* 🎨 Editable Uniforms */
+
+.cm-identifier.editable,
+.cm-punctuation.editable,
+.cm-attribute.editable {
+    text-decoration: underline solid;
+    text-decoration-color: gray;
+}
+
+.uniform-button {
+    border-radius: 3px;
+    cursor: pointer;
+    padding: 2px 0px;
+    transition: all 0.08s;
+    user-select: none;
+}
+
+.uniform-button:hover {
+    background: rgb(65, 105, 225);
+}
+.uniform-button:hover .cm-identifier {
+    color: white;
+    text-decoration-color: rgb(122, 143, 190);
+}
+.uniform-button:hover .cm-punctuation {
+    color: rgb(122, 143, 190);
+    text-decoration-color: rgb(122, 143, 190);
+}
+.uniform-button:hover .cm-attribute {
+    color: rgb(221, 227, 241);
+    text-decoration-color: rgb(122, 143, 190);
+}
+.uniform-button:hover:active {
+    background: rgba(65, 105, 225, 1);
+}
+
+.uniform-button:active {
+    filter: brightness(0.9);
+}
+
 
 /* 🛑 Do not change */
 

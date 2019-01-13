@@ -5,36 +5,29 @@ struct Light {
     vec3 color;
 };
 
+struct Surface {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+};
+
 uniform mat4 viewMatrix;
-uniform mat3 superMatrix;
-uniform vec3 potatoPosition;
 uniform Light light;
 uniform Surface surface;
 
-varying vec4 fragmentPosition;
+varying vec3 fragmentPosition;
 varying vec3 fragmentNormal;
-
-int decimal = 176;
-int octal = 0176;
-int hex = 0x176;
-
-float a = 1.;
-float a = 0.3421;
-float a = 2e4;
-float a = 2.45e-2;
-float a = .12;
 
 void main() {
 
     /* Modelo de Iluminacion de Phong */
 
-    bool biggerThanZero = ( 2 > 4 ) ? true : false;
-
     // Calculos preliminares
-    vec3 L = normalize(vec3(viewMatrix * vec4(light.position, 1.0)) - vec3(fragmentPosition));
+    vec3 L = normalize(vec3(viewMatrix * vec4(light.position, 1.0)) - fragmentPosition);
     vec3 N = fragmentNormal;
     vec3 R = reflect(-L, N);
-    vec3 V = normalize(-vec3(fragmentPosition));
+    vec3 V = normalize(-fragmentPosition);  // punto de vista - posicion del fragmento (en coordenadas de la camara la camara esta en el origen (0,0,0))
     float LdotN = max(dot(L, N), 0.0);
     float RdotV = max(dot(R, V), 0.0);
 

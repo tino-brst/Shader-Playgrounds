@@ -1,12 +1,12 @@
 <template>
     <div id="app">
-        <v-editor v-model="code" :log="log"></v-editor>
+        <v-editor v-model="code" :log="log" :uniforms-editors="uniformsEditors"></v-editor>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
-import Editor, { LogEntry } from "./components/editor/Editor.vue"
+import Editor, { LogEntry, UniformEditor } from "./components/editor/Editor.vue"
 import sampleCode from "./sample-code"
 
 export default Vue.extend( {
@@ -16,7 +16,8 @@ export default Vue.extend( {
     },
     data: () => ( {
         code: sampleCode,
-        log: [] as LogEntry[]
+        log: [] as LogEntry[],
+        uniformsEditors: [] as UniformEditor[]
     } ),
     mounted() {
         // 📝 el log va a tener entradas tanto para el shader de vertices como de fragmentos
@@ -28,6 +29,15 @@ export default Vue.extend( {
             // { type: "warning", line: 15, description: "'foofoo' - just be careful" },
             // { type: "warning", line: 15, description: "'barbar' - just be careful okay?" },
             // { type: "warning", line: 8, description: "'foobar' - just be careful okay?" }
+        ]
+        this.uniformsEditors = [
+            { type: "int", target: "viewMatrix", locked: false },
+            { type: "int", target: "light.position", locked: false },
+            { type: "int", target: "light.color", locked: false },
+            { type: "int", target: "surface.ambient", locked: false },
+            { type: "int", target: "surface.diffuse", locked: false },
+            { type: "int", target: "surface.specular", locked: false },
+            { type: "int", target: "surface.shininess", locked: false }
         ]
     }
 } )
