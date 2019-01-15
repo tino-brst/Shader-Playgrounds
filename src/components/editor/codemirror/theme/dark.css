@@ -153,14 +153,15 @@
     top: calc(100% + 2px);
     width: fit-content;
     height: fit-content;
-    background: rgb( 70, 70, 70 );
+    background: rgb( 50, 50, 50 );
     color: white;
     font-family: IBM Plex Sans;
     font-size: 13px;
     letter-spacing: 0.05em;
     line-height: 21px;
     border-radius: 6px;
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3), inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
+    /* box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); */
     box-sizing: border-box;
     border: 1px solid rgb( 30, 30, 30 );
     opacity: 0;
@@ -229,12 +230,12 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 }
 
 .CodeMirror-hints-list-container {
-    max-height: 10rem;
+    max-height: 10.5rem;
     overflow: auto;
     border-radius: 6px;
     background: rgb( 50, 50, 50 );
     border: 1px solid rgb( 30, 30, 30 );
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3), inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
     box-sizing: border-box;
 }
 .CodeMirror-hints.docs-visible > .CodeMirror-hints-list-container {
@@ -270,7 +271,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     padding: 4px 8px;
     user-select: none;
     background: rgb(70, 70, 70);
-    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3), inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
     border: 1px solid rgb( 30, 30, 30 );
     border-bottom: none;
     border-radius: 6px 6px 0 0;
@@ -563,10 +564,9 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 
 /* 🎨 Pickers */
 
-
 .picker-button {
     padding: 2px 0px;
-    border-radius: 3px;
+    border-radius: 4px;
     transition: background 0.1s;
     cursor: pointer;
 }
@@ -574,11 +574,12 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     background: rgba(100, 148, 237, 0.3);
 }
 
-.picker-container {
-    position: absolute;
-    width: 0px;
-    height: 0px;
-    z-index: 10;
+.picker-enter-active, .picker-leave-active {
+    transition: opacity .1s, transform .1s;
+}
+.picker-enter, .picker-leave-to {
+    opacity: 0;
+    transform: translateY(2px);
 }
 
 /* 🛑 Do not change */

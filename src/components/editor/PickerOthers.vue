@@ -21,8 +21,6 @@ export default Vue.extend( {
     position: relative;
     width: fit-content;
     height: fit-content;
-    border-radius: 3px;
-    opacity: 0.8;
-    background: firebrick;
+    margin: 0px 6px;
 }
 </style>

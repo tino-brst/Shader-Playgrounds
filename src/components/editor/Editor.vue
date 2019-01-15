@@ -1,8 +1,10 @@
 <template>
     <div class="editor" ref="editor" @keydown.alt="enablePickerButtons" @keyup="disablePickerButtons">
-        <v-picker-container v-show="showPicker" :position="uniformSelectedPosition" ref="pickerContainer" >
-            <component :is="pickerTypeComponent" :editor="uniformSelectedEditor"></component>
-        </v-picker-container>
+        <transition name="picker">
+            <v-picker-container v-show="showPicker" :position="uniformSelectedPosition" ref="pickerContainer" >
+                <component :is="pickerTypeComponent" :editor="uniformSelectedEditor"></component>
+            </v-picker-container>
+        </transition>
     </div>
 </template>
 
@@ -104,6 +106,7 @@ export default Vue.extend( {
 
         this.editor.on( "change", this.updateValue )
         this.editor.on( "keydown", this.handleShowHints )
+        this.editor.on( "scroll", () => { this.showPicker = false } )
         this.editor.focus()
 
         this.editor.getScrollerElement().appendChild( ( this.$refs.pickerContainer as Vue ).$el )
@@ -188,8 +191,9 @@ export default Vue.extend( {
                 pickerButton.innerText = uniformEditor.target
                 pickerButton.addEventListener( "click", ( event ) => {
                     const bounds = pickerButton.getBoundingClientRect()
-                    const x = bounds.left + bounds.width / 2
-                    const y = this.editor.getScrollInfo().top + bounds.top + bounds.height / 2
+                    const scrollInfo = this.editor.getScrollInfo()
+                    const x = scrollInfo.left + bounds.left + bounds.width / 2
+                    const y = scrollInfo.top + bounds.top + bounds.height / 2
 
                     this.uniformSelectedPosition = { x, y }
                     this.uniformSelectedEditor = uniformEditor
