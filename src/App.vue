@@ -31,13 +31,13 @@ export default Vue.extend( {
             // { type: "warning", line: 8, description: "'foobar' - just be careful okay?" }
         ]
         this.uniformsEditors = [
-            { type: "int", target: "viewMatrix", locked: false },
-            { type: "int", target: "light.position", locked: false },
-            { type: "int", target: "light.color", locked: false },
-            { type: "int", target: "surface.ambient", locked: false },
-            { type: "int", target: "surface.diffuse", locked: false },
-            { type: "int", target: "surface.specular", locked: false },
-            { type: "int", target: "surface.shininess", locked: false }
+            { type: "mat4", target: "viewMatrix", locked: false },
+            { type: "vec3", target: "light.position", locked: false },
+            { type: "vec3", target: "light.color", locked: false },
+            { type: "vec3", target: "surface.ambient", locked: false },
+            { type: "vec3", target: "surface.diffuse", locked: false },
+            { type: "vec3", target: "surface.specular", locked: false },
+            { type: "float", target: "surface.shininess", locked: false }
         ]
     }
 } )

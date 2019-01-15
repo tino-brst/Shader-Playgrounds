@@ -14,7 +14,6 @@
     font-size: 14px;
     color: white;
     background: rgb(41, 42, 47);
-    overflow: hidden;
 }
 
 /* 🎨 Padding */
@@ -562,37 +561,25 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     text-decoration-color: gray;
 }
 
-.uniform-button {
-    border-radius: 3px;
-    cursor: pointer;
+/* 🎨 Pickers */
+
+
+.picker-button {
     padding: 2px 0px;
-    transition: all 0.08s;
-    user-select: none;
+    border-radius: 3px;
+    transition: background 0.1s;
+    cursor: pointer;
+}
+.picker-button:hover {
+    background: rgba(100, 148, 237, 0.3);
 }
 
-.uniform-button:hover {
-    background: rgb(65, 105, 225);
+.picker-container {
+    position: absolute;
+    width: 0px;
+    height: 0px;
+    z-index: 10;
 }
-.uniform-button:hover .cm-identifier {
-    color: white;
-    text-decoration-color: rgb(122, 143, 190);
-}
-.uniform-button:hover .cm-punctuation {
-    color: rgb(122, 143, 190);
-    text-decoration-color: rgb(122, 143, 190);
-}
-.uniform-button:hover .cm-attribute {
-    color: rgb(221, 227, 241);
-    text-decoration-color: rgb(122, 143, 190);
-}
-.uniform-button:hover:active {
-    background: rgba(65, 105, 225, 1);
-}
-
-.uniform-button:active {
-    filter: brightness(0.9);
-}
-
 
 /* 🛑 Do not change */
 

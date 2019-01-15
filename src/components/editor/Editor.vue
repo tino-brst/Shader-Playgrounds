@@ -1,14 +1,16 @@
 <template>
-    <div
-        class="editor"
-        ref="editor"
-        @keydown.alt="enableUniformsButtons()"
-        @keyup="disableUniformsButtons()"
-    />
+    <div class="editor" ref="editor" @keydown.alt="enablePickerButtons" @keyup="disablePickerButtons">
+        <v-picker-container v-show="showPicker" :position="uniformSelectedPosition" ref="pickerContainer" >
+            <component :is="pickerTypeComponent" :editor="uniformSelectedEditor"></component>
+        </v-picker-container>
+    </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
+import PickerContainer from "./PickerContainer.vue"
+import PickerOthers from "./PickerOthers.vue"
+import PickerFloat from "./PickerFloat.vue"
 import CodeMirror from "./codemirror/lib/codemirror"
 import "./codemirror/mode/glsl/glsl"
 import "./codemirror/addon/selection/active-line"
@@ -34,17 +36,22 @@ export interface LogEntry {
 }
 export interface UniformEditor {
     target: string
-    type: "int" | "float"
+    type: "int" | "float" | "mat4" | "vec3"
     locked: boolean
     // setValue: ( value: any ) => void
 }
-interface Range {
+export interface Range {
     from: CodeMirror.Position
     to: CodeMirror.Position
 }
 
 export default Vue.extend( {
     name: "editor",
+    components: {
+        "v-picker-container": PickerContainer,
+        "v-picker-float": PickerFloat,
+        "v-picker-others": PickerOthers
+    },
     props: {
         value: {
             type: String,
@@ -63,8 +70,16 @@ export default Vue.extend( {
         editor: {} as CodeMirror.Editor,
         document: {} as CodeMirror.Doc,
         uniforms: new Map() as Map< Range, UniformEditor >,
-        uniformsPickers: [] as CodeMirror.TextMarker[]
+        pickerButtons: [] as CodeMirror.TextMarker[],
+        uniformSelectedPosition: { x: 0, y: 0 },
+        uniformSelectedEditor: {} as UniformEditor,
+        showPicker: false
     } ),
+    computed: {
+        pickerTypeComponent(): string {
+            return ( this.uniformSelectedEditor && this.uniformSelectedEditor.type === "float" ) ? "v-picker-float" : "v-picker-others"
+        }
+    },
     model: {
         event: "change"
     },
@@ -90,6 +105,8 @@ export default Vue.extend( {
         this.editor.on( "change", this.updateValue )
         this.editor.on( "keydown", this.handleShowHints )
         this.editor.focus()
+
+        this.editor.getScrollerElement().appendChild( ( this.$refs.pickerContainer as Vue ).$el )
     },
     methods: {
         updateValue() {
@@ -163,38 +180,39 @@ export default Vue.extend( {
                 } )
             } )
         },
-        enableUniformsButtons() {
-            this.uniformsPickers = []
+        enablePickerButtons() {
+            this.pickerButtons = []
+            this.uniforms.forEach( ( uniformEditor, range ) => {
+                const pickerButton = document.createElement( "span" )
+                pickerButton.className = "picker-button"
+                pickerButton.innerText = uniformEditor.target
+                pickerButton.addEventListener( "click", ( event ) => {
+                    const bounds = pickerButton.getBoundingClientRect()
+                    const x = bounds.left + bounds.width / 2
+                    const y = this.editor.getScrollInfo().top + bounds.top + bounds.height / 2
 
-            this.uniforms.forEach( ( editor, range ) => {
-                const uniformButton = document.createElement( "span" )
-                uniformButton.className = "uniform-button"
+                    this.uniformSelectedPosition = { x, y }
+                    this.uniformSelectedEditor = uniformEditor
+                    this.showPicker = true
 
-                const nameParts = editor.target.split( "." )
-                const identifier = document.createElement( "span" )
-                identifier.className = "cm-identifier editable"
-                identifier.innerText = nameParts[ 0 ]
-                uniformButton.appendChild( identifier )
-
-                if ( nameParts.length > 1 ) {
-                    const punctuation = document.createElement( "span" )
-                    punctuation.className = "cm-punctuation editable"
-                    punctuation.innerText = "."
-                    uniformButton.appendChild( punctuation )
-
-                    const attribute = document.createElement( "span" )
-                    attribute.className = "cm-attribute editable"
-                    attribute.innerText = nameParts[ 1 ]
-                    uniformButton.appendChild( attribute )
-                }
-
-                const widget = this.document.markText( range.from, range.to, { replacedWith: uniformButton } )
-                this.uniformsPickers.push( widget )
+                    document.addEventListener( "mousedown", this.handleClicksOutside )
+                } )
+                const button = this.document.markText( range.from, range.to, { replacedWith: pickerButton } )
+                this.pickerButtons.push( button )
             } )
         },
-        disableUniformsButtons() {
-            for ( let widget of this.uniformsPickers ) {
-                widget.clear()
+        disablePickerButtons( event: KeyboardEvent ) {
+            if ( event.key === "Alt" ) {
+                for ( let button of this.pickerButtons ) {
+                    button.clear()
+                }
+            }
+        },
+        handleClicksOutside( event: MouseEvent ) {
+            const clickableArea = ( this.$refs.pickerContainer as Vue ).$el as Element
+            if ( clickableArea && ! clickableArea.contains( event.target as Node ) ) {
+                this.showPicker = false
+                document.removeEventListener( "mousedown", this.handleClicksOutside )
             }
         }
     },
