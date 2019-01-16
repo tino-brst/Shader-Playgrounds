@@ -1,8 +1,8 @@
 <template>
     <div class="editor" ref="editor" @keydown.alt="enablePickerButtons" @keyup="disablePickerButtons">
         <transition name="picker">
-            <v-picker-container v-show="showPicker" :position="uniformSelectedPosition" ref="pickerContainer" >
-                <component :is="pickerTypeComponent" :editor="uniformSelectedEditor"></component>
+            <v-picker-container :show="showPicker" :targetBounds="uniformSelectedBounds" ref="pickerContainer" >
+                <component :is="pickerTypeComponent" :editor="uniformSelectedEditor" ref="picker"></component>
             </v-picker-container>
         </transition>
     </div>
@@ -72,8 +72,8 @@ export default Vue.extend( {
         editor: {} as CodeMirror.Editor,
         document: {} as CodeMirror.Doc,
         uniforms: new Map() as Map< Range, UniformEditor >,
-        pickerButtons: [] as CodeMirror.TextMarker[],
-        uniformSelectedPosition: { x: 0, y: 0 },
+        pickerButtonsMarks: [] as CodeMirror.TextMarker[],
+        uniformSelectedBounds: {} as { top: number, left: number, width: number, height: number },
         uniformSelectedEditor: {} as UniformEditor,
         showPicker: false
     } ),
@@ -183,42 +183,53 @@ export default Vue.extend( {
             } )
         },
         enablePickerButtons() {
-            this.pickerButtons = []
+            this.pickerButtonsMarks = []
             this.uniforms.forEach( ( uniformEditor, range ) => {
+                const uniformNameParts = uniformEditor.target.split( "." )
+
                 const pickerButton = document.createElement( "span" )
                 pickerButton.className = "picker-button"
-                pickerButton.innerText = uniformEditor.target
-                pickerButton.addEventListener( "click", ( event ) => {
-                    const scroll = this.editor.getScrollerElement()
-                    let offsetElement = pickerButton.offsetParent as HTMLElement
-                    let offsetLeft = pickerButton.offsetLeft
-                    let offsetTop = pickerButton.offsetTop
-                    while ( offsetElement !== scroll ) {
-                        offsetLeft += offsetElement.offsetLeft
-                        offsetTop += offsetElement.offsetTop
-                        offsetElement = offsetElement.offsetParent as HTMLElement
-                    }
-                    const bounds = pickerButton.getBoundingClientRect()
-                    const x = offsetLeft + bounds.width / 2
-                    const y = offsetTop + bounds.height / 2
+                pickerButton.innerHTML = `<span class="cm-identifier editable">${ uniformNameParts[ 0 ] }</span>`
+                pickerButton.innerHTML += uniformNameParts[ 1 ] ? `<span class="cm-punctuation editable">.</span><span class="cm-attribute editable">${ uniformNameParts[ 1 ] }</span>` : ""
+                pickerButton.addEventListener( "click", event => this.handlePickerButtonClick( pickerButton, uniformEditor ) )
 
-                    this.uniformSelectedPosition = { x, y }
-                    this.uniformSelectedEditor = uniformEditor
-                    this.showPicker = true
-
-                    document.addEventListener( "mousedown", this.handleClicksOutside )
-                    this.editor.on( "scroll", this.handleScroll )
-                } )
-                const button = this.document.markText( range.from, range.to, { replacedWith: pickerButton } )
-                this.pickerButtons.push( button )
+                const buttonMark = this.document.markText( range.from, range.to, { replacedWith: pickerButton } )
+                this.pickerButtonsMarks.push( buttonMark )
             } )
         },
         disablePickerButtons( event: KeyboardEvent ) {
             if ( event.key === "Alt" ) {
-                for ( let button of this.pickerButtons ) {
+                for ( let button of this.pickerButtonsMarks ) {
                     button.clear()
                 }
             }
+        },
+        handlePickerButtonClick( target: HTMLElement, uniformEditor: UniformEditor ) {
+            const scroll = this.editor.getScrollerElement()
+            let offsetElement = target.offsetParent as HTMLElement
+            let offsetLeft = target.offsetLeft
+            let offsetTop = target.offsetTop
+
+            while ( offsetElement !== scroll ) {
+                offsetLeft += offsetElement.offsetLeft
+                offsetTop += offsetElement.offsetTop
+                offsetElement = offsetElement.offsetParent as HTMLElement
+            }
+
+            const bounds = target.getBoundingClientRect()
+
+            const left = offsetLeft
+            const top = offsetTop
+            const width = bounds.width
+            const height = bounds.height
+
+            this.uniformSelectedBounds = { left, top, width, height }
+            this.uniformSelectedEditor = uniformEditor
+
+            this.showPicker = true
+
+            document.addEventListener( "mousedown", this.handleClicksOutside )
+            this.editor.on( "scroll", this.handleScroll )
         },
         handleClicksOutside( event: MouseEvent ) {
             const clickableArea = ( this.$refs.pickerContainer as Vue ).$el as Element

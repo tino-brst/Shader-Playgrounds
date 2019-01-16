@@ -574,14 +574,6 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     background: rgba(100, 148, 237, 0.3);
 }
 
-.picker-enter-active, .picker-leave-active {
-    transition: opacity .1s, transform .1s;
-}
-.picker-enter, .picker-leave-to {
-    opacity: 0;
-    transform: translateY(2px);
-}
-
 /* 🛑 Do not change */
 
 /* The rest of this file contains styles related to the mechanics of
