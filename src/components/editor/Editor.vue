@@ -2,7 +2,7 @@
     <div class="editor" ref="editor" @keydown.alt="enablePickerButtons" @keyup="disablePickerButtons">
         <transition name="picker">
             <v-picker-container :show="showPicker" :targetBounds="uniformSelectedBounds" ref="pickerContainer" >
-                <component :is="pickerTypeComponent" :editor="uniformSelectedEditor" ref="picker"></component>
+                <!-- <component :is="pickerTypeComponent" :editor="uniformSelectedEditor" ref="picker"></component> -->
             </v-picker-container>
         </transition>
     </div>
@@ -50,9 +50,9 @@ export interface Range {
 export default Vue.extend( {
     name: "editor",
     components: {
-        "v-picker-container": PickerContainer,
-        "v-picker-float": PickerFloat,
-        "v-picker-others": PickerOthers
+        "v-picker-container": PickerContainer
+        // "v-picker-float": PickerFloat,
+        // "v-picker-others": PickerOthers
     },
     props: {
         value: {
@@ -72,7 +72,9 @@ export default Vue.extend( {
         editor: {} as CodeMirror.Editor,
         document: {} as CodeMirror.Doc,
         uniforms: new Map() as Map< Range, UniformEditor >,
-        pickerButtonsMarks: [] as CodeMirror.TextMarker[],
+        pickerButtons: [] as HTMLElement[],
+        pickerButtonsMarkers: [] as CodeMirror.TextMarker[],
+        lastPressedRange: undefined as undefined | Range,
         uniformSelectedBounds: {} as { top: number, left: number, width: number, height: number },
         uniformSelectedEditor: {} as UniformEditor,
         showPicker: false
@@ -183,7 +185,8 @@ export default Vue.extend( {
             } )
         },
         enablePickerButtons() {
-            this.pickerButtonsMarks = []
+            this.pickerButtons = []
+            this.pickerButtonsMarkers = []
             this.uniforms.forEach( ( uniformEditor, range ) => {
                 const uniformNameParts = uniformEditor.target.split( "." )
 
@@ -191,49 +194,52 @@ export default Vue.extend( {
                 pickerButton.className = "picker-button"
                 pickerButton.innerHTML = `<span class="cm-identifier editable">${ uniformNameParts[ 0 ] }</span>`
                 pickerButton.innerHTML += uniformNameParts[ 1 ] ? `<span class="cm-punctuation editable">.</span><span class="cm-attribute editable">${ uniformNameParts[ 1 ] }</span>` : ""
-                pickerButton.addEventListener( "click", event => this.handlePickerButtonClick( pickerButton, uniformEditor ) )
+                pickerButton.addEventListener( "mousedown", event => this.handlePickerButtonClick( pickerButton, uniformEditor, range ) )
+                this.pickerButtons.push( pickerButton )
 
                 const buttonMark = this.document.markText( range.from, range.to, { replacedWith: pickerButton } )
-                this.pickerButtonsMarks.push( buttonMark )
+                this.pickerButtonsMarkers.push( buttonMark )
             } )
         },
         disablePickerButtons( event: KeyboardEvent ) {
             if ( event.key === "Alt" ) {
-                for ( let button of this.pickerButtonsMarks ) {
+                for ( let button of this.pickerButtonsMarkers ) {
                     button.clear()
                 }
             }
         },
-        handlePickerButtonClick( target: HTMLElement, uniformEditor: UniformEditor ) {
-            const scroll = this.editor.getScrollerElement()
-            let offsetElement = target.offsetParent as HTMLElement
-            let offsetLeft = target.offsetLeft
-            let offsetTop = target.offsetTop
+        handlePickerButtonClick( target: HTMLElement, uniformEditor: UniformEditor, range: Range ) {
+            if ( ( this.lastPressedRange !== range ) || ( this.lastPressedRange === range && ! this.showPicker ) ) {
+                const scroll = this.editor.getScrollerElement()
+                let offsetElement = target.offsetParent as HTMLElement
+                let offsetLeft = target.offsetLeft
+                let offsetTop = target.offsetTop
 
-            while ( offsetElement !== scroll ) {
-                offsetLeft += offsetElement.offsetLeft
-                offsetTop += offsetElement.offsetTop
-                offsetElement = offsetElement.offsetParent as HTMLElement
+                while ( offsetElement !== scroll ) {
+                    offsetLeft += offsetElement.offsetLeft
+                    offsetTop += offsetElement.offsetTop
+                    offsetElement = offsetElement.offsetParent as HTMLElement
+                }
+
+                const bounds = target.getBoundingClientRect()
+
+                const left = offsetLeft
+                const top = offsetTop
+                const width = bounds.width
+                const height = bounds.height
+
+                this.uniformSelectedBounds = { left, top, width, height }
+                this.uniformSelectedEditor = uniformEditor
+                this.lastPressedRange = range
+                this.showPicker = true
+
+                document.addEventListener( "mousedown", this.handleClicksOutside )
+                this.editor.on( "scroll", this.handleScroll )
             }
-
-            const bounds = target.getBoundingClientRect()
-
-            const left = offsetLeft
-            const top = offsetTop
-            const width = bounds.width
-            const height = bounds.height
-
-            this.uniformSelectedBounds = { left, top, width, height }
-            this.uniformSelectedEditor = uniformEditor
-
-            this.showPicker = true
-
-            document.addEventListener( "mousedown", this.handleClicksOutside )
-            this.editor.on( "scroll", this.handleScroll )
         },
         handleClicksOutside( event: MouseEvent ) {
             const clickableArea = ( this.$refs.pickerContainer as Vue ).$el as Element
-            if ( clickableArea && ! clickableArea.contains( event.target as Node ) ) {
+            if ( clickableArea && ! clickableArea.contains( event.target as Node ) && ! this.pickerButtons.includes( event.target as HTMLElement ) ) {
                 this.showPicker = false
                 document.removeEventListener( "mousedown", this.handleClicksOutside )
             }

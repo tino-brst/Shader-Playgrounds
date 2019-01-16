@@ -570,6 +570,9 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     transition: background 0.1s;
     cursor: pointer;
 }
+.picker-button * {
+    pointer-events: none;
+}
 .picker-button:hover {
     background: rgba(100, 148, 237, 0.3);
 }

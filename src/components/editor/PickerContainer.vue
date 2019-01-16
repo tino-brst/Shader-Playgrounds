@@ -1,8 +1,8 @@
 <template>
     <div class="picker-container" :class="{ visible: visible }" :style="{ top: targetBounds.top + 'px', left: targetBounds.left + 'px', width: targetBounds.width + 'px', height: targetBounds.height + 'px' }">
-        <div class="picker-box" ref="pickerContent" :style="contentStyle">
+        <div class="picker-box" ref="pickerContent" @mousedown.stop :style="contentStyle">
             <slot>
-                <div class="default-content">No suggestions</div>
+                <div class="default-content"> <button> lele </button> No suggestions</div>
             </slot>
             <span class="picker-tip"></span>
         </div>
@@ -31,18 +31,32 @@ export default Vue.extend( {
         show() {
             if ( this.show ) {
                 this.$nextTick( () => {
-                    // const bounds = ( this.$refs.pickerContent as HTMLElement ).getBoundingClientRect()
-                    // if ( bounds.left <= 5 ) {
-                    //     let left = ( - bounds.width / 2 ) + ( this.targetBounds.width / 2 ) - bounds.left
-                    //     // left += bounds.left > 0 ? 5 - bounds.left : - 5
-                    //     this.contentStyle = { left: left + "px" }
-                    // } else {
-                    //     this.contentStyle = { left: "" }
-                    // }
+                    const bounds = ( this.$refs.pickerContent as HTMLElement ).getBoundingClientRect()
+                    if ( bounds.left <= 5 ) {
+                        let left = ( - bounds.width / 2 ) + ( this.targetBounds.width / 2 ) - bounds.left
+                        left += bounds.left > 0 ? 5 - bounds.left : + 5
+                        this.contentStyle = { left: left + "px" }
+                    } else {
+                        this.contentStyle = undefined
+                    }
                     this.visible = true
                 } )
             } else {
                 this.visible = false
+            }
+        },
+        targetBounds() {
+            if ( this.visible ) {
+                this.$nextTick( () => {
+                    const bounds = ( this.$refs.pickerContent as HTMLElement ).getBoundingClientRect()
+                    if ( bounds.left <= 5 ) {
+                        let left = ( - bounds.width / 2 ) + ( this.targetBounds.width / 2 ) - bounds.left
+                        left += bounds.left > 0 ? 5 - bounds.left : + 5
+                        this.contentStyle = { left: left + "px" }
+                    } else {
+                        this.contentStyle = undefined
+                    }
+                } )
             }
         }
     }
@@ -71,7 +85,6 @@ export default Vue.extend( {
     bottom: calc(100% + 8px);
     width: fit-content;
     height: fit-content;
-    pointer-events: all;
     border-radius: 6px;
     box-sizing: border-box;
     border: 1px solid rgb(30, 30, 30);
@@ -82,6 +95,9 @@ export default Vue.extend( {
     margin: 0px 6px;
     margin: 50px 50px;
     white-space: nowrap;
+}
+.picker-container.visible .picker-box {
+    pointer-events: all;
 }
 
 .picker-tip {
