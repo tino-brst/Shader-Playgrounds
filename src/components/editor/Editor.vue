@@ -106,7 +106,6 @@ export default Vue.extend( {
 
         this.editor.on( "change", this.updateValue )
         this.editor.on( "keydown", this.handleShowHints )
-        this.editor.on( "scroll", () => { this.showPicker = false } )
         this.editor.focus()
 
         this.editor.getScrollerElement().appendChild( ( this.$refs.pickerContainer as Vue ).$el )
@@ -190,16 +189,25 @@ export default Vue.extend( {
                 pickerButton.className = "picker-button"
                 pickerButton.innerText = uniformEditor.target
                 pickerButton.addEventListener( "click", ( event ) => {
+                    const scroll = this.editor.getScrollerElement()
+                    let offsetElement = pickerButton.offsetParent as HTMLElement
+                    let offsetLeft = pickerButton.offsetLeft
+                    let offsetTop = pickerButton.offsetTop
+                    while ( offsetElement !== scroll ) {
+                        offsetLeft += offsetElement.offsetLeft
+                        offsetTop += offsetElement.offsetTop
+                        offsetElement = offsetElement.offsetParent as HTMLElement
+                    }
                     const bounds = pickerButton.getBoundingClientRect()
-                    const scrollInfo = this.editor.getScrollInfo()
-                    const x = scrollInfo.left + bounds.left + bounds.width / 2
-                    const y = scrollInfo.top + bounds.top + bounds.height / 2
+                    const x = offsetLeft + bounds.width / 2
+                    const y = offsetTop + bounds.height / 2
 
                     this.uniformSelectedPosition = { x, y }
                     this.uniformSelectedEditor = uniformEditor
                     this.showPicker = true
 
                     document.addEventListener( "mousedown", this.handleClicksOutside )
+                    this.editor.on( "scroll", this.handleScroll )
                 } )
                 const button = this.document.markText( range.from, range.to, { replacedWith: pickerButton } )
                 this.pickerButtons.push( button )
@@ -218,6 +226,10 @@ export default Vue.extend( {
                 this.showPicker = false
                 document.removeEventListener( "mousedown", this.handleClicksOutside )
             }
+        },
+        handleScroll() {
+            this.showPicker = false
+            this.editor.off( "scroll", this.handleScroll )
         }
     },
     watch: {

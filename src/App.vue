@@ -32,7 +32,7 @@ export default Vue.extend( {
         ]
         this.uniformsEditors = [
             { type: "mat4", target: "viewMatrix", locked: false },
-            { type: "vec3", target: "light.position", locked: false },
+            { type: "int", target: "light.position", locked: false },
             { type: "vec3", target: "light.color", locked: false },
             { type: "vec3", target: "surface.ambient", locked: false },
             { type: "vec3", target: "surface.diffuse", locked: false },
