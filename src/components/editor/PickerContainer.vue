@@ -1,16 +1,19 @@
 <template>
-    <div class="picker-container" :class="{ visible: visible }" :style="{ top: targetBounds.top + 'px', left: targetBounds.left + 'px', width: targetBounds.width + 'px', height: targetBounds.height + 'px' }">
+    <div class="picker-container" ref="pickerTarget" :class="{ visible: visible }" :style="targetStyle">
         <div class="picker-box" ref="pickerContent" @mousedown.stop :style="contentStyle">
             <slot>
-                <div class="default-content"> <button> lele </button> No suggestions</div>
+                <div class="default-content"> ••• </div>
             </slot>
-            <span class="picker-tip"></span>
         </div>
+        <span class="picker-tip"></span>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
+
+const viewportMargin = 5
+
 export default Vue.extend( {
     name: "picker-container",
     props: {
@@ -18,45 +21,58 @@ export default Vue.extend( {
             type: Boolean,
             default: false
         },
-        targetBounds: {
-            type: Object as () => { top: number, left: number, width: number, height: number },
-            default: () => ( { top: 0, left: 0, width: 0, height: 0 } )
+        target: {
+            type: HTMLElement,
+            required: true
         }
     },
     data: () => ( {
         visible: false,
-        contentStyle: undefined as undefined | { [ key: string ]: string }
+        contentStyle: {} as { [ key: string ]: string }
     } ),
+    computed: {
+        targetBounds(): ClientRect {
+            return this.target.getBoundingClientRect()
+        },
+        targetStyle(): { [ key: string ]: string } {
+            return {
+                top: this.targetBounds.top + "px",
+                left: this.targetBounds.left + "px",
+                width: this.targetBounds.width + "px",
+                height: this.targetBounds.height + "px"
+            }
+        }
+    },
     watch: {
         show() {
-            if ( this.show ) {
-                this.$nextTick( () => {
-                    const bounds = ( this.$refs.pickerContent as HTMLElement ).getBoundingClientRect()
-                    if ( bounds.left <= 5 ) {
-                        let left = ( - bounds.width / 2 ) + ( this.targetBounds.width / 2 ) - bounds.left
-                        left += bounds.left > 0 ? 5 - bounds.left : + 5
-                        this.contentStyle = { left: left + "px" }
-                    } else {
-                        this.contentStyle = undefined
-                    }
-                    this.visible = true
-                } )
-            } else {
-                this.visible = false
-            }
+            this.$nextTick( () => {
+                if ( ! this.visible ) {
+                    this.adjustForOverlap()
+                }
+                this.visible = this.show
+            } )
         },
-        targetBounds() {
-            if ( this.visible ) {
-                this.$nextTick( () => {
-                    const bounds = ( this.$refs.pickerContent as HTMLElement ).getBoundingClientRect()
-                    if ( bounds.left <= 5 ) {
-                        let left = ( - bounds.width / 2 ) + ( this.targetBounds.width / 2 ) - bounds.left
-                        left += bounds.left > 0 ? 5 - bounds.left : + 5
-                        this.contentStyle = { left: left + "px" }
-                    } else {
-                        this.contentStyle = undefined
-                    }
-                } )
+        target() {
+            this.$nextTick( () => {
+                if ( this.visible ) {
+                    this.adjustForOverlap()
+                }
+            } )
+        }
+    },
+    methods: {
+        adjustForOverlap() {
+            const contentBounds = ( this.$refs.pickerContent as HTMLElement ).getBoundingClientRect()
+
+            const currentLeft = this.targetBounds.left + ( this.targetBounds.width / 2 ) - ( contentBounds.width / 2 ) // calculo indirecto que no depende del left actual del contenido
+            let adjustedLeft = ( - contentBounds.width / 2 ) + ( this.targetBounds.width / 2 )
+
+            if ( currentLeft < viewportMargin ) {
+                adjustedLeft += currentLeft > 0 ? + ( viewportMargin - currentLeft ) : - ( currentLeft - viewportMargin )
+            }
+
+            this.contentStyle = {
+                left: adjustedLeft + "px"
             }
         }
     }
@@ -65,9 +81,7 @@ export default Vue.extend( {
 
 <style>
 .picker-container {
-    position: absolute;
-    display: flex;
-    justify-content: center;
+    position: fixed;
     z-index: 10;
     opacity: 0;
     transform: translateY(2px);
@@ -90,10 +104,11 @@ export default Vue.extend( {
     border: 1px solid rgb(30, 30, 30);
     background: rgb(50, 50, 50);
     box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3), inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
+    font-family: IBM Plex Sans;
 }
 .picker-box .default-content {
-    margin: 0px 6px;
-    margin: 50px 50px;
+    color: gray;
+    margin: 0px 8px;
     white-space: nowrap;
 }
 .picker-container.visible .picker-box {
@@ -105,7 +120,7 @@ export default Vue.extend( {
     width: 12px;
     height: 10px;
     left: calc(50% - 5px);
-    top: 100%;
+    top: -9px;
     overflow: hidden;
 }
 .picker-tip::after {

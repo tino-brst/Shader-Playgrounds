@@ -21,6 +21,6 @@ export default Vue.extend( {
     position: relative;
     width: fit-content;
     height: fit-content;
-    margin: 0px 6px;
+    margin: 10px 150px;
 }
 </style>

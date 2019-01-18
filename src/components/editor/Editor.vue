@@ -1,10 +1,8 @@
 <template>
     <div class="editor" ref="editor" @keydown.alt="enablePickerButtons" @keyup="disablePickerButtons">
-        <transition name="picker">
-            <v-picker-container :show="showPicker" :targetBounds="uniformSelectedBounds" ref="pickerContainer" >
-                <!-- <component :is="pickerTypeComponent" :editor="uniformSelectedEditor" ref="picker"></component> -->
-            </v-picker-container>
-        </transition>
+        <v-picker-container :show="showPicker" :target="tooltipTarget" ref="pickerContainer" >
+            <component :is="pickerTypeComponent" :editor="uniformSelectedEditor" ref="picker"></component>
+        </v-picker-container>
     </div>
 </template>
 
@@ -50,9 +48,9 @@ export interface Range {
 export default Vue.extend( {
     name: "editor",
     components: {
-        "v-picker-container": PickerContainer
-        // "v-picker-float": PickerFloat,
-        // "v-picker-others": PickerOthers
+        "v-picker-container": PickerContainer,
+        "v-picker-float": PickerFloat,
+        "v-picker-others": PickerOthers
     },
     props: {
         value: {
@@ -75,7 +73,7 @@ export default Vue.extend( {
         pickerButtons: [] as HTMLElement[],
         pickerButtonsMarkers: [] as CodeMirror.TextMarker[],
         lastPressedRange: undefined as undefined | Range,
-        uniformSelectedBounds: {} as { top: number, left: number, width: number, height: number },
+        tooltipTarget: document.createElement( "span" ) as HTMLElement,
         uniformSelectedEditor: {} as UniformEditor,
         showPicker: false
     } ),
@@ -109,8 +107,6 @@ export default Vue.extend( {
         this.editor.on( "change", this.updateValue )
         this.editor.on( "keydown", this.handleShowHints )
         this.editor.focus()
-
-        this.editor.getScrollerElement().appendChild( ( this.$refs.pickerContainer as Vue ).$el )
     },
     methods: {
         updateValue() {
@@ -210,25 +206,7 @@ export default Vue.extend( {
         },
         handlePickerButtonClick( target: HTMLElement, uniformEditor: UniformEditor, range: Range ) {
             if ( ( this.lastPressedRange !== range ) || ( this.lastPressedRange === range && ! this.showPicker ) ) {
-                const scroll = this.editor.getScrollerElement()
-                let offsetElement = target.offsetParent as HTMLElement
-                let offsetLeft = target.offsetLeft
-                let offsetTop = target.offsetTop
-
-                while ( offsetElement !== scroll ) {
-                    offsetLeft += offsetElement.offsetLeft
-                    offsetTop += offsetElement.offsetTop
-                    offsetElement = offsetElement.offsetParent as HTMLElement
-                }
-
-                const bounds = target.getBoundingClientRect()
-
-                const left = offsetLeft
-                const top = offsetTop
-                const width = bounds.width
-                const height = bounds.height
-
-                this.uniformSelectedBounds = { left, top, width, height }
+                this.tooltipTarget = target
                 this.uniformSelectedEditor = uniformEditor
                 this.lastPressedRange = range
                 this.showPicker = true
