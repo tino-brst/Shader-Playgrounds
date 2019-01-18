@@ -5,19 +5,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    -webkit-font-smoothing: antialiased;
+    font-family: IBM Plex Mono;
+    font-weight: 500;
+    font-size: 14px;
+    color: white;
     background: rgb(50, 50, 50);
 }
 .CodeMirror {
     /* Set height, width, borders, and global font properties here */
     height: calc(100% - 100px);
     width: calc(100% - 100px);
-    font-family: IBM Plex Mono;
-    font-weight: 500;
-    -webkit-font-smoothing: antialiased;
     direction: ltr;
     line-height: 28px;
-    font-size: 14px;
-    color: white;
     background: rgb(41, 42, 47);
     border: 1px solid rgb(30, 30, 30);
     border-radius: 6px;
@@ -264,10 +264,6 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     margin: 0;
     padding: 0;
 
-    font-size: 14px;
-    font-family: IBM Plex Mono;
-    font-weight: normal;
-
     min-height: fit-content;
     min-width: fit-content;
 }
@@ -325,7 +321,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 .CodeMirror-hint .display-text b {
     /* font-weight: bold; */
     padding: 1px 0;
-    font-weight: normal;
+    font-weight: 700;
     background-color: rgba(255, 217, 0, 0.2);
     text-decoration: underline solid orange;
     border-radius: 2px;
@@ -355,6 +351,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     border: 1px solid transparent;
     background: transparent;
     position: relative;
+    font-weight: 500;
 }
 
 /* 🎨 Hint Types */
@@ -368,9 +365,9 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     content: "f";
     color: rgb(21, 112, 21);
     font-family: IBM Plex Mono;
-    font-weight: normal;
     font-size: 12px;
     font-style: italic;
+    font-weight: 600;
     padding-bottom: 1px;
 }
 
@@ -398,7 +395,6 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 .CodeMirror-hint.preprocessor .icon::before,
 .CodeMirror-hint.macro .icon::before {
     color: rgb(139, 91, 2);
-    font-weight: normal;
 }
 .CodeMirror-hint.preprocessor .icon::before {
     content: "#";
@@ -421,7 +417,6 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     color: sienna;
     font-family: IBM Plex Sans;
     font-size: 12px;
-    font-weight: normal;
 }
 
 .CodeMirror-hint.storage-qualifier .icon,
@@ -439,7 +434,6 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     color: rgb(189, 66, 66);
     font-family: IBM Plex Sans;
     font-size: 12px;
-    font-weight: normal;
 }
 .CodeMirror-hint.storage-qualifier .icon::before {
     content: "S";
@@ -467,7 +461,6 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     color: royalblue;
     font-family: IBM Plex Sans;
     font-size: 12px;
-    font-weight: normal;
 }
 .CodeMirror-hint.variable .icon::before {
     content: "V";
