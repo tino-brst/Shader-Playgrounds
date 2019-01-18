@@ -2,10 +2,15 @@
 
 .editor {
     height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgb(50, 50, 50);
 }
 .CodeMirror {
     /* Set height, width, borders, and global font properties here */
-    height: 100%;
+    height: calc(100% - 100px);
+    width: calc(100% - 100px);
     font-family: IBM Plex Mono;
     font-weight: 500;
     -webkit-font-smoothing: antialiased;
@@ -14,6 +19,8 @@
     font-size: 14px;
     color: white;
     background: rgb(41, 42, 47);
+    border: 1px solid rgb(30, 30, 30);
+    border-radius: 6px;
 }
 
 /* 🎨 Padding */
@@ -220,13 +227,17 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 /* 🎨 Hints Widget */
 
 .CodeMirror-hints {
-    position: absolute;
+    position: fixed;
     transform: translateX( -36px );
     z-index: 10;
     display: flex;
     flex-direction: column;
     align-items: stretch;
     min-width: 350px;
+    transition: opacity 0.1s;
+}
+.CodeMirror-hints.closing {
+    opacity: 0;
 }
 
 .CodeMirror-hints-list-container {
@@ -237,12 +248,14 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     border: 1px solid rgb( 30, 30, 30 );
     box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3), inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
     box-sizing: border-box;
+    z-index: 1;
 }
 .CodeMirror-hints.docs-visible > .CodeMirror-hints-list-container {
     border-radius: 0 0 6px 6px;
 }
 .CodeMirror-hints.docs-visible.below > .CodeMirror-hints-list-container {
     border-radius: 6px 6px 0 0;
+    z-index: 0;
 }
 
 .CodeMirror-hints-list {
@@ -280,12 +293,14 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     font-family: IBM Plex Sans;
     font-size: 13px;
     letter-spacing: 0.05em;
+    z-index: 0;
 }
 .CodeMirror-hints.below > .CodeMirror-hint-active-docs {
     top: 100%;
     border-radius: 0 0 6px 6px;
     border: 1px solid rgb( 30, 30, 30 );
     border-top: none;
+    z-index: 1;
 }
 .CodeMirror-hints.docs-visible > .CodeMirror-hint-active-docs {
     display: block;

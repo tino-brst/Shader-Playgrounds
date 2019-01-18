@@ -99,7 +99,11 @@
       if (pos.line != this.startPos.line || line.length - pos.ch != this.startLen - this.startPos.ch ||
           pos.ch < this.startPos.ch || this.cm.somethingSelected() ||
           (!pos.ch || this.options.closeCharacters.test(line.charAt(pos.ch - 1)))) {
-        this.close();
+        if ( this.widget && this.widget.closing === false ) {
+          this.widget.closing = true
+          this.widget.hints.classList.add( "closing" )
+          setTimeout( () => { this.close() }, 100 )
+        }
       } else {
         var self = this;
         this.debounce = requestAnimationFrame(function() {self.update();});
@@ -197,23 +201,23 @@
     this.completion = completion;
     this.data = data;
     this.picked = false;
+    this.closing = false;
     var widget = this, cm = completion.cm;
     var ownerDocument = cm.getInputField().ownerDocument;
     var parentWindow = ownerDocument.defaultView || ownerDocument.parentWindow;
 
     var hints = this.hints = ownerDocument.createElement("div");
-    hints.className = "CodeMirror-hints " + theme;
+    hints.className = "CodeMirror-hints";
 
     var hintsListContainer = this.hintsListContainer = ownerDocument.createElement("div");
-    hintsListContainer.className = "CodeMirror-hints-list-container " + theme;
+    hintsListContainer.className = "CodeMirror-hints-list-container";
 
     var hintsList = this.hintsList = ownerDocument.createElement("ul");
-    var theme = completion.cm.options.theme;
-    hintsList.className = "CodeMirror-hints-list " + theme;
+    hintsList.className = "CodeMirror-hints-list ";
     this.selectedHint = data.selectedHint || 0;
 
     var activeHintDocs = this.activeHintDocs = ownerDocument.createElement("div");
-    activeHintDocs.className = "CodeMirror-hint-active-docs " + theme;
+    activeHintDocs.className = "CodeMirror-hint-active-docs ";
 
     hints.appendChild(hintsListContainer)
     hints.appendChild(activeHintDocs)
@@ -239,7 +243,7 @@
     // If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
     var winW = parentWindow.innerWidth || Math.max(ownerDocument.body.offsetWidth, ownerDocument.documentElement.offsetWidth);
     var winH = parentWindow.innerHeight || Math.max(ownerDocument.body.offsetHeight, ownerDocument.documentElement.offsetHeight);
-    (completion.options.container || ownerDocument.body).appendChild(hints);
+    (completion.options.container || cm.getWrapperElement().parentElement).appendChild(hints);
     var box = hints.getBoundingClientRect(), overlapY = ( box.bottom + 80 ) - winH;
     var scrolls = hintsList.scrollHeight > hintsList.clientHeight + 1
     var startScroll = cm.getScrollInfo();
@@ -293,13 +297,15 @@
     }
 
     cm.on("scroll", this.onScroll = function() {
-      var curScroll = cm.getScrollInfo(), editor = cm.getWrapperElement().getBoundingClientRect();
+      var curScroll = cm.getScrollInfo();
       var newTop = top + startScroll.top - curScroll.top;
-      var point = newTop - (parentWindow.pageYOffset || (ownerDocument.documentElement || ownerDocument.body).scrollTop);
-      if (!below) point += hints.offsetHeight;
-      if (point <= editor.top || point >= editor.bottom) return completion.close();
       hints.style.top = newTop + "px";
       hints.style.left = (left + startScroll.left - curScroll.left) + "px";
+      if ( widget.closing === false ) {
+        widget.closing = true
+        hints.classList.add( "closing" )
+        setTimeout( () => { completion.close() }, 100 )
+      }
     });
 
     CodeMirror.on(hintsList, "dblclick", function(e) {
