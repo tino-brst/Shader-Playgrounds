@@ -209,8 +209,8 @@ export default Vue.extend( {
                 this.tooltipTarget = target
                 this.uniformSelectedEditor = uniformEditor
                 this.lastPressedRange = range
-                this.showPicker = true
 
+                this.showPicker = true
                 document.addEventListener( "mousedown", this.handleClicksOutside )
                 this.editor.on( "scroll", this.handleScroll )
             }
@@ -220,10 +220,12 @@ export default Vue.extend( {
             if ( clickableArea && ! clickableArea.contains( event.target as Node ) && ! this.pickerButtons.includes( event.target as HTMLElement ) ) {
                 this.showPicker = false
                 document.removeEventListener( "mousedown", this.handleClicksOutside )
+                this.editor.off( "scroll", this.handleScroll )
             }
         },
         handleScroll() {
             this.showPicker = false
+            document.removeEventListener( "mousedown", this.handleClicksOutside )
             this.editor.off( "scroll", this.handleScroll )
         }
     },
