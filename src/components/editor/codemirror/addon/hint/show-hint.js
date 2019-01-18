@@ -99,11 +99,12 @@
       if (pos.line != this.startPos.line || line.length - pos.ch != this.startLen - this.startPos.ch ||
           pos.ch < this.startPos.ch || this.cm.somethingSelected() ||
           (!pos.ch || this.options.closeCharacters.test(line.charAt(pos.ch - 1)))) {
-        if ( this.widget && this.widget.closing === false ) {
-          this.widget.closing = true
-          this.widget.hints.classList.add( "closing" )
-          setTimeout( () => { this.close() }, 100 )
-        }
+        this.close()
+        // if ( this.widget && this.widget.closing === false ) {
+        //   this.widget.closing = true
+        //   this.widget.hints.classList.add( "closing" )
+        //   setTimeout( () => { this.close() }, 100 )
+        // }
       } else {
         var self = this;
         this.debounce = requestAnimationFrame(function() {self.update();});
