@@ -13,7 +13,7 @@ import Vue from "vue"
 import Tooltip from "./Tooltip.vue"
 import UniformEditorOthers from "./UniformEditorOthers.vue"
 import UniformEditorFloat from "./UniformEditorFloat.vue"
-import CodeMirror from "./codemirror/lib/codemirror"
+import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "./codemirror/lib/codemirror"
 import "./codemirror/mode/glsl/glsl"
 import "./codemirror/addon/selection/active-line"
 import "./codemirror/addon/edit/matchbrackets"
@@ -47,8 +47,8 @@ export interface UniformEditor {
     // setValue: ( value: any ) => void
 }
 export interface Range {
-    from: CodeMirror.Position
-    to: CodeMirror.Position
+    from: Position
+    to: Position
 }
 
 export default Vue.extend( {
@@ -73,11 +73,12 @@ export default Vue.extend( {
         }
     },
     data: () => ( {
-        editor: {} as CodeMirror.Editor,
-        document: {} as CodeMirror.Doc,
+        editor: {} as Editor,
+        document: {} as Doc,
+        logLines: [] as Array <{ lineHandle: LineHandle, type: LogEntryType }>,
         uniforms: [] as Uniform[],
         uniformsButtons: [] as HTMLElement[],
-        uniformsButtonsMarkers: [] as CodeMirror.TextMarker[],
+        uniformsButtonsMarkers: [] as TextMarker[],
         lastUniformSelected: {} as Uniform,
         tooltipTarget: document.createElement( "span" ) as HTMLElement,
         tooltipVisible: false
@@ -124,7 +125,7 @@ export default Vue.extend( {
                 this.$emit( "change", value )
             }
         },
-        handleShowHints( editor: CodeMirror.Editor, event: Event ) {
+        handleShowHints( editor: Editor, event: Event ) {
             if ( ! editor.state.completionActive ) {    // evito reactivacion innecesaria de hints
                 // @ts-ignore
                 const cursor = editor.getCursor()
@@ -172,22 +173,31 @@ export default Vue.extend( {
                     markerTooltip.classList.remove( "visible" )
                 } )
 
-                const lineHandle = this.editor.setGutterMarker( line, "CodeMirror-markers", marker )
-
-                this.editor.addLineClass( line, "wrap", "CodeMirror-markedline-" + type )
-                this.editor.addLineClass( line, "gutter", "CodeMirror-markedline-gutter-" + type )
-
-                // @ts-ignore
-                lineHandle.on( "change", ( lineHandle: CodeMirror.LineHandle, change: CodeMirror.EditorChange ) => {
-                    // obtengo el numero de linea actualizado (puede haber cambiado por ediciones)
-                    const currentLine = this.document.getLineNumber( lineHandle )
-
-                    this.editor.setGutterMarker( currentLine, "CodeMirror-markers", null )
-
-                    this.editor.removeLineClass( currentLine, "wrap", "CodeMirror-markedline-" + type )
-                    this.editor.removeLineClass( currentLine, "gutter", "CodeMirror-markedline-gutter-" + type )
-                } )
+                this.addLogInfo( line, marker, type )
             } )
+        },
+        clearLog() {
+            for ( let { lineHandle, type } of this.logLines ) {
+                this.removeLogInfo( lineHandle, type )
+            }
+            this.logLines = []
+        },
+        addLogInfo( line: number, marker: HTMLElement, type: LogEntryType ) {
+            const lineHandle = this.editor.setGutterMarker( line, "CodeMirror-markers", marker )
+            this.editor.addLineClass( line, "wrap", "CodeMirror-markedline-" + type )
+            this.editor.addLineClass( line, "gutter", "CodeMirror-markedline-gutter-" + type )
+
+            // @ts-ignore
+            lineHandle.on( "change", ( lineHandle: LineHandle, change: EditorChange ) => {
+                this.removeLogInfo( lineHandle, type )
+            } )
+
+            this.logLines.push( { lineHandle, type } )
+        },
+        removeLogInfo( lineHandle: LineHandle, type: LogEntryType ) {
+            this.editor.setGutterMarker( lineHandle, "CodeMirror-markers", null )
+            this.editor.removeLineClass( lineHandle, "wrap", "CodeMirror-markedline-" + type )
+            this.editor.removeLineClass( lineHandle, "gutter", "CodeMirror-markedline-gutter-" + type )
         },
         enableUniformsButtons() {
             this.uniformsButtons = []
@@ -249,19 +259,21 @@ export default Vue.extend( {
             }
         },
         log( newLog: LogEntry[] ) {
+            this.clearLog()
+
             const errors: Map < number, string[] > = new Map()
             const warnings: Map < number, string[] > = new Map()
 
             // separo el log en errores y warnings, agrupandolos por nro. de linea
             for ( let entry of newLog ) {
-                const target = entry.type === LogEntryType.Error ? errors : warnings
+                const targetList = entry.type === LogEntryType.Error ? errors : warnings
                 const line = entry.line - 1 // one-based -> zero-based
-                const lineEntries = target.get( line )
+                const lineLogEntries = targetList.get( line )
 
-                if ( lineEntries === undefined ) {
-                    target.set( line, [ entry.description ] )
+                if ( lineLogEntries === undefined ) {
+                    targetList.set( line, [ entry.description ] )
                 } else {
-                    lineEntries.push( entry.description )
+                    lineLogEntries.push( entry.description )
                 }
             }
 
@@ -319,8 +331,8 @@ export default Vue.extend( {
                     const token = lineTokens[ tokenNumber ]
                     if ( token.type === "identifier" ) {
                         if ( basic.includes( token.string ) ) {
-                            const from: CodeMirror.Position = { line: lineNumber, ch: token.start }
-                            const to: CodeMirror.Position   = { line: lineNumber, ch: token.end }
+                            const from: Position = { line: lineNumber, ch: token.start }
+                            const to: Position   = { line: lineNumber, ch: token.end }
                             const range = { from, to }
                             const editor = uniformsEditors.get( token.string ) as UniformEditor
                             this.uniforms.push( { range, editor } )
@@ -329,8 +341,8 @@ export default Vue.extend( {
                             if ( structComponents !== undefined ) {
                                 const possibleAttribute = lineTokens[ tokenNumber + 2 ] // [ ... "light", ".", >"position"< ... ]
                                 if ( possibleAttribute && possibleAttribute.type === "attribute" && structComponents.includes( possibleAttribute.string ) ) {
-                                    const from: CodeMirror.Position = { line: lineNumber, ch: token.start }
-                                    const to: CodeMirror.Position   = { line: lineNumber, ch: possibleAttribute.end }
+                                    const from: Position = { line: lineNumber, ch: token.start }
+                                    const to: Position   = { line: lineNumber, ch: possibleAttribute.end }
                                     const range = { from, to }
                                     const editor = uniformsEditors.get( token.string + "." + possibleAttribute.string ) as UniformEditor
                                     this.uniforms.push( { range, editor } )

@@ -25,11 +25,26 @@ export default Vue.extend( {
             { type: "error", line: 4, description: "'foo' - syntax error" },
             { type: "error", line: 4, description: "'bar' - undeclared identifier" },
             { type: "error", line: 9, description: "'foobar' - undeclared identifier" },
-            // { type: "error", line: 19, description: "'bar' - super danger!" },
+            { type: "error", line: 19, description: "'bar' - super danger!" },
             { type: "warning", line: 15, description: "'foofoo' - just be careful" },
             { type: "warning", line: 15, description: "'barbar' - just be careful okay?" },
             { type: "warning", line: 8, description: "'foobar' - just be careful okay?" }
         ]
+
+        setTimeout( () => {
+            this.log = [
+                { type: "error", line: 16, description: "'foo' - syntax error" },
+                { type: "error", line: 16, description: "'bar' - undeclared identifier" }
+            ]
+        }, 1000 )
+
+        setTimeout( () => {
+            this.log = [
+                { type: "warning", line: 10, description: "'foofoo' - just be careful" },
+                { type: "warning", line: 10, description: "'barbar' - just be careful okay?" }
+            ]
+        }, 2000 )
+
         this.uniformsEditors = [
             { type: "mat4", target: "viewMatrix", locked: false },
             { type: "int", target: "light.position", locked: false },
