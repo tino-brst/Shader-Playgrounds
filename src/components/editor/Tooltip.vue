@@ -28,8 +28,8 @@ export default Vue.extend( {
     data: () => ( {
         visible: false,
         below: false,
-        tooltipStyle: {} as { [ key: string ]: string },
-        tipStyle: {} as { [ key: string ]: string }
+        tooltipStyle: { top: "", left: "" },
+        tipStyle: { left: "" }
     } ),
     watch: {
         show() {
@@ -53,7 +53,6 @@ export default Vue.extend( {
     methods: {
         adjustForViewportOverlap() {
             // ajustes del contenido principal ... tiene que haber forma mas prolija 🤮
-            this.tooltipStyle = {}
             const tooltip = this.$refs.tooltip as HTMLElement
             const targetBounds = this.target.getBoundingClientRect()
             let pastMargin = 0 // mantengo registro de cuanto se paso el contenido de los margenes para centrar el tip sobre el target
@@ -67,16 +66,16 @@ export default Vue.extend( {
                 const right = window.innerWidth - ( left + tooltip.clientWidth )
                 if ( right < VIEWPORT_MARGIN ) {
                     pastMargin = - Math.max( 0, VIEWPORT_MARGIN - right )
-                    this.tooltipStyle.right = VIEWPORT_MARGIN + "px"
+                    this.tooltipStyle.left = window.innerWidth - tooltip.clientWidth - VIEWPORT_MARGIN + "px"
                 } else {
-                    this.tooltipStyle.right = right + "px"
+                    this.tooltipStyle.left = left + "px"
                 }
             }
 
             // ajuste vertical
             const fitsAbove = ( targetBounds.top - tooltip.clientHeight - TARGET_OFFSET - VIEWPORT_MARGIN * 2 ) > 0
             if ( fitsAbove ) {
-                this.tooltipStyle.bottom = ( window.innerHeight - targetBounds.top + TARGET_OFFSET ) + "px"
+                this.tooltipStyle.top = ( targetBounds.top - tooltip.clientHeight - TARGET_OFFSET ) + "px"
                 this.below = false
             } else {
                 this.tooltipStyle.top = ( targetBounds.bottom + TARGET_OFFSET ) + "px"
