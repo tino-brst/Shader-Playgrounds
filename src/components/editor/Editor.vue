@@ -84,7 +84,11 @@ export default Vue.extend( {
     } ),
     computed: {
         editorTypeComponent(): string {
-            return ( this.lastUniformSelected.editor && this.lastUniformSelected.editor.type === "float" ) ? "v-uniform-editor-float" : "v-uniform-editor-others"
+            if ( this.lastUniformSelected.editor ) {
+                return this.lastUniformSelected.editor.type === "float" ? "v-uniform-editor-float" : "v-uniform-editor-others"
+            } else {
+                return ""
+            }
         }
     },
     model: {
