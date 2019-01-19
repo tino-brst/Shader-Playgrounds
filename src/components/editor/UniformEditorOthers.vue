@@ -1,5 +1,5 @@
 <template>
-    <div class="dot-blue">
+    <div class="uniform-editor-others">
         {{ editor.type }}
     </div>
 </template>
@@ -7,6 +7,7 @@
 <script lang="ts">
 import Vue from "vue"
 export default Vue.extend( {
+    name: "uniform-editor-others",
     props: {
         editor: {
             type: Object,
@@ -17,7 +18,7 @@ export default Vue.extend( {
 </script>
 
 <style>
-.dot-blue {
+.uniform-editor-others {
     position: relative;
     width: fit-content;
     height: fit-content;

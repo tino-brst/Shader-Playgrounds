@@ -1,5 +1,5 @@
 <template>
-    <div class="dot-red">
+    <div class="uniform-editor-float">
         {{ editor.type }}
     </div>
 </template>
@@ -7,6 +7,7 @@
 <script lang="ts">
 import Vue from "vue"
 export default Vue.extend( {
+    name: "uniform-editor-float",
     props: {
         editor: {
             type: Object,
@@ -17,10 +18,10 @@ export default Vue.extend( {
 </script>
 
 <style>
-.dot-red {
+.uniform-editor-float {
     position: relative;
     width: fit-content;
     height: fit-content;
-    margin: 50px 150px;
+    margin: 150px 250px;
 }
 </style>

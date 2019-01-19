@@ -1,16 +1,18 @@
 <template>
-    <div class="editor" ref="editor" @keydown.alt="enablePickerButtons" @keyup="disablePickerButtons">
-        <v-picker-container :show="showPicker" :target="tooltipTarget" ref="pickerContainer" >
-            <component :is="pickerTypeComponent" :editor="uniformSelectedEditor" ref="picker"></component>
-        </v-picker-container>
+    <div class="editor" ref="editor" @keydown.alt="enableUniformsButtons" @keyup="disableUniformsButtons">
+        <v-tooltip :show="tooltipVisible" :target="tooltipTarget" ref="tooltip" >
+            <keep-alive>
+                <component :is="editorTypeComponent" :editor="lastUniformSelected.editor"></component>
+            </keep-alive>
+        </v-tooltip>
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
-import PickerContainer from "./PickerContainer.vue"
-import PickerOthers from "./PickerOthers.vue"
-import PickerFloat from "./PickerFloat.vue"
+import Tooltip from "./Tooltip.vue"
+import UniformEditorOthers from "./UniformEditorOthers.vue"
+import UniformEditorFloat from "./UniformEditorFloat.vue"
 import CodeMirror from "./codemirror/lib/codemirror"
 import "./codemirror/mode/glsl/glsl"
 import "./codemirror/addon/selection/active-line"
@@ -34,6 +36,10 @@ export interface LogEntry {
     line: number,
     description: string
 }
+export interface Uniform {
+    range: Range,
+    editor: UniformEditor
+}
 export interface UniformEditor {
     target: string
     type: "int" | "float" | "mat4" | "vec3"
@@ -48,9 +54,9 @@ export interface Range {
 export default Vue.extend( {
     name: "editor",
     components: {
-        "v-picker-container": PickerContainer,
-        "v-picker-float": PickerFloat,
-        "v-picker-others": PickerOthers
+        "v-tooltip": Tooltip,
+        "v-uniform-editor-float": UniformEditorFloat,
+        "v-uniform-editor-others": UniformEditorOthers
     },
     props: {
         value: {
@@ -69,17 +75,16 @@ export default Vue.extend( {
     data: () => ( {
         editor: {} as CodeMirror.Editor,
         document: {} as CodeMirror.Doc,
-        uniforms: new Map() as Map< Range, UniformEditor >,
-        pickerButtons: [] as HTMLElement[],
-        pickerButtonsMarkers: [] as CodeMirror.TextMarker[],
-        lastPressedRange: undefined as undefined | Range,
+        uniforms: [] as Uniform[],
+        uniformsButtons: [] as HTMLElement[],
+        uniformsButtonsMarkers: [] as CodeMirror.TextMarker[],
+        lastUniformSelected: {} as Uniform,
         tooltipTarget: document.createElement( "span" ) as HTMLElement,
-        uniformSelectedEditor: {} as UniformEditor,
-        showPicker: false
+        tooltipVisible: false
     } ),
     computed: {
-        pickerTypeComponent(): string {
-            return ( this.uniformSelectedEditor && this.uniformSelectedEditor.type === "float" ) ? "v-picker-float" : "v-picker-others"
+        editorTypeComponent(): string {
+            return ( this.lastUniformSelected.editor && this.lastUniformSelected.editor.type === "float" ) ? "v-uniform-editor-float" : "v-uniform-editor-others"
         }
     },
     model: {
@@ -180,51 +185,55 @@ export default Vue.extend( {
                 } )
             } )
         },
-        enablePickerButtons() {
-            this.pickerButtons = []
-            this.pickerButtonsMarkers = []
-            this.uniforms.forEach( ( uniformEditor, range ) => {
-                const uniformNameParts = uniformEditor.target.split( "." )
+        enableUniformsButtons() {
+            this.uniformsButtons = []
+            this.uniformsButtonsMarkers = []
 
-                const pickerButton = document.createElement( "span" )
-                pickerButton.className = "picker-button"
-                pickerButton.innerHTML = `<span class="cm-identifier editable">${ uniformNameParts[ 0 ] }</span>`
-                pickerButton.innerHTML += uniformNameParts[ 1 ] ? `<span class="cm-punctuation editable">.</span><span class="cm-attribute editable">${ uniformNameParts[ 1 ] }</span>` : ""
-                pickerButton.addEventListener( "mousedown", event => this.handlePickerButtonClick( pickerButton, uniformEditor, range ) )
-                this.pickerButtons.push( pickerButton )
+            for ( let { range, editor } of this.uniforms ) {
+                const splitUniformName = editor.target.split( "." )
 
-                const buttonMark = this.document.markText( range.from, range.to, { replacedWith: pickerButton } )
-                this.pickerButtonsMarkers.push( buttonMark )
-            } )
+                const uniformButton = document.createElement( "span" )
+                uniformButton.className = "uniform-button"
+                uniformButton.innerHTML = `<span class="cm-identifier editable">${ splitUniformName[ 0 ] }</span>`
+                uniformButton.innerHTML += splitUniformName[ 1 ] ? `<span class="cm-punctuation editable">.</span><span class="cm-attribute editable">${ splitUniformName[ 1 ] }</span>` : ""
+                uniformButton.addEventListener( "click", event => this.handleUniformClick( uniformButton, editor, range ) )
+                this.uniformsButtons.push( uniformButton )
+
+                const buttonMark = this.document.markText( range.from, range.to, { replacedWith: uniformButton } )
+                this.uniformsButtonsMarkers.push( buttonMark )
+            }
         },
-        disablePickerButtons( event: KeyboardEvent ) {
+        disableUniformsButtons( event: KeyboardEvent ) {
             if ( event.key === "Alt" ) {
-                for ( let button of this.pickerButtonsMarkers ) {
+                for ( let button of this.uniformsButtonsMarkers ) {
                     button.clear()
                 }
             }
         },
-        handlePickerButtonClick( target: HTMLElement, uniformEditor: UniformEditor, range: Range ) {
-            if ( ( this.lastPressedRange !== range ) || ( this.lastPressedRange === range && ! this.showPicker ) ) {
-                this.tooltipTarget = target
-                this.uniformSelectedEditor = uniformEditor
-                this.lastPressedRange = range
-
-                this.showPicker = true
-                document.addEventListener( "mousedown", this.handleClicksOutside )
-                this.editor.on( "scroll", this.handleScroll )
+        handleUniformClick( target: HTMLElement, editor: UniformEditor, range: Range ) {
+            if ( ( this.lastUniformSelected.range !== range ) || ( this.lastUniformSelected.range === range && ! this.tooltipVisible ) ) {
+                this.lastUniformSelected = { range, editor }
+                this.showTooltip( target )
             }
         },
         handleClicksOutside( event: MouseEvent ) {
-            const clickableArea = ( this.$refs.pickerContainer as Vue ).$el as Element
-            if ( clickableArea && ! clickableArea.contains( event.target as Node ) && ! this.pickerButtons.includes( event.target as HTMLElement ) ) {
-                this.showPicker = false
-                document.removeEventListener( "mousedown", this.handleClicksOutside )
-                this.editor.off( "scroll", this.handleScroll )
+            const clickableArea = ( this.$refs.tooltip as Vue ).$el as Element
+            if ( clickableArea && ! clickableArea.contains( event.target as Node ) && ! this.uniformsButtons.includes( event.target as HTMLElement ) ) {
+                this.hideTooltip()
             }
         },
         handleScroll() {
-            this.showPicker = false
+            this.hideTooltip()
+        },
+        showTooltip( target: HTMLElement ) {
+            this.tooltipTarget = target
+            this.tooltipVisible = true
+
+            document.addEventListener( "mousedown", this.handleClicksOutside )
+            this.editor.on( "scroll", this.handleScroll )
+        },
+        hideTooltip() {
+            this.tooltipVisible = false
             document.removeEventListener( "mousedown", this.handleClicksOutside )
             this.editor.off( "scroll", this.handleScroll )
         }
@@ -297,7 +306,7 @@ export default Vue.extend( {
             }
 
             // encuentro los rangos en el codigo que ocupan los uniforms
-            this.uniforms.clear()
+            this.uniforms = []
             const lineCount = this.document.lineCount()
 
             for ( let lineNumber = 0; lineNumber < lineCount; lineNumber ++ ) {
@@ -308,7 +317,9 @@ export default Vue.extend( {
                         if ( basic.includes( token.string ) ) {
                             const from: CodeMirror.Position = { line: lineNumber, ch: token.start }
                             const to: CodeMirror.Position   = { line: lineNumber, ch: token.end }
-                            this.uniforms.set( { from, to }, uniformsEditors.get( token.string ) as UniformEditor )
+                            const range = { from, to }
+                            const editor = uniformsEditors.get( token.string ) as UniformEditor
+                            this.uniforms.push( { range, editor } )
                         } else {
                             const structComponents = structs.get( token.string )
                             if ( structComponents !== undefined ) {
@@ -316,7 +327,9 @@ export default Vue.extend( {
                                 if ( possibleAttribute && possibleAttribute.type === "attribute" && structComponents.includes( possibleAttribute.string ) ) {
                                     const from: CodeMirror.Position = { line: lineNumber, ch: token.start }
                                     const to: CodeMirror.Position   = { line: lineNumber, ch: possibleAttribute.end }
-                                    this.uniforms.set( { from, to }, uniformsEditors.get( token.string + "." + possibleAttribute.string ) as UniformEditor )
+                                    const range = { from, to }
+                                    const editor = uniformsEditors.get( token.string + "." + possibleAttribute.string ) as UniformEditor
+                                    this.uniforms.push( { range, editor } )
                                 }
                             }
                         }
@@ -325,9 +338,9 @@ export default Vue.extend( {
             }
 
             // resalto rangos encontrados
-            this.uniforms.forEach( ( editor, range ) => {
+            for ( let { range } of this.uniforms ) {
                 this.document.markText( range.from, range.to, { className: "editable" } )
-            } )
+            }
         }
     }
 } )

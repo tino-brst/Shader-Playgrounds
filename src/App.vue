@@ -26,9 +26,9 @@ export default Vue.extend( {
             // { type: "error", line: 4, description: "'bar' - undeclared identifier" },
             // { type: "error", line: 9, description: "'foobar' - undeclared identifier" },
             // { type: "error", line: 19, description: "'bar' - super danger!" },
-            // { type: "warning", line: 15, description: "'foofoo' - just be careful" },
-            // { type: "warning", line: 15, description: "'barbar' - just be careful okay?" },
-            // { type: "warning", line: 8, description: "'foobar' - just be careful okay?" }
+            { type: "warning", line: 15, description: "'foofoo' - just be careful" },
+            { type: "warning", line: 15, description: "'barbar' - just be careful okay?" },
+            { type: "warning", line: 8, description: "'foobar' - just be careful okay?" }
         ]
         this.uniformsEditors = [
             { type: "mat4", target: "viewMatrix", locked: false },

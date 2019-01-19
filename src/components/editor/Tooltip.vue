@@ -1,9 +1,9 @@
 <template>
-    <div class="picker" ref="picker" @mousedown.stop :class="{ visible: visible, below: below }" :style="pickerStyle">
+    <div class="tooltip" ref="tooltip" @mousedown.stop :class="{ visible: visible, below: below }" :style="tooltipStyle">
         <slot>
             <div class="default-content"> ••• </div>
         </slot>
-        <div class="picker-tip" ref="pickerTip" :style="pickerTipStyle"></div>
+        <div class="tip" ref="tip" :style="tipStyle"></div>
     </div>
 </template>
 
@@ -14,7 +14,7 @@ const TARGET_OFFSET = 10
 const VIEWPORT_MARGIN = 5
 
 export default Vue.extend( {
-    name: "picker-container",
+    name: "tooltip",
     props: {
         show: {
             type: Boolean,
@@ -28,14 +28,14 @@ export default Vue.extend( {
     data: () => ( {
         visible: false,
         below: false,
-        pickerStyle: {} as { [ key: string ]: string },
-        pickerTipStyle: {} as { [ key: string ]: string }
+        tooltipStyle: {} as { [ key: string ]: string },
+        tipStyle: {} as { [ key: string ]: string }
     } ),
     watch: {
         show() {
             if ( this.show ) {
                 this.$nextTick( () => {
-                    this.adjustForOverlap()
+                    this.adjustForViewportOverlap()
                     this.visible = true
                 } )
             } else {
@@ -45,53 +45,48 @@ export default Vue.extend( {
         target() {
             this.$nextTick( () => {
                 if ( this.visible ) {
-                    this.adjustForOverlap()
+                    this.adjustForViewportOverlap()
                 }
             } )
         }
     },
     methods: {
-        adjustForOverlap() {
-            // impresentable 🤮 ...
-
+        adjustForViewportOverlap() {
+            // ajustes del contenido principal ... tiene que haber forma mas prolija 🤮
+            this.tooltipStyle = {}
+            const tooltip = this.$refs.tooltip as HTMLElement
             const targetBounds = this.target.getBoundingClientRect()
-
-            // ajustes del contenido principal
-            this.pickerStyle = {}
-            const picker = this.$refs.picker as HTMLElement
             let pastMargin = 0 // mantengo registro de cuanto se paso el contenido de los margenes para centrar el tip sobre el target
 
-            // chequeo de eje horizontal
-            const left = targetBounds.left + targetBounds.width / 2 - picker.clientWidth / 2
+            // ajuste horizontal
+            const left = targetBounds.left + targetBounds.width / 2 - tooltip.clientWidth / 2
             if ( left < VIEWPORT_MARGIN ) {
                 pastMargin = Math.max( 0, VIEWPORT_MARGIN - left )
-                this.pickerStyle.left = VIEWPORT_MARGIN + "px"
+                this.tooltipStyle.left = VIEWPORT_MARGIN + "px"
             } else {
-                const right = window.innerWidth - ( left + picker.clientWidth )
+                const right = window.innerWidth - ( left + tooltip.clientWidth )
                 if ( right < VIEWPORT_MARGIN ) {
                     pastMargin = - Math.max( 0, VIEWPORT_MARGIN - right )
-                    this.pickerStyle.right = VIEWPORT_MARGIN + "px"
+                    this.tooltipStyle.right = VIEWPORT_MARGIN + "px"
                 } else {
-                    this.pickerStyle.right = right + "px"
+                    this.tooltipStyle.right = right + "px"
                 }
             }
 
-            // chequeo de eje vertical
-            const fitsAbove = ( targetBounds.top - picker.clientHeight - TARGET_OFFSET - VIEWPORT_MARGIN * 2 ) > 0
+            // ajuste vertical
+            const fitsAbove = ( targetBounds.top - tooltip.clientHeight - TARGET_OFFSET - VIEWPORT_MARGIN * 2 ) > 0
             if ( fitsAbove ) {
-                this.pickerStyle.bottom = ( window.innerHeight - targetBounds.top + TARGET_OFFSET ) + "px"
+                this.tooltipStyle.bottom = ( window.innerHeight - targetBounds.top + TARGET_OFFSET ) + "px"
                 this.below = false
             } else {
-                this.pickerStyle.top = ( targetBounds.bottom + TARGET_OFFSET ) + "px"
+                this.tooltipStyle.top = ( targetBounds.bottom + TARGET_OFFSET ) + "px"
                 this.below = true
             }
 
             // ajustes del tip
-            this.pickerTipStyle = {}
-            const tip = this.$refs.pickerTip as HTMLElement
-
-            this.pickerTipStyle = {
-                left: picker.clientWidth / 2 - tip.clientWidth / 2 - pastMargin + "px"
+            const tip = this.$refs.tip as HTMLElement
+            this.tipStyle = {
+                left: tooltip.clientWidth / 2 - tip.clientWidth / 2 - pastMargin + "px"
             }
         }
     }
@@ -99,7 +94,7 @@ export default Vue.extend( {
 </script>
 
 <style>
-.picker {
+.tooltip {
     position: fixed;
     z-index: 10;
     border-radius: 6px;
@@ -113,24 +108,18 @@ export default Vue.extend( {
     pointer-events: none;
     transition: opacity 100ms, transform 100ms;
 }
-.picker.visible {
+.tooltip.visible {
     opacity: 1;
     pointer-events: all;
 }
 
-.picker .default-content {
-    color: gray;
-    margin: 150px 150px;
-    white-space: nowrap;
-}
-
-.picker-tip {
+.tip {
     position: absolute;
     width: 18px;
     height: 18px;
     overflow: hidden;
 }
-.picker-tip::after {
+.tip::after {
     content: "";
     position: absolute;
     box-sizing: border-box;
@@ -145,11 +134,16 @@ export default Vue.extend( {
     border: 1px solid rgb(30, 30, 30);
     backface-visibility: hidden;
 }
-.picker.below .picker-tip {
+.tooltip.below .tip {
     bottom: 100%;
 }
-.picker.below .picker-tip::after {
+.tooltip.below .tip::after {
     top: 12px;
 }
 
+.tooltip .default-content {
+    color: gray;
+    margin: 150px 150px;
+    white-space: nowrap;
+}
 </style>

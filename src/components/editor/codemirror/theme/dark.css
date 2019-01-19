@@ -570,18 +570,19 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     text-decoration-color: gray;
 }
 
-/* 🎨 Pickers */
+/* 🎨 Uniforms buttons */
 
-.picker-button {
+.uniform-button {
     padding: 2px 0px;
     border-radius: 4px;
     transition: background 0.1s;
     cursor: pointer;
+    user-select: none;
 }
-.picker-button * {
+.uniform-button * {
     pointer-events: none;
 }
-.picker-button:hover {
+.uniform-button:hover {
     background: rgba(100, 148, 237, 0.3);
 }
 
