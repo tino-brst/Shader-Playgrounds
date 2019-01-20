@@ -1,5 +1,5 @@
 <template>
-    <div class="editor" ref="editor" @keydown.alt="enableUniformsButtons" @keyup="disableUniformsButtons">
+    <div class="editor" ref="editor" @keydown="enableUniformsButtons" @keyup="disableUniformsButtons">
         <v-tooltip :show="tooltipVisible" :target="tooltipTarget" ref="tooltip" >
             <keep-alive>
                 <component :is="editorTypeComponent" :editor="lastUniformSelected.editor"></component>
@@ -199,22 +199,24 @@ export default Vue.extend( {
             this.editor.removeLineClass( lineHandle, "wrap", "CodeMirror-markedline-" + type )
             this.editor.removeLineClass( lineHandle, "gutter", "CodeMirror-markedline-gutter-" + type )
         },
-        enableUniformsButtons() {
-            this.uniformsButtons = []
-            this.uniformsButtonsMarkers = []
+        enableUniformsButtons( event: KeyboardEvent ) {
+            if ( event.key === "Alt" ) {
+                this.uniformsButtons = []
+                this.uniformsButtonsMarkers = []
 
-            for ( let { range, editor } of this.uniforms ) {
-                const splitUniformName = editor.target.split( "." )
+                for ( let { range, editor } of this.uniforms ) {
+                    const splitUniformName = editor.target.split( "." )
 
-                const uniformButton = document.createElement( "span" )
-                uniformButton.className = "uniform-button"
-                uniformButton.innerHTML = `<span class="cm-identifier editable">${ splitUniformName[ 0 ] }</span>`
-                uniformButton.innerHTML += splitUniformName[ 1 ] ? `<span class="cm-punctuation editable">.</span><span class="cm-attribute editable">${ splitUniformName[ 1 ] }</span>` : ""
-                uniformButton.addEventListener( "click", event => this.handleUniformClick( uniformButton, editor, range ) )
-                this.uniformsButtons.push( uniformButton )
+                    const uniformButton = document.createElement( "span" )
+                    uniformButton.className = "uniform-button"
+                    uniformButton.innerHTML = `<span class="cm-identifier uniform">${ splitUniformName[ 0 ] }</span>`
+                    uniformButton.innerHTML += splitUniformName[ 1 ] ? `<span class="cm-punctuation uniform">.</span><span class="cm-attribute uniform">${ splitUniformName[ 1 ] }</span>` : ""
+                    uniformButton.addEventListener( "click", event => this.handleUniformClick( uniformButton, editor, range ) )
+                    this.uniformsButtons.push( uniformButton )
 
-                const buttonMark = this.document.markText( range.from, range.to, { replacedWith: uniformButton } )
-                this.uniformsButtonsMarkers.push( buttonMark )
+                    const buttonMark = this.document.markText( range.from, range.to, { replacedWith: uniformButton } )
+                    this.uniformsButtonsMarkers.push( buttonMark )
+                }
             }
         },
         disableUniformsButtons( event: KeyboardEvent ) {
@@ -355,7 +357,7 @@ export default Vue.extend( {
 
             // resalto rangos encontrados
             for ( let { range } of this.uniforms ) {
-                this.document.markText( range.from, range.to, { className: "editable" } )
+                this.document.markText( range.from, range.to, { className: "uniform" } )
             }
         }
     }
