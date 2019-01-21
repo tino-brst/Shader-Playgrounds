@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <v-editor v-model="code" :log="logVertexShader" :uniforms-editors="uniformsEditors" :enable-tools="compiledSuccessfully"></v-editor>
+        <v-editor v-model="code" :log="logVertexShader" :uniforms-editors="uniformsEditors"></v-editor>
     </div>
 </template>
 
@@ -44,8 +44,7 @@ export default Vue.extend( {
         log: [] as LogEntry[],
         logVertexShader: { errors: new Map(), warnings: new Map() } as ShaderLog,
         logFragmentShader: { errors: new Map(), warnings: new Map() } as ShaderLog,
-        uniformsEditors: [] as UniformEditor[],
-        compiledSuccessfully: false
+        uniformsEditors: [] as UniformEditor[]
     } ),
     mounted() {
         // 📝 el log va a tener entradas tanto para el shader de vertices como de fragmentos
@@ -83,19 +82,13 @@ export default Vue.extend( {
             { type: "float", target: "surface.shininess", locked: false }
         ]
 
-        this.compiledSuccessfully = true
-
-        // setTimeout( () => {
-        //     this.uniformsEditors = [
-        //         { type: "mat4", target: "viewMatrix", locked: false },
-        //         { type: "int", target: "light.position", locked: false },
-        //         { type: "vec3", target: "light.color", locked: false },
-        //         { type: "vec3", target: "surface.ambient", locked: false },
-        //         { type: "vec3", target: "surface.diffuse", locked: false },
-        //         { type: "vec3", target: "surface.specular", locked: false },
-        //         { type: "float", target: "surface.shininess", locked: false }
-        //     ]
-        // }, 5000 )
+        setTimeout( () => {
+            this.uniformsEditors = [
+                { type: "mat4", target: "viewMatrix", locked: false },
+                { type: "int", target: "light.position", locked: false },
+                { type: "vec3", target: "light.color", locked: false }
+            ]
+        }, 5000 )
     },
     watch: {
         log( newLog: LogEntry[] ) {

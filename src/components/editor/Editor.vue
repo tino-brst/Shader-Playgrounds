@@ -57,10 +57,6 @@ export default Vue.extend( {
         uniformsEditors: {
             type: Array as () => UniformEditor[],
             default: () => []
-        },
-        enableTools: {
-            type: Boolean,
-            default: false
         }
     },
     data: () => ( {
@@ -109,10 +105,6 @@ export default Vue.extend( {
         this.editor.on( "change", this.updateValue )
         this.editor.on( "keydown", this.handleShowHints )
         this.editor.focus()
-
-        window.addEventListener( "keydown", this.handleToolsKey )
-        window.addEventListener( "keyup", this.handleToolsKey )
-        window.addEventListener( "blur", this.disableUniformsButtons )
     },
     methods: {
         updateValue() {
@@ -297,6 +289,13 @@ export default Vue.extend( {
                 button.clear()
             }
         },
+        flashUniformsButtons() {
+            this.enableUniformsButtons()
+            for ( let button of this.uniformsButtons ) {
+                button.classList.add( "flash" )
+            }
+            setTimeout( () => this.disableUniformsButtons(), 700 )
+        },
         handleToolsKey( event: KeyboardEvent ) {
             if ( event.key === TOOLS_KEY ) {
                 if ( event.type === "keydown" ) {
@@ -347,12 +346,21 @@ export default Vue.extend( {
                 this.showLog( this.log.warnings, LogEntryType.Warning )
             }
         },
-        enableTools( newValue: boolean ) {
-            if ( newValue === true ) {
-                if ( this.uniformsEditors.length > 0 ) {
-                    this.scanForUniforms()
-                    this.markUniforms()
-                }
+        uniformsEditors( newEditors: UniformEditor[] ) {
+            this.unmarkUniforms()
+            if ( this.uniformsEditors.length > 0 ) {
+                this.scanForUniforms()
+                this.markUniforms()
+                this.flashUniformsButtons()
+                window.addEventListener( "keydown", this.handleToolsKey )
+                window.addEventListener( "keyup", this.handleToolsKey )
+                window.addEventListener( "blur", this.disableUniformsButtons )
+                this.editor.on( "change", () => {
+                    this.unmarkUniforms()
+                    window.removeEventListener( "keydown", this.handleToolsKey )
+                    window.removeEventListener( "keyup", this.handleToolsKey )
+                    window.removeEventListener( "blur", this.disableUniformsButtons )
+                } )
             }
         }
     }
