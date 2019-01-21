@@ -13,6 +13,7 @@ import Vue from "vue"
 import Tooltip from "./Tooltip.vue"
 import UniformEditorOthers from "./UniformEditorOthers.vue"
 import UniformEditorFloat from "./UniformEditorFloat.vue"
+import { ShaderType, LogEntry, LogEntryType, ShaderLog, UniformEditor } from "@/App.vue"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "./codemirror/lib/codemirror"
 import "./codemirror/mode/glsl/glsl"
 import "./codemirror/addon/selection/active-line"
@@ -26,27 +27,11 @@ import "./codemirror/addon/fold/comment-fold"
 import "./codemirror/addon/hint/show-hint"
 import "./codemirror/addon/hint/glsl-hint"
 
-enum LogEntryType {
-    Error = "error",
-    Warning = "warning"
-}
-
-export interface LogEntry {
-    type: "error" | "warning",
-    line: number,
-    description: string
-}
-export interface Uniform {
+interface Uniform {
     range: Range,
     editor: UniformEditor
 }
-export interface UniformEditor {
-    target: string
-    type: "int" | "float" | "mat4" | "vec3"
-    locked: boolean
-    // setValue: ( value: any ) => void
-}
-export interface Range {
+interface Range {
     from: Position
     to: Position
 }
@@ -64,8 +49,8 @@ export default Vue.extend( {
             default: ""
         },
         log: {
-            type: Array as () => LogEntry[],
-            default: () => []
+            type: Object as () => ShaderLog,
+            default: null
         },
         uniformsEditors: {
             type: Array as () => UniformEditor[],
@@ -75,7 +60,7 @@ export default Vue.extend( {
     data: () => ( {
         editor: {} as Editor,
         document: {} as Doc,
-        logLines: [] as Array <{ lineHandle: LineHandle, type: LogEntryType }>,
+        linesWithLogInfo: [] as Array <{ lineHandle: LineHandle, type: LogEntryType }>,
         uniforms: [] as Uniform[],
         uniformsButtons: [] as HTMLElement[],
         uniformsButtonsMarkers: [] as TextMarker[],
@@ -152,7 +137,8 @@ export default Vue.extend( {
             }
         },
         showLog( entries: Map < number, string[] >, type: LogEntryType ) {
-            entries.forEach( ( descriptions, line ) => {
+            this.clearLog()
+            entries.forEach( ( descriptions, lineNumber ) => {
                 const marker = document.createElement( "div" )
                 marker.className = "CodeMirror-marker-" + type
 
@@ -173,14 +159,14 @@ export default Vue.extend( {
                     markerTooltip.classList.remove( "visible" )
                 } )
 
-                this.addLogInfo( line, marker, type )
+                this.addLogInfo( lineNumber, marker, type )
             } )
         },
         clearLog() {
-            for ( let { lineHandle, type } of this.logLines ) {
+            for ( let { lineHandle, type } of this.linesWithLogInfo ) {
                 this.removeLogInfo( lineHandle, type )
             }
-            this.logLines = []
+            this.linesWithLogInfo = []
         },
         addLogInfo( line: number, marker: HTMLElement, type: LogEntryType ) {
             const lineHandle = this.editor.setGutterMarker( line, "CodeMirror-markers", marker )
@@ -192,7 +178,7 @@ export default Vue.extend( {
                 this.removeLogInfo( lineHandle, type )
             } )
 
-            this.logLines.push( { lineHandle, type } )
+            this.linesWithLogInfo.push( { lineHandle, type } )
         },
         removeLogInfo( lineHandle: LineHandle, type: LogEntryType ) {
             this.editor.setGutterMarker( lineHandle, "CodeMirror-markers", null )
@@ -261,28 +247,10 @@ export default Vue.extend( {
             }
         },
         log( newLog: LogEntry[] ) {
-            this.clearLog()
-
-            const errors: Map < number, string[] > = new Map()
-            const warnings: Map < number, string[] > = new Map()
-
-            // separo el log en errores y warnings, agrupandolos por nro. de linea
-            for ( let entry of newLog ) {
-                const targetList = entry.type === LogEntryType.Error ? errors : warnings
-                const line = entry.line - 1 // one-based -> zero-based
-                const lineLogEntries = targetList.get( line )
-
-                if ( lineLogEntries === undefined ) {
-                    targetList.set( line, [ entry.description ] )
-                } else {
-                    lineLogEntries.push( entry.description )
-                }
-            }
-
-            this.showLog( errors, LogEntryType.Error )
-
-            if ( errors.size === 0 ) {
-                this.showLog( warnings, LogEntryType.Warning )
+            if ( this.log.errors.size > 0 ) {
+                this.showLog( this.log.errors, LogEntryType.Error )
+            } else if ( this.log.warnings.size > 0 ) {
+                this.showLog( this.log.warnings, LogEntryType.Warning )
             }
         },
         uniformsEditors( newUniformsEditors: UniformEditor[] ) {
