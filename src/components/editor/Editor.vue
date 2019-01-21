@@ -1,6 +1,6 @@
 <template>
-    <div class="editor" ref="editor" @keydown="enableUniformsButtons" @keyup="disableUniformsButtons">
-        <v-tooltip :show="tooltipVisible" :target="tooltipTarget" ref="tooltip" >
+    <div class="editor" ref="editor">
+        <v-tooltip :show="tooltipVisible" :target="tooltipTarget" ref="tooltip">
             <keep-alive>
                 <component :is="editorTypeComponent" :editor="lastUniformSelected.editor"></component>
             </keep-alive>
@@ -26,6 +26,8 @@ import "./codemirror/addon/fold/brace-fold"
 import "./codemirror/addon/fold/comment-fold"
 import "./codemirror/addon/hint/show-hint"
 import "./codemirror/addon/hint/glsl-hint"
+
+const TOOLS_KEY = "Alt"
 
 interface Uniform {
     range: Range,
@@ -55,6 +57,10 @@ export default Vue.extend( {
         uniformsEditors: {
             type: Array as () => UniformEditor[],
             default: () => []
+        },
+        enableTools: {
+            type: Boolean,
+            default: false
         }
     },
     data: () => ( {
@@ -62,6 +68,7 @@ export default Vue.extend( {
         document: {} as Doc,
         linesWithLogInfo: [] as Array <{ lineHandle: LineHandle, type: LogEntryType }>,
         uniforms: [] as Uniform[],
+        uniformsMarkers: [] as TextMarker[],
         uniformsButtons: [] as HTMLElement[],
         uniformsButtonsMarkers: [] as TextMarker[],
         lastUniformSelected: {} as Uniform,
@@ -102,6 +109,10 @@ export default Vue.extend( {
         this.editor.on( "change", this.updateValue )
         this.editor.on( "keydown", this.handleShowHints )
         this.editor.focus()
+
+        window.addEventListener( "keydown", this.handleToolsKey )
+        window.addEventListener( "keyup", this.handleToolsKey )
+        window.addEventListener( "blur", this.disableUniformsButtons )
     },
     methods: {
         updateValue() {
@@ -185,81 +196,11 @@ export default Vue.extend( {
             this.editor.removeLineClass( lineHandle, "wrap", "CodeMirror-markedline-" + type )
             this.editor.removeLineClass( lineHandle, "gutter", "CodeMirror-markedline-gutter-" + type )
         },
-        enableUniformsButtons( event: KeyboardEvent ) {
-            if ( event.key === "Alt" ) {
-                this.uniformsButtons = []
-                this.uniformsButtonsMarkers = []
-
-                for ( let { range, editor } of this.uniforms ) {
-                    const splitUniformName = editor.target.split( "." )
-
-                    const uniformButton = document.createElement( "span" )
-                    uniformButton.className = "uniform-button"
-                    uniformButton.innerHTML = `<span class="cm-identifier uniform">${ splitUniformName[ 0 ] }</span>`
-                    uniformButton.innerHTML += splitUniformName[ 1 ] ? `<span class="cm-punctuation uniform">.</span><span class="cm-attribute uniform">${ splitUniformName[ 1 ] }</span>` : ""
-                    uniformButton.addEventListener( "click", event => this.handleUniformClick( uniformButton, editor, range ) )
-                    this.uniformsButtons.push( uniformButton )
-
-                    const buttonMark = this.document.markText( range.from, range.to, { replacedWith: uniformButton } )
-                    this.uniformsButtonsMarkers.push( buttonMark )
-                }
-            }
-        },
-        disableUniformsButtons( event: KeyboardEvent ) {
-            if ( event.key === "Alt" ) {
-                for ( let button of this.uniformsButtonsMarkers ) {
-                    button.clear()
-                }
-            }
-        },
-        handleUniformClick( target: HTMLElement, editor: UniformEditor, range: Range ) {
-            if ( ( this.lastUniformSelected.range !== range ) || ( this.lastUniformSelected.range === range && ! this.tooltipVisible ) ) {
-                this.lastUniformSelected = { range, editor }
-                this.showTooltip( target )
-            }
-        },
-        handleClicksOutside( event: MouseEvent ) {
-            const clickableArea = ( this.$refs.tooltip as Vue ).$el as Element
-            if ( clickableArea && ! clickableArea.contains( event.target as Node ) && ! this.uniformsButtons.includes( event.target as HTMLElement ) ) {
-                this.hideTooltip()
-            }
-        },
-        handleScroll() {
-            this.hideTooltip()
-        },
-        showTooltip( target: HTMLElement ) {
-            this.tooltipTarget = target
-            this.tooltipVisible = true
-
-            document.addEventListener( "mousedown", this.handleClicksOutside )
-            this.editor.on( "scroll", this.handleScroll )
-        },
-        hideTooltip() {
-            this.tooltipVisible = false
-            document.removeEventListener( "mousedown", this.handleClicksOutside )
-            this.editor.off( "scroll", this.handleScroll )
-        }
-    },
-    watch: {
-        value( newValue: string ) {
-            if ( newValue !== this.editor.getValue() ) {
-                this.editor.setValue( newValue )
-            }
-        },
-        log( newLog: LogEntry[] ) {
-            if ( this.log.errors.size > 0 ) {
-                this.showLog( this.log.errors, LogEntryType.Error )
-            } else if ( this.log.warnings.size > 0 ) {
-                this.showLog( this.log.warnings, LogEntryType.Warning )
-            }
-        },
-        uniformsEditors( newUniformsEditors: UniformEditor[] ) {
-            // ⚠️ contemplar que se deberian poder editar solo cuando no hay errores
-
+        scanForUniforms() {
             const uniformsEditors: Map <string, UniformEditor> = new Map()
             const uniformsNames: Array <string> = []
 
-            for ( let editor of newUniformsEditors ) {
+            for ( let editor of this.uniformsEditors ) {
                 // mapa para acceso rapido de editores
                 uniformsEditors.set( editor.target, editor )
                 // nombres de uniforms desarmados:
@@ -322,10 +263,96 @@ export default Vue.extend( {
                     }
                 }
             }
-
-            // resalto rangos encontrados
+        },
+        markUniforms() {
+            this.uniformsMarkers = []
             for ( let { range } of this.uniforms ) {
-                this.document.markText( range.from, range.to, { className: "uniform" } )
+                this.uniformsMarkers.push( this.document.markText( range.from, range.to, { className: "uniform" } ) )
+            }
+        },
+        unmarkUniforms() {
+            for ( let marker of this.uniformsMarkers ) {
+                marker.clear()
+            }
+        },
+        enableUniformsButtons() {
+            this.uniformsButtons = []
+            this.uniformsButtonsMarkers = []
+
+            for ( let { range, editor } of this.uniforms ) {
+                const splitUniformName = editor.target.split( "." )
+
+                const uniformButton = document.createElement( "span" )
+                uniformButton.className = "uniform-button"
+                uniformButton.innerHTML = `<span class="cm-identifier uniform">${ splitUniformName[ 0 ] }</span>`
+                uniformButton.innerHTML += splitUniformName[ 1 ] ? `<span class="cm-punctuation uniform">.</span><span class="cm-attribute uniform">${ splitUniformName[ 1 ] }</span>` : ""
+                uniformButton.addEventListener( "click", event => this.handleUniformClick( uniformButton, editor, range ) )
+
+                this.uniformsButtons.push( uniformButton )
+                this.uniformsButtonsMarkers.push( this.document.markText( range.from, range.to, { replacedWith: uniformButton } ) )
+            }
+        },
+        disableUniformsButtons() {
+            for ( let button of this.uniformsButtonsMarkers ) {
+                button.clear()
+            }
+        },
+        handleToolsKey( event: KeyboardEvent ) {
+            if ( event.key === TOOLS_KEY ) {
+                if ( event.type === "keydown" ) {
+                    this.enableUniformsButtons()
+                } else {
+                    this.disableUniformsButtons()
+                }
+            }
+        },
+        handleUniformClick( target: HTMLElement, editor: UniformEditor, range: Range ) {
+            if ( ( this.lastUniformSelected.range !== range ) || ( this.lastUniformSelected.range === range && ! this.tooltipVisible ) ) {
+                this.lastUniformSelected = { range, editor }
+                this.showTooltip( target )
+            }
+        },
+        handleClicksOutside( event: MouseEvent ) {
+            const clickableArea = ( this.$refs.tooltip as Vue ).$el as Element
+            if ( clickableArea && ! clickableArea.contains( event.target as Node ) && ! this.uniformsButtons.includes( event.target as HTMLElement ) ) {
+                this.hideTooltip()
+            }
+        },
+        handleScroll() {
+            this.hideTooltip()
+        },
+        showTooltip( target: HTMLElement ) {
+            this.tooltipTarget = target
+            this.tooltipVisible = true
+
+            document.addEventListener( "mousedown", this.handleClicksOutside )
+            this.editor.on( "scroll", this.handleScroll )
+        },
+        hideTooltip() {
+            this.tooltipVisible = false
+            document.removeEventListener( "mousedown", this.handleClicksOutside )
+            this.editor.off( "scroll", this.handleScroll )
+        }
+    },
+    watch: {
+        value( newValue: string ) {
+            if ( newValue !== this.editor.getValue() ) {
+                this.editor.setValue( newValue )
+            }
+        },
+        log( newLog: LogEntry[] ) {
+            if ( this.log.errors.size > 0 ) {
+                this.showLog( this.log.errors, LogEntryType.Error )
+            } else if ( this.log.warnings.size > 0 ) {
+                this.showLog( this.log.warnings, LogEntryType.Warning )
+            }
+        },
+        enableTools( newValue: boolean ) {
+            if ( newValue === true ) {
+                if ( this.uniformsEditors.length > 0 ) {
+                    this.scanForUniforms()
+                    this.markUniforms()
+                }
             }
         }
     }

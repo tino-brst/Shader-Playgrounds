@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import Vue from "vue"
-import { UniformEditor } from "./Editor.vue"
+import { UniformEditor } from "@/App.vue"
 
 export default Vue.extend( {
     name: "uniform-editor-others",
