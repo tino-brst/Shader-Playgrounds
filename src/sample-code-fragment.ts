@@ -16,18 +16,16 @@ uniform mat4 viewMatrix;
 uniform Light light;
 uniform Surface surface;
 
-varying vec3 fragmentPosition;
+varying vec4 fragmentPosition;
 varying vec3 fragmentNormal;
 
 void main() {
 
-    /* Modelo de Iluminacion de Phong */
-
     // Calculos preliminares
-    vec3 L = normalize(vec3(viewMatrix * vec4(light.position, 1.0)) - fragmentPosition);
+    vec3 L = normalize(vec3(viewMatrix * vec4(light.position, 1.0)) - vec3(fragmentPosition));
     vec3 N = fragmentNormal;
     vec3 R = reflect(-L, N);
-    vec3 V = normalize(-fragmentPosition);  // punto de vista - posicion del fragmento (en coordenadas de la camara la camara esta en el origen (0,0,0))
+    vec3 V = normalize(-vec3(fragmentPosition));  // punto de vista - posicion del fragmento (en coordenadas de la camara la camara esta en el origen (0,0,0))
     float LdotN = max(dot(L, N), 0.0);
     float RdotV = max(dot(R, V), 0.0);
 

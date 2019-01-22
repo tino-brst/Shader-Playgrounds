@@ -1,13 +1,14 @@
 <template>
     <div id="app">
-        <v-editor v-model="code" :log="logVertexShader" :uniforms-editors="uniformsEditors" />
+        <v-editor v-model="codeVertexShader" :log="logVertexShader" :uniforms-editors="uniformsEditors" />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
 import Editor from "./components/editor/Editor.vue"
-import sampleCode from "./sample-code"
+import sampleCodeVertex from "./sample-code-vertex"
+import sampleCodeFragment from "./sample-code-fragment"
 
 export enum ShaderType {
     Vertex = "vertex",
@@ -40,7 +41,9 @@ export default Vue.extend( {
         "v-editor": Editor
     },
     data: () => ( {
-        code: sampleCode,
+        tab: 0,
+        codeVertexShader: sampleCodeVertex,
+        codeFragmentShader: sampleCodeFragment,
         log: [] as LogEntry[],
         logVertexShader: { errors: new Map(), warnings: new Map() } as ShaderLog,
         logFragmentShader: { errors: new Map(), warnings: new Map() } as ShaderLog,
@@ -97,6 +100,9 @@ export default Vue.extend( {
 
         this.uniformsEditors = [
             { type: "mat4", target: "viewMatrix", locked: false },
+            { type: "mat4", target: "modelViewProjectionMatrix", locked: false },
+            { type: "mat4", target: "modelViewMatrix", locked: false },
+            { type: "mat4", target: "normalMatrix", locked: false },
             { type: "int", target: "light.position", locked: false },
             { type: "vec3", target: "light.color", locked: false },
             { type: "vec3", target: "surface.ambient", locked: false },
