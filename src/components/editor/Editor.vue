@@ -2,7 +2,7 @@
     <div class="editor" ref="editor">
         <v-tooltip :show="tooltipVisible" :target="tooltipTarget" ref="tooltip">
             <keep-alive>
-                <component :is="editorTypeComponent" :editor="lastUniformSelected.editor"></component>
+                <component :is="editorTypeComponent" :editor="lastUniformSelected.editor" />
             </keep-alive>
         </v-tooltip>
     </div>
@@ -39,11 +39,14 @@ interface Range {
 }
 
 export default Vue.extend( {
-    name: "editor",
+    name: "Editor",
     components: {
         "v-tooltip": Tooltip,
         "v-uniform-editor-float": UniformEditorFloat,
         "v-uniform-editor-others": UniformEditorOthers
+    },
+    model: {
+        event: "change"
     },
     props: {
         value: {
@@ -80,8 +83,37 @@ export default Vue.extend( {
             }
         }
     },
-    model: {
-        event: "change"
+    watch: {
+        value( newValue: string ) {
+            if ( newValue !== this.editor.getValue() ) {
+                this.editor.setValue( newValue )
+            }
+        },
+        log( newLog: LogEntry[] ) {
+            if ( this.log.errors.size > 0 ) {
+                this.showLog( this.log.errors, LogEntryType.Error )
+            } else if ( this.log.warnings.size > 0 ) {
+                this.showLog( this.log.warnings, LogEntryType.Warning )
+            }
+        },
+        uniformsEditors( newEditors: UniformEditor[] ) {
+            this.unmarkUniforms()
+            this.tooltipVisible = false
+            if ( this.uniformsEditors.length > 0 ) {
+                this.scanForUniforms()
+                this.markUniforms()
+                this.flashUniformsButtons()
+                window.addEventListener( "keydown", this.handleToolsKey )
+                window.addEventListener( "keyup", this.handleToolsKey )
+                window.addEventListener( "blur", this.disableUniformsButtons )
+                this.editor.on( "change", () => {
+                    this.unmarkUniforms()
+                    window.removeEventListener( "keydown", this.handleToolsKey )
+                    window.removeEventListener( "keyup", this.handleToolsKey )
+                    window.removeEventListener( "blur", this.disableUniformsButtons )
+                } )
+            }
+        }
     },
     mounted() {
         this.editor = CodeMirror( this.$refs.editor as HTMLElement, {
@@ -331,37 +363,6 @@ export default Vue.extend( {
             this.tooltipVisible = false
             document.removeEventListener( "mousedown", this.handleClicksOutside )
             this.editor.off( "scroll", this.handleScroll )
-        }
-    },
-    watch: {
-        value( newValue: string ) {
-            if ( newValue !== this.editor.getValue() ) {
-                this.editor.setValue( newValue )
-            }
-        },
-        log( newLog: LogEntry[] ) {
-            if ( this.log.errors.size > 0 ) {
-                this.showLog( this.log.errors, LogEntryType.Error )
-            } else if ( this.log.warnings.size > 0 ) {
-                this.showLog( this.log.warnings, LogEntryType.Warning )
-            }
-        },
-        uniformsEditors( newEditors: UniformEditor[] ) {
-            this.unmarkUniforms()
-            if ( this.uniformsEditors.length > 0 ) {
-                this.scanForUniforms()
-                this.markUniforms()
-                this.flashUniformsButtons()
-                window.addEventListener( "keydown", this.handleToolsKey )
-                window.addEventListener( "keyup", this.handleToolsKey )
-                window.addEventListener( "blur", this.disableUniformsButtons )
-                this.editor.on( "change", () => {
-                    this.unmarkUniforms()
-                    window.removeEventListener( "keydown", this.handleToolsKey )
-                    window.removeEventListener( "keyup", this.handleToolsKey )
-                    window.removeEventListener( "blur", this.disableUniformsButtons )
-                } )
-            }
         }
     }
 } )
