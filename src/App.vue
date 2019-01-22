@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <v-editor v-model="code" :log="logVertexShader" :uniforms-editors="uniformsEditors"></v-editor>
+        <v-editor v-model="code" :log="logVertexShader" :uniforms-editors="uniformsEditors" />
     </div>
 </template>
 
@@ -35,7 +35,7 @@ export interface UniformEditor {
 }
 
 export default Vue.extend( {
-    name: "app",
+    name: "App",
     components: {
         "v-editor": Editor
     },
@@ -46,6 +46,29 @@ export default Vue.extend( {
         logFragmentShader: { errors: new Map(), warnings: new Map() } as ShaderLog,
         uniformsEditors: [] as UniformEditor[]
     } ),
+    watch: {
+        log( newLog: LogEntry[] ) {
+            const logVertexShader: ShaderLog = { errors: new Map(), warnings: new Map() }
+            const logFragmentShader: ShaderLog = { errors: new Map(), warnings: new Map() }
+
+            // organizo el log en vertex/fragment, warnings/errors y los agrupo por nro. de linea
+            for ( let entry of newLog ) {
+                const shaderLog = ( entry.shader === ShaderType.Vertex ) ? logVertexShader : logFragmentShader
+                const entries = ( entry.type === LogEntryType.Error ) ? shaderLog.errors : shaderLog.warnings
+                const lineNumber = entry.line - 1 // one-based -> zero-based
+                const lineEntries = entries.get( lineNumber )
+
+                if ( lineEntries === undefined ) {
+                    entries.set( lineNumber, [ entry.description ] )
+                } else {
+                    lineEntries.push( entry.description )
+                }
+            }
+
+            this.logVertexShader = logVertexShader
+            this.logFragmentShader = logFragmentShader
+        }
+    },
     mounted() {
         // 📝 el log va a tener entradas tanto para el shader de vertices como de fragmentos
         // this.log = [
@@ -89,29 +112,6 @@ export default Vue.extend( {
                 { type: "vec3", target: "light.color", locked: false }
             ]
         }, 5000 )
-    },
-    watch: {
-        log( newLog: LogEntry[] ) {
-            const logVertexShader: ShaderLog = { errors: new Map(), warnings: new Map() }
-            const logFragmentShader: ShaderLog = { errors: new Map(), warnings: new Map() }
-
-            // organizo el log en vertex/fragment, warnings/errors y los agrupo por nro. de linea
-            for ( let entry of newLog ) {
-                const shaderLog = ( entry.shader === ShaderType.Vertex ) ? logVertexShader : logFragmentShader
-                const entries = ( entry.type === LogEntryType.Error ) ? shaderLog.errors : shaderLog.warnings
-                const lineNumber = entry.line - 1 // one-based -> zero-based
-                const lineEntries = entries.get( lineNumber )
-
-                if ( lineEntries === undefined ) {
-                    entries.set( lineNumber, [ entry.description ] )
-                } else {
-                    lineEntries.push( entry.description )
-                }
-            }
-
-            this.logVertexShader = logVertexShader
-            this.logFragmentShader = logFragmentShader
-        }
     }
 } )
 </script>

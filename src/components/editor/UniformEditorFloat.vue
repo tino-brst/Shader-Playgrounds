@@ -7,7 +7,7 @@
 <script lang="ts">
 import Vue from "vue"
 export default Vue.extend( {
-    name: "uniform-editor-float",
+    name: "UniformEditorFloat",
     props: {
         editor: {
             type: Object,

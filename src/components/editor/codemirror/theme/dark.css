@@ -56,7 +56,6 @@
     white-space: nowrap;
 }
 
-.CodeMirror-linenumbers {}
 .CodeMirror-linenumber {
     padding: 0 3px 0 5px;
     min-width: 20px;
@@ -66,9 +65,6 @@
     color: rgb(95, 95, 95);
     white-space: nowrap;
 }
-
-.CodeMirror-guttermarker { color: red; }
-.CodeMirror-guttermarker-subtle { color: red; }
 
 .CodeMirror-foldgutter {
     width: 15px;
@@ -734,8 +730,6 @@ flickering artifacts. */
     z-index: 2;
     padding: 0.1px; /* Force widget margins to stay inside of the container */
 }
-
-.CodeMirror-widget {}
 
 .CodeMirror-rtl pre { direction: rtl; }
 

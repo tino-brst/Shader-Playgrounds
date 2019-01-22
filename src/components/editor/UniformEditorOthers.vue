@@ -1,10 +1,18 @@
 <template>
     <div class="uniform-editor-others">
-        <span class="type"> {{ editor.type }} </span>
-        <span class="identifier">{{ identifier }}</span>
+        <span class="type">
+            {{ editor.type }}
+        </span>
+        <span class="identifier">
+            {{ identifier }}
+        </span>
         <template v-if="attribute">
-            <span class="punctuation">.</span>
-            <span class="attribute">{{ attribute }}</span>
+            <span class="punctuation">
+                .
+            </span>
+            <span class="attribute">
+                {{ attribute }}
+            </span>
         </template>
     </div>
 </template>
@@ -14,7 +22,7 @@ import Vue from "vue"
 import { UniformEditor } from "@/App.vue"
 
 export default Vue.extend( {
-    name: "uniform-editor-others",
+    name: "UniformEditorOthers",
     props: {
         editor: {
             type: Object as () => UniformEditor,
