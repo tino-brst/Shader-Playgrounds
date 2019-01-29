@@ -111,13 +111,13 @@ export default Vue.extend( {
             { type: "float", target: "surface.shininess", locked: false }
         ]
 
-        setTimeout( () => {
-            this.uniformsEditors = [
-                { type: "mat4", target: "viewMatrix", locked: false },
-                { type: "int", target: "light.position", locked: false },
-                { type: "vec3", target: "light.color", locked: false }
-            ]
-        }, 5000 )
+        // setTimeout( () => {
+        //     this.uniformsEditors = [
+        //         { type: "mat4", target: "viewMatrix", locked: false },
+        //         { type: "int", target: "light.position", locked: false },
+        //         { type: "vec3", target: "light.color", locked: false }
+        //     ]
+        // }, 5000 )
     }
 } )
 </script>

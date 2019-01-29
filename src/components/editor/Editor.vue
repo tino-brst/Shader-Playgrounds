@@ -70,6 +70,7 @@ export default Vue.extend( {
         uniformsMarkers: [] as TextMarker[],
         uniformsButtons: [] as HTMLElement[],
         uniformsButtonsMarkers: [] as TextMarker[],
+        uniformsButtonsEnabled: false,
         lastUniformSelected: {} as Uniform,
         tooltipTarget: document.createElement( "span" ) as HTMLElement,
         tooltipVisible: false
@@ -300,26 +301,30 @@ export default Vue.extend( {
             }
         },
         enableUniformsButtons() {
-            this.uniformsButtons = []
-            this.uniformsButtonsMarkers = []
+            if ( ! this.uniformsButtonsEnabled ) {
+                this.uniformsButtons = []
+                this.uniformsButtonsMarkers = []
+                this.uniformsButtonsEnabled = true
 
-            for ( let { range, editor } of this.uniforms ) {
-                const splitUniformName = editor.target.split( "." )
+                for ( let { range, editor } of this.uniforms ) {
+                    const splitUniformName = editor.target.split( "." )
 
-                const uniformButton = document.createElement( "span" )
-                uniformButton.className = "uniform-button"
-                uniformButton.innerHTML = `<span class="cm-identifier uniform">${ splitUniformName[ 0 ] }</span>`
-                uniformButton.innerHTML += splitUniformName[ 1 ] ? `<span class="cm-punctuation uniform">.</span><span class="cm-attribute uniform">${ splitUniformName[ 1 ] }</span>` : ""
-                uniformButton.addEventListener( "click", event => this.handleUniformClick( uniformButton, editor, range ) )
+                    const uniformButton = document.createElement( "span" )
+                    uniformButton.className = "uniform-button"
+                    uniformButton.innerHTML = `<span class="cm-identifier uniform">${ splitUniformName[ 0 ] }</span>`
+                    uniformButton.innerHTML += splitUniformName[ 1 ] ? `<span class="cm-punctuation uniform">.</span><span class="cm-attribute uniform">${ splitUniformName[ 1 ] }</span>` : ""
+                    uniformButton.addEventListener( "click", event => this.handleUniformClick( uniformButton, editor, range ) )
 
-                this.uniformsButtons.push( uniformButton )
-                this.uniformsButtonsMarkers.push( this.document.markText( range.from, range.to, { replacedWith: uniformButton } ) )
+                    this.uniformsButtons.push( uniformButton )
+                    this.uniformsButtonsMarkers.push( this.document.markText( range.from, range.to, { replacedWith: uniformButton } ) )
+                }
             }
         },
         disableUniformsButtons() {
             for ( let button of this.uniformsButtonsMarkers ) {
                 button.clear()
             }
+            this.uniformsButtonsEnabled = false
         },
         flashUniformsButtons() {
             this.enableUniformsButtons()
