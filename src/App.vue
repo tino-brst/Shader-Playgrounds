@@ -4,7 +4,7 @@
             :active-shader="activeShader"
             :vertex="codeVertexShader"
             :fragment="codeFragmentShader"
-            :log="logVertexShader"
+            :log="log"
             :uniforms-editors="uniformsEditors"
             @change="updateShader"
         />
@@ -31,6 +31,10 @@ export interface LogEntry {
     line: number,
     description: string
 }
+export interface Log {
+    vertex: ShaderLog,
+    fragment: ShaderLog
+}
 export interface ShaderLog {
     errors: Map < number, string[] >,
     warnings: Map < number, string[] >
@@ -51,62 +55,45 @@ export default Vue.extend( {
         activeShader: ShaderType.Vertex,
         codeVertexShader: sampleCodeVertex,
         codeFragmentShader: sampleCodeFragment,
-        log: [] as LogEntry[],
-        logVertexShader: { errors: new Map(), warnings: new Map() } as ShaderLog,
-        logFragmentShader: { errors: new Map(), warnings: new Map() } as ShaderLog,
+        log: {
+            vertex: { errors: new Map(), warnings: new Map() },
+            fragment: { errors: new Map(), warnings: new Map() }
+        } as Log,
         uniformsEditors: [] as UniformEditor[]
     } ),
-    watch: {
-        log( newLog: LogEntry[] ) {
-            const logVertexShader: ShaderLog = { errors: new Map(), warnings: new Map() }
-            const logFragmentShader: ShaderLog = { errors: new Map(), warnings: new Map() }
-
-            // organizo el log en vertex/fragment, warnings/errors y los agrupo por nro. de linea
-            for ( let entry of newLog ) {
-                const shaderLog = ( entry.shader === ShaderType.Vertex ) ? logVertexShader : logFragmentShader
-                const entries = ( entry.type === LogEntryType.Error ) ? shaderLog.errors : shaderLog.warnings
-                const lineNumber = entry.line - 1 // one-based -> zero-based
-                const lineEntries = entries.get( lineNumber )
-
-                if ( lineEntries === undefined ) {
-                    entries.set( lineNumber, [ entry.description ] )
-                } else {
-                    lineEntries.push( entry.description )
-                }
-            }
-
-            this.logVertexShader = logVertexShader
-            this.logFragmentShader = logFragmentShader
-        }
-    },
     mounted() {
         // shorcuts para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl )
         window.addEventListener( "keydown", this.handleActiveShaderChange )
 
         // 📝 el log va a tener entradas tanto para el shader de vertices como de fragmentos
-        this.log = [
+        this.updateLog( [
             { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 3, description: "'foo' - syntax error" },
             { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 3, description: "'bar' - undeclared identifier" },
             { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 9, description: "'foobar' - undeclared identifier" },
             { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 14, description: "'bar' - super danger!" },
-            { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 15, description: "'foofoo' - just be careful" },
+            { shader: ShaderType.Fragment, type: LogEntryType.Error, line: 15, description: "'bar' - super danger!" },
+            { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 14, description: "'foofoo' - just be careful" },
             { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 15, description: "'barbar' - just be careful okay?" },
             { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'foobar' - just be careful okay?" }
-        ]
+        ] )
 
-        // setTimeout( () => {
-        //     this.log = [
-        //         { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 16, description: "'foo' - syntax error" },
-        //         { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 16, description: "'bar' - undeclared identifier" }
-        //     ]
-        // }, 1000 )
+        setTimeout( () => {
+            this.updateLog( [
+                { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 2, description: "'foo' - syntax error" },
+                { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 2, description: "'bar' - undeclared identifier" },
+                { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 9, description: "'barbar' - just be careful okay?" },
+                { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 9, description: "'foobar' - just be careful okay?" }
+            ] )
+        }, 1000 )
 
-        // setTimeout( () => {
-        //     this.log = [
-        //         { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 10, description: "'foofoo' - just be careful" },
-        //         { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 10, description: "'barbar' - just be careful okay?" }
-        //     ]
-        // }, 2000 )
+        setTimeout( () => {
+            this.updateLog( [
+                { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'foofoo' - just be careful" },
+                { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'barbar' - just be careful okay?" },
+                { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'barbar' - just be careful okay?" },
+                { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'foobar' - just be careful okay?" }
+            ] )
+        }, 2000 )
 
         this.uniformsEditors = [
             { type: "mat4", target: "viewMatrix", locked: false },
@@ -135,6 +122,29 @@ export default Vue.extend( {
                 this.codeVertexShader = newValue
             } else {
                 this.codeFragmentShader = newValue
+            }
+        },
+        updateLog( newEntries: LogEntry[] ) {
+            const logVertexShader: ShaderLog = { errors: new Map(), warnings: new Map() }
+            const logFragmentShader: ShaderLog = { errors: new Map(), warnings: new Map() }
+
+            // organizo el log en vertex/fragment, warnings/errors y los agrupo por nro. de linea
+            for ( let entry of newEntries ) {
+                const shaderLog = ( entry.shader === ShaderType.Vertex ) ? logVertexShader : logFragmentShader
+                const entries = ( entry.type === LogEntryType.Error ) ? shaderLog.errors : shaderLog.warnings
+                const lineNumber = entry.line - 1 // one-based -> zero-based
+                const lineEntries = entries.get( lineNumber )
+
+                if ( lineEntries === undefined ) {
+                    entries.set( lineNumber, [ entry.description ] )
+                } else {
+                    lineEntries.push( entry.description )
+                }
+            }
+
+            this.log = {
+                vertex: logVertexShader,
+                fragment: logFragmentShader
             }
         },
         handleActiveShaderChange( event: KeyboardEvent ) {

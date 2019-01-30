@@ -13,7 +13,8 @@ import Vue from "vue"
 import Tooltip from "./Tooltip.vue"
 import UniformEditorOthers from "./UniformEditorOthers.vue"
 import UniformEditorFloat from "./UniformEditorFloat.vue"
-import { ShaderType, LogEntry, LogEntryType, ShaderLog, UniformEditor } from "@/App.vue"
+import { LogEntryType, ShaderType, Log, UniformEditor } from "../../App.vue"
+import Shader from "./Shader"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "./codemirror/lib/codemirror"
 import "./codemirror/mode/glsl/glsl"
 import "./codemirror/addon/selection/active-line"
@@ -59,7 +60,7 @@ export default Vue.extend( {
             default: "// Fragment Shader"
         },
         log: {
-            type: Object as () => ShaderLog,
+            type: Object as () => Log,
             default: null
         },
         uniformsEditors: {
@@ -69,9 +70,8 @@ export default Vue.extend( {
     },
     data: () => ( {
         editor: {} as Editor,
-        docVertexShader: CodeMirror.Doc( "", "glsl" ),
-        docFragmentShader: CodeMirror.Doc( "", "glsl" ),
-        linesWithLogInfo: [] as Array <{ lineHandle: LineHandle, type: LogEntryType }>,
+        vertexShader: new Shader(),
+        fragmentShader: new Shader(),
         uniforms: [] as Uniform[],
         uniformsMarkers: [] as TextMarker[],
         uniformsButtons: [] as HTMLElement[],
@@ -99,28 +99,33 @@ export default Vue.extend( {
 
             // hago cambio de shader
             if ( newValue === ShaderType.Vertex ) {
-                this.editor.swapDoc( this.docVertexShader )
+                this.editor.swapDoc( this.vertexShader.doc )
             } else {
-                this.editor.swapDoc( this.docFragmentShader )
+                this.editor.swapDoc( this.fragmentShader.doc )
             }
         },
         vertex( newValue: string ) {
-            if ( newValue !== this.docVertexShader.getValue() ) {
-                this.docVertexShader.setValue( newValue )
+            if ( newValue !== this.vertexShader.getValue() ) {
+                this.vertexShader.setValue( newValue )
             }
         },
         fragment( newValue: string ) {
-            if ( newValue !== this.docFragmentShader.getValue() ) {
-                this.docFragmentShader.setValue( newValue )
+            if ( newValue !== this.fragmentShader.getValue() ) {
+                this.fragmentShader.setValue( newValue )
+            }
+        },
+        log( newLog: Log ) {
+            this.vertexShader.setLog( this.log.vertex )
+            this.fragmentShader.setLog( this.log.fragment )
+
+            if ( this.vertexShader.hasErrors() || this.fragmentShader.hasErrors() ) {
+                this.vertexShader.showErrors()
+                this.fragmentShader.showErrors()
+            } else if ( this.vertexShader.hasWarnings() || this.fragmentShader.hasWarnings() ) {
+                this.vertexShader.showWarnings()
+                this.fragmentShader.showWarnings()
             }
         }
-        // log( newLog: LogEntry[] ) {
-        //     if ( this.log.errors.size > 0 ) {
-        //         this.showLog( this.log.errors, LogEntryType.Error )
-        //     } else if ( this.log.warnings.size > 0 ) {
-        //         this.showLog( this.log.warnings, LogEntryType.Warning )
-        //     }
-        // },
         // uniformsEditors( newEditors: UniformEditor[] ) {
         //     this.unmarkUniforms()
         //     this.tooltipVisible = false
@@ -141,14 +146,11 @@ export default Vue.extend( {
         // }
     },
     mounted() {
-        this.docVertexShader.setValue( this.vertex )
-        this.docFragmentShader.setValue( this.fragment )
-
-        this.docVertexShader.clearHistory()
-        this.docFragmentShader.clearHistory()
+        this.vertexShader.setValue( this.vertex )
+        this.fragmentShader.setValue( this.fragment )
 
         this.editor = CodeMirror( this.$refs.editor as HTMLElement, {
-            value: this.activeShader === ShaderType.Vertex ? this.docVertexShader : this.docFragmentShader,
+            value: this.activeShader === ShaderType.Vertex ? this.vertexShader.doc : this.fragmentShader.doc,
             lineNumbers: true,
             indentUnit: 4,
             gutters: [ "CodeMirror-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter" ],  // define el orden de los items en el margen
@@ -161,10 +163,6 @@ export default Vue.extend( {
             foldOptions: { widget: "•••", minFoldSize: 1 },
             hintOptions: { completeSingle: false, alignWithWord: true }
         } )
-
-        // setTimeout( () => { this.editor.swapDoc( fragmentShader ) }, 2000 )
-        // setTimeout( () => { this.editor.swapDoc( vertexShader ) }, 4000 )
-        // setTimeout( () => { this.editor.swapDoc( fragmentShader ) }, 6000 )
 
         this.editor.on( "change", this.updateValue )
         this.editor.on( "keydown", this.handleShowHints )
@@ -200,55 +198,6 @@ export default Vue.extend( {
                 }
             }
         }
-        // showLog( entries: Map < number, string[] >, type: LogEntryType ) {
-        //     this.clearLog()
-        //     entries.forEach( ( descriptions, lineNumber ) => {
-        //         const marker = document.createElement( "div" )
-        //         marker.className = "CodeMirror-marker-" + type
-
-        //         const markerTooltip = document.createElement( "ul" )
-        //         markerTooltip.className = "CodeMirror-marker-tooltip"
-        //         marker.appendChild( markerTooltip )
-
-        //         for ( let description of descriptions ) {
-        //             const descriptionListItem = document.createElement( "li" )
-        //             descriptionListItem.textContent = description
-        //             markerTooltip.appendChild( descriptionListItem )
-        //         }
-
-        //         marker.addEventListener( "mouseenter", () => {
-        //             markerTooltip.classList.add( "visible" )
-        //         } )
-        //         marker.addEventListener( "mouseout", () => {
-        //             markerTooltip.classList.remove( "visible" )
-        //         } )
-
-        //         this.addLogInfo( lineNumber, marker, type )
-        //     } )
-        // },
-        // clearLog() {
-        //     for ( let { lineHandle, type } of this.linesWithLogInfo ) {
-        //         this.removeLogInfo( lineHandle, type )
-        //     }
-        //     this.linesWithLogInfo = []
-        // },
-        // addLogInfo( line: number, marker: HTMLElement, type: LogEntryType ) {
-        //     const lineHandle = this.editor.setGutterMarker( line, "CodeMirror-markers", marker )
-        //     this.editor.addLineClass( line, "wrap", "CodeMirror-markedline-" + type )
-        //     this.editor.addLineClass( line, "gutter", "CodeMirror-markedline-gutter-" + type )
-
-        //     // @ts-ignore
-        //     lineHandle.on( "change", ( lineHandle: LineHandle, change: EditorChange ) => {
-        //         this.removeLogInfo( lineHandle, type )
-        //     } )
-
-        //     this.linesWithLogInfo.push( { lineHandle, type } )
-        // },
-        // removeLogInfo( lineHandle: LineHandle, type: LogEntryType ) {
-        //     this.editor.setGutterMarker( lineHandle, "CodeMirror-markers", null )
-        //     this.editor.removeLineClass( lineHandle, "wrap", "CodeMirror-markedline-" + type )
-        //     this.editor.removeLineClass( lineHandle, "gutter", "CodeMirror-markedline-gutter-" + type )
-        // },
         // scanForUniforms() {
         //     const uniformsEditors: Map <string, UniformEditor> = new Map()
         //     const uniformsNames: Array <string> = []
