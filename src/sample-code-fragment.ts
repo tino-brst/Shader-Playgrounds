@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 export default `precision mediump float;
 
 struct Light {

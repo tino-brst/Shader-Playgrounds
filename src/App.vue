@@ -1,12 +1,19 @@
 <template>
     <div id="app">
-        <v-editor v-model="codeVertexShader" :log="logVertexShader" :uniforms-editors="uniformsEditors" />
+        <v-editor
+            :active-shader="activeShader"
+            :vertex="codeVertexShader"
+            :fragment="codeFragmentShader"
+            :log="logVertexShader"
+            :uniforms-editors="uniformsEditors"
+            @change="updateShader"
+        />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
-import Editor from "./components/editor/Editor.vue"
+import Editor from "./components/editor/EditorNew.vue"
 import sampleCodeVertex from "./sample-code-vertex"
 import sampleCodeFragment from "./sample-code-fragment"
 
@@ -41,7 +48,7 @@ export default Vue.extend( {
         "v-editor": Editor
     },
     data: () => ( {
-        tab: 0,
+        activeShader: ShaderType.Vertex,
         codeVertexShader: sampleCodeVertex,
         codeFragmentShader: sampleCodeFragment,
         log: [] as LogEntry[],
@@ -73,16 +80,19 @@ export default Vue.extend( {
         }
     },
     mounted() {
+        // shorcuts para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl )
+        window.addEventListener( "keydown", this.handleActiveShaderChange )
+
         // 📝 el log va a tener entradas tanto para el shader de vertices como de fragmentos
-        // this.log = [
-        //     { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 4, description: "'foo' - syntax error" },
-        //     { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 4, description: "'bar' - undeclared identifier" },
-        //     { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 9, description: "'foobar' - undeclared identifier" },
-        //     { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 19, description: "'bar' - super danger!" },
-        //     { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 15, description: "'foofoo' - just be careful" },
-        //     { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 15, description: "'barbar' - just be careful okay?" },
-        //     { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'foobar' - just be careful okay?" }
-        // ]
+        this.log = [
+            { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 3, description: "'foo' - syntax error" },
+            { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 3, description: "'bar' - undeclared identifier" },
+            { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 9, description: "'foobar' - undeclared identifier" },
+            { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 14, description: "'bar' - super danger!" },
+            { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 15, description: "'foofoo' - just be careful" },
+            { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 15, description: "'barbar' - just be careful okay?" },
+            { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'foobar' - just be careful okay?" }
+        ]
 
         // setTimeout( () => {
         //     this.log = [
@@ -118,6 +128,24 @@ export default Vue.extend( {
         //         { type: "vec3", target: "light.color", locked: false }
         //     ]
         // }, 5000 )
+    },
+    methods: {
+        updateShader( newValue: string ) {
+            if ( this.activeShader === ShaderType.Vertex ) {
+                this.codeVertexShader = newValue
+            } else {
+                this.codeFragmentShader = newValue
+            }
+        },
+        handleActiveShaderChange( event: KeyboardEvent ) {
+            if ( event.metaKey === true ) {
+                if ( event.key === "1" ) {
+                    this.activeShader = ShaderType.Vertex
+                } else if ( event.key === "2" ) {
+                    this.activeShader = ShaderType.Fragment
+                }
+            }
+        }
     }
 } )
 </script>
