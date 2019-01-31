@@ -13,7 +13,8 @@ import Vue from "vue"
 import Tooltip from "./Tooltip.vue"
 import UniformEditorOthers from "./UniformEditorOthers.vue"
 import UniformEditorFloat from "./UniformEditorFloat.vue"
-import { ShaderType, LogEntry, LogEntryType, ShaderLog, UniformEditor } from "@/App.vue"
+import { LogEntryType, ShaderType, Log, UniformEditor } from "../../App.vue"
+import Shader from "./Shader"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "./codemirror/lib/codemirror"
 import "./codemirror/mode/glsl/glsl"
 import "./codemirror/addon/selection/active-line"
@@ -45,16 +46,21 @@ export default Vue.extend( {
         "v-uniform-editor-float": UniformEditorFloat,
         "v-uniform-editor-others": UniformEditorOthers
     },
-    model: {
-        event: "change"
-    },
     props: {
-        value: {
+        activeShader: {
             type: String,
-            default: ""
+            default: "vertex" // no le gusta el enum de Typescript
+        },
+        vertex: {
+            type: String,
+            default: "// Vertex Shader"
+        },
+        fragment: {
+            type: String,
+            default: "// Fragment Shader"
         },
         log: {
-            type: Object as () => ShaderLog,
+            type: Object as () => Log,
             default: null
         },
         uniformsEditors: {
@@ -64,13 +70,11 @@ export default Vue.extend( {
     },
     data: () => ( {
         editor: {} as Editor,
-        document: {} as Doc,
-        linesWithLogInfo: [] as Array <{ lineHandle: LineHandle, type: LogEntryType }>,
-        uniforms: [] as Uniform[],
-        uniformsMarkers: [] as TextMarker[],
-        uniformsButtons: [] as HTMLElement[],
-        uniformsButtonsMarkers: [] as TextMarker[],
-        uniformsButtonsEnabled: false,
+        vertexShader: new Shader(),
+        fragmentShader: new Shader(),
+        uniformsBasic: new Map() as Map <string, UniformEditor>,
+        uniformsStruct: new Map() as Map <string, Map <string, UniformEditor> >,
+        shaderChangedSinceLastUpdate: false,
         lastUniformSelected: {} as Uniform,
         tooltipTarget: document.createElement( "span" ) as HTMLElement,
         tooltipVisible: false
@@ -85,41 +89,75 @@ export default Vue.extend( {
         }
     },
     watch: {
-        value( newValue: string ) {
-            if ( newValue !== this.editor.getValue() ) {
-                this.editor.setValue( newValue )
+        activeShader( newValue: ShaderType ) {
+            // cierro code-hints, tooltips, etc en caso de estar activas
+            if ( this.editor.state.completionActive ) {
+                this.editor.state.completionActive.close()
+            }
+            if ( this.tooltipVisible ) {
+                this.hideTooltip()
+            }
+
+            // hago cambio de shader
+            const newActiveShader = ( newValue === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
+            this.editor.swapDoc( newActiveShader.doc )
+            if ( ! this.shaderChangedSinceLastUpdate ) {
+                newActiveShader.enableUniformsTools( this.uniformsBasic, this.uniformsStruct, this.editor )
             }
         },
-        log( newLog: LogEntry[] ) {
-            if ( this.log.errors.size > 0 ) {
-                this.showLog( this.log.errors, LogEntryType.Error )
-            } else if ( this.log.warnings.size > 0 ) {
-                this.showLog( this.log.warnings, LogEntryType.Warning )
+        vertex( newValue: string ) {
+            if ( newValue !== this.vertexShader.getValue() ) {
+                this.vertexShader.setValue( newValue )
+            }
+        },
+        fragment( newValue: string ) {
+            if ( newValue !== this.fragmentShader.getValue() ) {
+                this.fragmentShader.setValue( newValue )
+            }
+        },
+        log( newLog: Log ) {
+            this.vertexShader.setLog( this.log.vertex )
+            this.fragmentShader.setLog( this.log.fragment )
+
+            if ( this.vertexShader.hasErrors() || this.fragmentShader.hasErrors() ) {
+                this.vertexShader.showErrors()
+                this.fragmentShader.showErrors()
+            } else if ( this.vertexShader.hasWarnings() || this.fragmentShader.hasWarnings() ) {
+                this.vertexShader.showWarnings()
+                this.fragmentShader.showWarnings()
             }
         },
         uniformsEditors( newEditors: UniformEditor[] ) {
-            this.unmarkUniforms()
-            this.tooltipVisible = false
+            this.shaderChangedSinceLastUpdate = false
+
             if ( this.uniformsEditors.length > 0 ) {
-                this.scanForUniforms()
-                this.markUniforms()
-                this.flashUniformsButtons()
+                [ this.uniformsBasic, this.uniformsStruct ] = this.classifyUniformsEditors( newEditors )
+
+                const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
+                activeShader.enableUniformsTools( this.uniformsBasic, this.uniformsStruct, this.editor )
+
                 window.addEventListener( "keydown", this.handleToolsKey )
                 window.addEventListener( "keyup", this.handleToolsKey )
-                window.addEventListener( "blur", this.disableUniformsButtons )
+                window.addEventListener( "blur", this.hideTooltip )
+
                 this.editor.on( "change", () => {
-                    this.unmarkUniforms()
+                    this.shaderChangedSinceLastUpdate = true
+                    this.vertexShader.disableUniformsTools()
+                    this.fragmentShader.disableUniformsTools()
+
                     window.removeEventListener( "keydown", this.handleToolsKey )
                     window.removeEventListener( "keyup", this.handleToolsKey )
-                    window.removeEventListener( "blur", this.disableUniformsButtons )
+                    window.removeEventListener( "blur", this.hideTooltip )
                 } )
             }
         }
     },
     mounted() {
+        this.vertexShader.setValue( this.vertex )
+        this.fragmentShader.setValue( this.fragment )
+
         this.editor = CodeMirror( this.$refs.editor as HTMLElement, {
-            value: this.value,
-            mode: "glsl",
+            value: this.activeShader === ShaderType.Vertex ? this.vertexShader.doc : this.fragmentShader.doc,
             lineNumbers: true,
             indentUnit: 4,
             gutters: [ "CodeMirror-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter" ],  // define el orden de los items en el margen
@@ -133,18 +171,13 @@ export default Vue.extend( {
             hintOptions: { completeSingle: false, alignWithWord: true }
         } )
 
-        this.document = this.editor.getDoc()
-
         this.editor.on( "change", this.updateValue )
         this.editor.on( "keydown", this.handleShowHints )
         this.editor.focus()
     },
     methods: {
         updateValue() {
-            const value = this.editor.getValue()
-            if ( this.value !== value ) {
-                this.$emit( "change", value )
-            }
+            this.$emit( "change", this.editor.getValue() )
         },
         handleShowHints( editor: Editor, event: Event ) {
             if ( ! editor.state.completionActive ) {    // evito reactivacion innecesaria de hints
@@ -172,173 +205,52 @@ export default Vue.extend( {
                 }
             }
         },
-        showLog( entries: Map < number, string[] >, type: LogEntryType ) {
-            this.clearLog()
-            entries.forEach( ( descriptions, lineNumber ) => {
-                const marker = document.createElement( "div" )
-                marker.className = "CodeMirror-marker-" + type
-
-                const markerTooltip = document.createElement( "ul" )
-                markerTooltip.className = "CodeMirror-marker-tooltip"
-                marker.appendChild( markerTooltip )
-
-                for ( let description of descriptions ) {
-                    const descriptionListItem = document.createElement( "li" )
-                    descriptionListItem.textContent = description
-                    markerTooltip.appendChild( descriptionListItem )
-                }
-
-                marker.addEventListener( "mouseenter", () => {
-                    markerTooltip.classList.add( "visible" )
-                } )
-                marker.addEventListener( "mouseout", () => {
-                    markerTooltip.classList.remove( "visible" )
-                } )
-
-                this.addLogInfo( lineNumber, marker, type )
-            } )
-        },
-        clearLog() {
-            for ( let { lineHandle, type } of this.linesWithLogInfo ) {
-                this.removeLogInfo( lineHandle, type )
-            }
-            this.linesWithLogInfo = []
-        },
-        addLogInfo( line: number, marker: HTMLElement, type: LogEntryType ) {
-            const lineHandle = this.editor.setGutterMarker( line, "CodeMirror-markers", marker )
-            this.editor.addLineClass( line, "wrap", "CodeMirror-markedline-" + type )
-            this.editor.addLineClass( line, "gutter", "CodeMirror-markedline-gutter-" + type )
-
-            // @ts-ignore
-            lineHandle.on( "change", ( lineHandle: LineHandle, change: EditorChange ) => {
-                this.removeLogInfo( lineHandle, type )
-            } )
-
-            this.linesWithLogInfo.push( { lineHandle, type } )
-        },
-        removeLogInfo( lineHandle: LineHandle, type: LogEntryType ) {
-            this.editor.setGutterMarker( lineHandle, "CodeMirror-markers", null )
-            this.editor.removeLineClass( lineHandle, "wrap", "CodeMirror-markedline-" + type )
-            this.editor.removeLineClass( lineHandle, "gutter", "CodeMirror-markedline-gutter-" + type )
-        },
-        scanForUniforms() {
+        classifyUniformsEditors( rawUniformsEditor: UniformEditor[] ) {
             const uniformsEditors: Map <string, UniformEditor> = new Map()
-            const uniformsNames: Array <string> = []
+            const uniformsNames: string[] = []
 
-            for ( let editor of this.uniformsEditors ) {
-                // mapa para acceso rapido de editores
+            for ( let editor of rawUniformsEditor ) {
                 uniformsEditors.set( editor.target, editor )
-                // nombres de uniforms desarmados:
-                //  • "viewMatrix"     -> [ "viewMatrix" ]
-                //  • "light.position" -> [ "light", "position" ]
                 uniformsNames.push( editor.target )
             }
 
-            // los separo en "basicos" y "estructuras" (con sus componentes)
-            const basic: string[] = [] // [ "viewMatrix", ... ]
-            const structs: Map < string, string[] > = new Map() // "light" -> [ "position", "color", ... ]
+            // clasifico uniforms como "basicos" y "estructuras" (con sus componentes)
+            const basic   = new Map()
+            const structs = new Map()
 
             for ( let name of uniformsNames ) {
-                const nameParts = name.split( "." )
-                if ( nameParts.length === 1 ) {
-                    // [ "viewMatrix" ]
-                    const identifier = nameParts[ 0 ]
-                    basic.push( identifier )
+                // descompongo nombre del uniform:
+                //  • si es basico: "viewMatrix"     -> [ "viewMatrix" ]
+                //  • si es struct: "light.position" -> [ "light", "position" ]
+                const splitName = name.split( "." )
+                if ( splitName.length === 1 ) {
+                    const identifier = splitName[ 0 ]
+                    const editor = uniformsEditors.get( name ) as UniformEditor
+                    basic.set( identifier, editor )
                 } else {
-                    // [ "light", "position" ]
-                    const structIdentifier = nameParts[ 0 ]
-                    const structAttribute = nameParts[ 1 ]
-                    const structAttributes = structs.get( structIdentifier )
+                    const structIdentifier = splitName[ 0 ]
+                    const structAttribute = splitName[ 1 ]
+                    const editor = uniformsEditors.get( name ) as UniformEditor
+                    let structAttributes = structs.get( structIdentifier )
                     if ( structAttributes !== undefined ) {
-                        structAttributes.push( structAttribute )
+                        structAttributes.set( structAttribute, editor )
                     } else {
-                        structs.set( structIdentifier, [ structAttribute ] )
+                        structAttributes = new Map()
+                        structAttributes.set( structAttribute, editor )
+                        structs.set( structIdentifier, structAttributes )
                     }
                 }
             }
 
-            // encuentro los rangos en el codigo que ocupan los uniforms
-            this.uniforms = []
-            const lineCount = this.document.lineCount()
-
-            for ( let lineNumber = 0; lineNumber < lineCount; lineNumber ++ ) {
-                const lineTokens = this.editor.getLineTokens( lineNumber )
-                for ( let tokenNumber = 0; tokenNumber < lineTokens.length; tokenNumber ++ ) {
-                    const token = lineTokens[ tokenNumber ]
-                    if ( token.type === "identifier" ) {
-                        if ( basic.includes( token.string ) ) {
-                            const from: Position = { line: lineNumber, ch: token.start }
-                            const to: Position   = { line: lineNumber, ch: token.end }
-                            const range = { from, to }
-                            const editor = uniformsEditors.get( token.string ) as UniformEditor
-                            this.uniforms.push( { range, editor } )
-                        } else {
-                            const structComponents = structs.get( token.string )
-                            if ( structComponents !== undefined ) {
-                                const possibleAttribute = lineTokens[ tokenNumber + 2 ] // [ ... "light", ".", >"position"< ... ]
-                                if ( possibleAttribute && possibleAttribute.type === "attribute" && structComponents.includes( possibleAttribute.string ) ) {
-                                    const from: Position = { line: lineNumber, ch: token.start }
-                                    const to: Position   = { line: lineNumber, ch: possibleAttribute.end }
-                                    const range = { from, to }
-                                    const editor = uniformsEditors.get( token.string + "." + possibleAttribute.string ) as UniformEditor
-                                    this.uniforms.push( { range, editor } )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        markUniforms() {
-            this.uniformsMarkers = []
-            for ( let { range } of this.uniforms ) {
-                this.uniformsMarkers.push( this.document.markText( range.from, range.to, { className: "uniform" } ) )
-            }
-        },
-        unmarkUniforms() {
-            for ( let marker of this.uniformsMarkers ) {
-                marker.clear()
-            }
-        },
-        enableUniformsButtons() {
-            if ( ! this.uniformsButtonsEnabled ) {
-                this.uniformsButtons = []
-                this.uniformsButtonsMarkers = []
-                this.uniformsButtonsEnabled = true
-
-                for ( let { range, editor } of this.uniforms ) {
-                    const splitUniformName = editor.target.split( "." )
-
-                    const uniformButton = document.createElement( "span" )
-                    uniformButton.className = "uniform-button"
-                    uniformButton.innerHTML = `<span class="cm-identifier uniform">${ splitUniformName[ 0 ] }</span>`
-                    uniformButton.innerHTML += splitUniformName[ 1 ] ? `<span class="cm-punctuation uniform">.</span><span class="cm-attribute uniform">${ splitUniformName[ 1 ] }</span>` : ""
-                    uniformButton.addEventListener( "click", event => this.handleUniformClick( uniformButton, editor, range ) )
-
-                    this.uniformsButtons.push( uniformButton )
-                    this.uniformsButtonsMarkers.push( this.document.markText( range.from, range.to, { replacedWith: uniformButton } ) )
-                }
-            }
-        },
-        disableUniformsButtons() {
-            for ( let button of this.uniformsButtonsMarkers ) {
-                button.clear()
-            }
-            this.uniformsButtonsEnabled = false
-        },
-        flashUniformsButtons() {
-            this.enableUniformsButtons()
-            for ( let button of this.uniformsButtons ) {
-                button.classList.add( "flash" )
-            }
-            setTimeout( () => this.disableUniformsButtons(), 700 )
+            return [ basic, structs ]
         },
         handleToolsKey( event: KeyboardEvent ) {
+            const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
             if ( event.key === TOOLS_KEY ) {
                 if ( event.type === "keydown" ) {
-                    this.enableUniformsButtons()
+                    activeShader.enableUniformsButtons( this.handleUniformClick )
                 } else {
-                    this.disableUniformsButtons()
+                    activeShader.disableUniformsButtons()
                 }
             }
         },
@@ -350,7 +262,7 @@ export default Vue.extend( {
         },
         handleClicksOutside( event: MouseEvent ) {
             const clickableArea = ( this.$refs.tooltip as Vue ).$el as Element
-            if ( clickableArea && ! clickableArea.contains( event.target as Node ) && ! this.uniformsButtons.includes( event.target as HTMLElement ) ) {
+            if ( clickableArea && ! clickableArea.contains( event.target as Node ) ) {
                 this.hideTooltip()
             }
         },
