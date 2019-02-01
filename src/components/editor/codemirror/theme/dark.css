@@ -1,31 +1,30 @@
 /* 🎨 Basics */
 
 .editor {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    -webkit-font-smoothing: antialiased;
+    position: relative;
+    flex: 1 1 auto;
     font-family: IBM Plex Mono;
     font-weight: 500;
     font-size: 14px;
     color: white;
-    background: rgb(50, 50, 50);
 }
 .CodeMirror {
     /* Set height, width, borders, and global font properties here */
-    height: 100%;
-    width: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow: hidden;
     direction: ltr;
     line-height: 28px;
     background: rgb(41, 42, 47);
-    box-sizing: border-box;
 }
 
 /* 🎨 Padding */
 
 .CodeMirror-lines {
-    padding: 4px 0; /* Vertical padding around content */
+    padding: 15px 0; /* Vertical padding around content */
 }
 .CodeMirror pre {
     padding: 0 6px; /* Horizontal padding of content */
@@ -613,11 +612,6 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 
 /* The rest of this file contains styles related to the mechanics of
 the editor. You probably shouldn't touch them. */
-
-.CodeMirror {
-    position: relative;
-    overflow: hidden;
-}
 
 .CodeMirror-scroll {
     overflow: scroll !important; /* Things will break if this is overridden */
