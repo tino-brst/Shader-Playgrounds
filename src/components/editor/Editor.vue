@@ -129,12 +129,15 @@ export default Vue.extend( {
         },
         uniformsEditors( newEditors: UniformEditor[] ) {
             this.shaderChangedSinceLastUpdate = false
+            this.uniformsBasic.clear()
+            this.uniformsStruct.clear()
+            const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
 
             if ( this.uniformsEditors.length > 0 ) {
                 [ this.uniformsBasic, this.uniformsStruct ] = this.classifyUniformsEditors( newEditors )
 
-                const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
                 activeShader.enableUniformsTools( this.uniformsBasic, this.uniformsStruct, this.editor )
+                activeShader.signalUniformsDetected()
 
                 window.addEventListener( "keydown", this.handleToolsKey )
                 window.addEventListener( "keyup", this.handleToolsKey )
@@ -149,6 +152,11 @@ export default Vue.extend( {
                     window.removeEventListener( "keyup", this.handleToolsKey )
                     window.removeEventListener( "blur", this.hideTooltip )
                 } )
+            } else {
+                activeShader.disableUniformsTools()
+                window.removeEventListener( "keydown", this.handleToolsKey )
+                window.removeEventListener( "keyup", this.handleToolsKey )
+                window.removeEventListener( "blur", this.hideTooltip )
             }
         }
     },

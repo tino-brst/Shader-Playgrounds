@@ -123,6 +123,27 @@ export default class Shader {
         this.unmarkUniforms()
     }
 
+    public signalUniformsDetected() {
+        const uniformsSignalsMarkers: TextMarker[] = []
+
+        for ( let { range, editor } of this.uniforms ) {
+            const splitUniformName = editor.target.split( "." )
+
+            const uniformsSignal = document.createElement( "span" )
+            uniformsSignal.className = "uniform-signal"
+            uniformsSignal.innerHTML = `<span class="cm-identifier uniform">${ splitUniformName[ 0 ] }</span>`
+            uniformsSignal.innerHTML += splitUniformName[ 1 ] ? `<span class="cm-punctuation uniform">.</span><span class="cm-attribute uniform">${ splitUniformName[ 1 ] }</span>` : ""
+
+            uniformsSignalsMarkers.push( this.doc.markText( range.from, range.to, { replacedWith: uniformsSignal } ) )
+        }
+
+        setTimeout( () => {
+            for ( let marker of uniformsSignalsMarkers ) {
+                marker.clear()
+            }
+        }, 700 )
+    }
+
     public markUniforms( uniforms: Uniform[] ) {
         this.uniformsMarkers = []
         for ( let { range } of uniforms ) {
@@ -161,6 +182,8 @@ export default class Shader {
         for ( let button of this.uniformsButtonsMarkers ) {
             button.clear()
         }
+        this.uniformsButtons = []
+        this.uniformsButtonsMarkers = []
         this.uniformsButtonsEnabled = false
     }
 

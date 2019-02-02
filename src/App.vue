@@ -52,6 +52,10 @@ export interface UniformEditor {
     // setValue: ( value: any ) => void
 }
 
+const RUN_KEY = "t"
+// ⚠️ para testing
+let cleanState = true
+
 export default Vue.extend( {
     name: "App",
     components: {
@@ -71,8 +75,8 @@ export default Vue.extend( {
     mounted() {
         // shorcut para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl )
         window.addEventListener( "keydown", this.handleActiveShaderChange )
+        window.addEventListener( "keydown", this.handleRunKey )
 
-        // 📝 el log va a tener entradas tanto para el shader de vertices como de fragmentos
         // this.updateLog( [
         //     { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 3, description: "'foo' - syntax error" },
         //     { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 3, description: "'bar' - undeclared identifier" },
@@ -106,38 +110,38 @@ export default Vue.extend( {
         //     this.uniformsEditors = []
         // }, 2000 )
 
-        setTimeout( () => {
-            this.updateLog( [
-                // { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'foofoo' - just be careful" },
-                // { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'barbar' - just be careful okay?" },
-                { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'barbar' - just be careful okay?" },
-                { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'foobar' - just be careful okay?" }
-            ] )
-            this.uniformsEditors = [
-                { type: "mat4", target: "viewMatrix", locked: false },
-                { type: "mat4", target: "modelViewProjectionMatrix", locked: false },
-                { type: "mat4", target: "modelViewMatrix", locked: false },
-                { type: "mat4", target: "normalMatrix", locked: false },
-                { type: "int", target: "light.position", locked: false },
-                { type: "vec3", target: "light.color", locked: false },
-                { type: "vec3", target: "surface.ambient", locked: false },
-                { type: "vec3", target: "surface.diffuse", locked: false },
-                { type: "vec3", target: "surface.specular", locked: false },
-                { type: "float", target: "surface.shininess", locked: false }
-            ]
-        }, 5000 )
+        // setTimeout( () => {
+        //     this.updateLog( [
+        //         { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'foofoo' - just be careful" },
+        //         { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'barbar' - just be careful okay?" },
+        //         { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'barbar' - just be careful okay?" },
+        //         { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'foobar' - just be careful okay?" }
+        //     ] )
+        //     this.uniformsEditors = [
+        //         { type: "mat4", target: "viewMatrix", locked: false },
+        //         { type: "mat4", target: "modelViewProjectionMatrix", locked: false },
+        //         { type: "mat4", target: "modelViewMatrix", locked: false },
+        //         { type: "mat4", target: "normalMatrix", locked: false },
+        //         { type: "int", target: "light.position", locked: false },
+        //         { type: "vec3", target: "light.color", locked: false },
+        //         { type: "vec3", target: "surface.ambient", locked: false },
+        //         { type: "vec3", target: "surface.diffuse", locked: false },
+        //         { type: "vec3", target: "surface.specular", locked: false },
+        //         { type: "float", target: "surface.shininess", locked: false }
+        //     ]
+        // }, 5000 )
 
-        setTimeout( () => {
-            this.updateLog( [] )
-            this.uniformsEditors = [
-                { type: "mat4", target: "viewMatrix", locked: false },
-                { type: "mat4", target: "modelViewProjectionMatrix", locked: false },
-                { type: "mat4", target: "modelViewMatrix", locked: false },
-                { type: "mat4", target: "normalMatrix", locked: false },
-                { type: "int", target: "light.position", locked: false },
-                { type: "vec3", target: "light.color", locked: false }
-            ]
-        }, 10000 )
+        // setTimeout( () => {
+        //     this.updateLog( [] )
+        //     this.uniformsEditors = [
+        //         { type: "mat4", target: "viewMatrix", locked: false },
+        //         { type: "mat4", target: "modelViewProjectionMatrix", locked: false },
+        //         { type: "mat4", target: "modelViewMatrix", locked: false },
+        //         { type: "mat4", target: "normalMatrix", locked: false },
+        //         { type: "int", target: "light.position", locked: false },
+        //         { type: "vec3", target: "light.color", locked: false }
+        //     ]
+        // }, 10000 )
     },
     methods: {
         updateShader( newValue: string ) {
@@ -176,6 +180,35 @@ export default Vue.extend( {
                     this.activeShader = ShaderType.Vertex
                 } else if ( event.key === "2" ) {
                     this.activeShader = ShaderType.Fragment
+                }
+            }
+        },
+        handleRunKey( event: KeyboardEvent ) {
+            if ( event.metaKey === true && event.key === RUN_KEY ) {
+                if ( cleanState ) {
+                    cleanState = false
+                    this.updateLog( [
+                        { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'foofoo' - just be careful" },
+                        { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'barbar' - just be careful okay?" },
+                        { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'barbar' - just be careful okay?" },
+                        { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'foobar' - just be careful okay?" }
+                    ] )
+                    this.uniformsEditors = [
+                        { type: "mat4", target: "viewMatrix", locked: false },
+                        { type: "mat4", target: "modelViewProjectionMatrix", locked: false },
+                        { type: "mat4", target: "modelViewMatrix", locked: false },
+                        { type: "mat4", target: "normalMatrix", locked: false },
+                        { type: "int", target: "light.position", locked: false },
+                        { type: "vec3", target: "light.color", locked: false },
+                        { type: "vec3", target: "surface.ambient", locked: false },
+                        { type: "vec3", target: "surface.diffuse", locked: false },
+                        { type: "vec3", target: "surface.specular", locked: false },
+                        { type: "float", target: "surface.shininess", locked: false }
+                    ]
+                } else {
+                    cleanState = true
+                    this.updateLog( [] )
+                    this.uniformsEditors = []
                 }
             }
         }

@@ -565,16 +565,19 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 
 /* 🎨 Uniforms buttons */
 
-.uniform-button {
+.uniform-button,
+.uniform-signal {
     position: relative;
     padding: 2px 0px;
     cursor: pointer;
     user-select: none;
 }
-.uniform-button * {
+.uniform-button *,
+.uniform-signal * {
     pointer-events: none;
 }
-.uniform-button::after {
+.uniform-button::after,
+.uniform-signal::after {
     content: "";
     display: inline-block;
     position: absolute;
@@ -586,16 +589,19 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     transition: background 0.1s;
     z-index: -1;
 }
-.uniform-button:hover::after {
+.uniform-button:hover::after,
+.uniform-signal::after {
     background: rgba(100, 148, 237, 0.3);
 }
 
-.uniform-button.flash::after {
+.uniform-signal {
+    cursor: default;
+}
+.uniform-signal::after {
     opacity: 0;
-    background: rgba(100, 148, 237, 0.3);
     animation-name: pulse;
     animation-duration: 0.7s;
-    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+    animation-timing-function: cubic-bezier(0.2, 0.045, 0.355, 1);
     animation-iteration-count: 1;
 }
 
