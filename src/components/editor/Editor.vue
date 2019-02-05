@@ -27,7 +27,7 @@ import "./codemirror/addon/fold/brace-fold"
 import "./codemirror/addon/fold/comment-fold"
 import "./codemirror/addon/hint/show-hint"
 import "./codemirror/addon/hint/glsl-hint"
-import { mapGetters } from "vuex"
+import { mapState } from "vuex"
 
 const TOOLS_KEY = "Alt"
 
@@ -84,7 +84,7 @@ export default Vue.extend( {
                 return ""
             }
         },
-        ...mapGetters( [ "vertexLog", "fragmentLog" ] )
+        ...mapState( [ "vertexLog", "fragmentLog" ] )
     },
     watch: {
         activeShader( newValue: ShaderType ) {

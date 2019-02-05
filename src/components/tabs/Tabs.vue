@@ -31,7 +31,7 @@
 <script lang="ts">
 import Vue from "vue"
 import { Log } from "../../App.vue"
-import { mapGetters } from "vuex"
+import { mapState } from "vuex"
 
 export default Vue.extend( {
     name: "Tabs",
@@ -41,7 +41,7 @@ export default Vue.extend( {
             default: ""
         }
     },
-    computed: mapGetters( [ "vertexLog", "fragmentLog" ] ),
+    computed: mapState( [ "vertexLog", "fragmentLog" ] ),
     methods: {
         updateValue( value: string ) {
             if ( value !== this.value ) {

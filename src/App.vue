@@ -80,7 +80,7 @@ export default Vue.extend( {
             }
         },
         updateLog( newEntries: LogEntry[] ) {
-            // 📝 esto lo hace el renderer cada vez que se compila los shaders
+            // 📝 esto lo hace el renderer cada vez que se compilan los shaders
             this.$store.commit( "updateLog", newEntries )
         },
         handleActiveShaderChange( event: KeyboardEvent ) {
