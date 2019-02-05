@@ -13,7 +13,7 @@ import Vue from "vue"
 import Tooltip from "./Tooltip.vue"
 import UniformEditorOthers from "./UniformEditorOthers.vue"
 import UniformEditorFloat from "./UniformEditorFloat.vue"
-import { LogEntryType, ShaderType, Log, UniformEditor, ShaderLog } from "../../App.vue"
+import { LogEntryType, ShaderType, UniformEditor } from "../../App.vue"
 import Shader from "./Shader"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "./codemirror/lib/codemirror"
 import "./codemirror/mode/glsl/glsl"
@@ -31,6 +31,10 @@ import { mapState } from "vuex"
 
 const TOOLS_KEY = "Alt"
 
+interface ShaderLog {
+    errors: Array <[ number, string[] ]>,
+    warnings: Array <[ number, string[] ]>
+}
 interface Uniform {
     range: Range,
     editor: UniformEditor
@@ -59,10 +63,6 @@ export default Vue.extend( {
         fragment: {
             type: String,
             default: "// Fragment Shader"
-        },
-        uniformsEditors: {
-            type: Array as () => UniformEditor[],
-            default: () => []
         }
     },
     data: () => ( {
@@ -84,7 +84,7 @@ export default Vue.extend( {
                 return ""
             }
         },
-        ...mapState( [ "vertexLog", "fragmentLog" ] )
+        ...mapState( [ "vertexLog", "fragmentLog", "uniformsEditors" ] )
     },
     watch: {
         activeShader( newValue: ShaderType ) {
@@ -119,6 +119,7 @@ export default Vue.extend( {
             this.uniformsStruct.clear()
             const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
 
+            // @ts-ignore
             if ( this.uniformsEditors.length > 0 ) {
                 [ this.uniformsBasic, this.uniformsStruct ] = this.classifyUniformsEditors( newEditors )
 

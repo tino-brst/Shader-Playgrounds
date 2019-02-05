@@ -30,7 +30,6 @@
 
 <script lang="ts">
 import Vue from "vue"
-import { Log } from "../../App.vue"
 import { mapState } from "vuex"
 
 export default Vue.extend( {
@@ -80,7 +79,7 @@ export default Vue.extend( {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgb(200, 200, 200);
+    color: rgb(180, 180, 180);
     background: rgb(35, 35, 35);
     cursor: pointer;
     user-select: none;

@@ -21,11 +21,18 @@ interface LogEntry {
     line: number,
     description: string
 }
+interface UniformEditor {
+    target: string
+    type: "int" | "float" | "mat4" | "vec3"
+    locked: boolean
+    // setValue: ( value: any ) => void
+}
 
 export default new Vuex.Store( {
     state: {
         vertexLog: { errors: [], warnings: [] } as ShaderLog,
-        fragmentLog: { errors: [], warnings: [] } as ShaderLog
+        fragmentLog: { errors: [], warnings: [] } as ShaderLog,
+        uniformsEditors: [] as UniformEditor[]
     },
     mutations: {
         updateLog( state, newEntries: LogEntry[] ) {
@@ -48,6 +55,9 @@ export default new Vuex.Store( {
 
             state.vertexLog = vertexLog
             state.fragmentLog = fragmentLog
+        },
+        updateUniformsEditors( state, newEditors: UniformEditor[] ) {
+            state.uniformsEditors = newEditors
         },
         clearLineLog( state, { shader, line }: { shader: ShaderType, line: number } ) {
             const log      = ( shader === ShaderType.Vertex ) ? state.vertexLog : state.fragmentLog

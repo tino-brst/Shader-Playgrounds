@@ -6,7 +6,6 @@
                 :active-shader="activeShader"
                 :vertex="codeVertexShader"
                 :fragment="codeFragmentShader"
-                :uniforms-editors="uniformsEditors"
                 @change="updateShader"
             />
         </div>
@@ -35,14 +34,6 @@ export interface LogEntry {
     line: number,
     description: string
 }
-export interface Log {
-    vertex: ShaderLog,
-    fragment: ShaderLog
-}
-export interface ShaderLog {
-    errors: Array <[ number, string[] ]>,
-    warnings: Array <[ number, string[] ]>
-}
 export interface UniformEditor {
     target: string
     type: "int" | "float" | "mat4" | "vec3"
@@ -63,8 +54,7 @@ export default Vue.extend( {
     data: () => ( {
         activeShader: ShaderType.Vertex,
         codeVertexShader: sampleCodeVertex,
-        codeFragmentShader: sampleCodeFragment,
-        uniformsEditors: [] as UniformEditor[]
+        codeFragmentShader: sampleCodeFragment
     } ),
     mounted() {
         // shorcut para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl )
@@ -79,9 +69,11 @@ export default Vue.extend( {
                 this.codeFragmentShader = newValue
             }
         },
-        updateLog( newEntries: LogEntry[] ) {
-            // 📝 esto lo hace el renderer cada vez que se compilan los shaders
+        updateLog( newEntries: LogEntry[] ) { // 📝 esto lo deberia hacer el renderer cada vez que se compilan los shaders, se cambia de modelo, etc
             this.$store.commit( "updateLog", newEntries )
+        },
+        updateUniformsEditors( newEditors: UniformEditor[] ) { // 📝 esto lo deberia hacer el renderer cada vez que se compilan los shaders, se cambia de modelo, etc
+            this.$store.commit( "updateUniformsEditors", newEditors )
         },
         handleActiveShaderChange( event: KeyboardEvent ) {
             if ( event.metaKey === true ) {
@@ -105,7 +97,7 @@ export default Vue.extend( {
                         { shader: ShaderType.Fragment, type: LogEntryType.Error, line: 8, description: "'barbar' - just be careful okay?" },
                         { shader: ShaderType.Fragment, type: LogEntryType.Error, line: 8, description: "'foobar' - just be careful okay?" }
                     ] )
-                    this.uniformsEditors = [
+                    this.updateUniformsEditors( [
                         { type: "mat4", target: "viewMatrix", locked: false },
                         { type: "mat4", target: "modelViewProjectionMatrix", locked: false },
                         { type: "mat4", target: "modelViewMatrix", locked: false },
@@ -116,11 +108,11 @@ export default Vue.extend( {
                         { type: "vec3", target: "surface.diffuse", locked: false },
                         { type: "vec3", target: "surface.specular", locked: false },
                         { type: "float", target: "surface.shininess", locked: false }
-                    ]
+                    ] )
                 } else {
                     cleanState = true
                     this.updateLog( [] )
-                    this.uniformsEditors = []
+                    this.updateUniformsEditors( [] )
                 }
             }
         }
