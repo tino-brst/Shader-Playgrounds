@@ -1,14 +1,25 @@
 import CodeMirror, { Doc, LineHandle, Editor, Position, TextMarker } from "./codemirror/lib/codemirror"
 // @ts-ignore
 import { UniformEditor } from "@/App.vue"
+import ShaderLogMarker from "./ShaderLogMarker"
 
-enum LogEntryType { // ⚠️ parche: estoy duplicando la definicion de LogEntryType y ShaderLog
+interface ShaderLog { // ⚠️ parche: estoy duplicando la definicion de LogEntryType y ShaderLog
+    errors: Array <[ number, string[] ]>,
+    warnings: Array <[ number, string[] ]>
+}
+export interface LogEntry {
+    shader: ShaderType,
+    type: LogEntryType,
+    line: number,
+    description: string
+}
+enum LogEntryType {
     Error = "error",
     Warning = "warning"
 }
-interface ShaderLog {
-    errors: Map < number, string[] >,
-    warnings: Map < number, string[] >
+export enum ShaderType {
+    Vertex = "vertex",
+    Fragment = "fragment"
 }
 interface Uniform {
     range: Range,
@@ -20,18 +31,20 @@ interface Range {
 }
 
 export default class Shader {
+    public type: ShaderType
     public doc: Doc
     public log: ShaderLog
-    private markedLines: Array <{ lineHandle: LineHandle, type: LogEntryType }>
+    private markedLines: ShaderLogMarker[]
     private uniforms: Uniform[]
     private uniformsMarkers: TextMarker[]
     private uniformsButtons: HTMLElement[]
     private uniformsButtonsMarkers: TextMarker[]
     private uniformsButtonsEnabled: boolean
 
-    constructor() {
+    constructor( type: ShaderType ) {
+        this.type = type
         this.doc = CodeMirror.Doc( "", "glsl" )
-        this.log = { errors: new Map(), warnings: new Map() }
+        this.log = { errors: [], warnings: [] }
         this.markedLines = []
         this.uniforms = []
         this.uniformsMarkers = []
@@ -56,22 +69,12 @@ export default class Shader {
     public setLog( log: ShaderLog ) {
         this.clearLog()
         this.log = log
-    }
-
-    public hasErrors() {
-        return this.log.errors.size > 0
-    }
-
-    public hasWarnings() {
-        return this.log.warnings.size > 0
-    }
-
-    public showErrors() {
-        this.showLog( LogEntryType.Error )
-    }
-
-    public showWarnings() {
-        this.showLog( LogEntryType.Warning )
+        // ⚠️ fiero
+        if ( this.log.errors.length > 0 ) {
+            this.showLog( LogEntryType.Error )
+        } else {
+            this.showLog( LogEntryType.Warning )
+        }
     }
 
     // Uniforms
@@ -79,44 +82,41 @@ export default class Shader {
     public enableUniformsTools( basic: Map <string, UniformEditor>, structs: Map <string, Map <string, UniformEditor> >, editor: Editor ) {
         // clean-up
         this.unmarkUniforms()
+        this.uniforms = []
 
-        if ( ! this.hasErrors() ) {
-            this.uniforms = []
+        // encuentro los rangos en el codigo que ocupan los uniforms
+        const lineCount = this.doc.lineCount()
 
-            // encuentro los rangos en el codigo que ocupan los uniforms
-            const lineCount = this.doc.lineCount()
-
-            for ( let lineNumber = 0; lineNumber < lineCount; lineNumber ++ ) {
-                const lineTokens = editor.getLineTokens( lineNumber )
-                for ( let tokenNumber = 0; tokenNumber < lineTokens.length; tokenNumber ++ ) {
-                    const token = lineTokens[ tokenNumber ]
-                    if ( token.type === "identifier" ) {
-                        if ( basic.has( token.string ) ) {
-                            const from: Position = { line: lineNumber, ch: token.start }
-                            const to: Position   = { line: lineNumber, ch: token.end }
-                            const range = { from, to }
-                            const editor = basic.get( token.string ) as UniformEditor
-                            this.uniforms.push( { range, editor } )
-                        } else {
-                            const structComponents = structs.get( token.string )
-                            if ( structComponents !== undefined ) {
-                                const possibleAttribute = lineTokens[ tokenNumber + 2 ] // [ ... "light", ".", >"position"< ... ]
-                                if ( possibleAttribute && possibleAttribute.type === "attribute" && structComponents.has( possibleAttribute.string ) ) {
-                                    const from: Position = { line: lineNumber, ch: token.start }
-                                    const to: Position   = { line: lineNumber, ch: possibleAttribute.end }
-                                    const range = { from, to }
-                                    const editor = structComponents.get( possibleAttribute.string ) as UniformEditor
-                                    this.uniforms.push( { range, editor } )
-                                }
+        for ( let lineNumber = 0; lineNumber < lineCount; lineNumber ++ ) {
+            const lineTokens = editor.getLineTokens( lineNumber )
+            for ( let tokenNumber = 0; tokenNumber < lineTokens.length; tokenNumber ++ ) {
+                const token = lineTokens[ tokenNumber ]
+                if ( token.type === "identifier" ) {
+                    if ( basic.has( token.string ) ) {
+                        const from: Position = { line: lineNumber, ch: token.start }
+                        const to: Position   = { line: lineNumber, ch: token.end }
+                        const range = { from, to }
+                        const editor = basic.get( token.string ) as UniformEditor
+                        this.uniforms.push( { range, editor } )
+                    } else {
+                        const structComponents = structs.get( token.string )
+                        if ( structComponents !== undefined ) {
+                            const possibleAttribute = lineTokens[ tokenNumber + 2 ] // [ ... "light", ".", >"position"< ... ]
+                            if ( possibleAttribute && possibleAttribute.type === "attribute" && structComponents.has( possibleAttribute.string ) ) {
+                                const from: Position = { line: lineNumber, ch: token.start }
+                                const to: Position   = { line: lineNumber, ch: possibleAttribute.end }
+                                const range = { from, to }
+                                const editor = structComponents.get( possibleAttribute.string ) as UniformEditor
+                                this.uniforms.push( { range, editor } )
                             }
                         }
                     }
                 }
             }
-
-            // los resalto
-            this.markUniforms( this.uniforms )
         }
+
+        // los resalto
+        this.markUniforms( this.uniforms )
     }
 
     public disableUniformsTools() {
@@ -190,67 +190,18 @@ export default class Shader {
     // ✋🏼 Metodos Privados
 
     private showLog( type: LogEntryType ) {
-        const entries = ( type === LogEntryType.Error ) ? this.log.errors : this.log.warnings
+        const log = ( type === LogEntryType.Error ) ? this.log.errors : this.log.warnings
 
-        entries.forEach( ( descriptions, lineNumber ) => {
-            this.addLineMarker( lineNumber, descriptions, type )
-        } )
+        for ( let [ lineNumber, descriptions ] of log ) {
+            const marker = new ShaderLogMarker( this, lineNumber, descriptions, type )
+            this.markedLines.push( marker )
+        }
     }
 
     private clearLog() {
-        for ( let { lineHandle, type } of this.markedLines ) {
-            this.removeLineMarker( lineHandle, type )
+        for ( let marker of this.markedLines ) {
+            marker.clear()
         }
         this.markedLines = []
-    }
-
-    private addLineMarker( lineNumber: number, descriptions: string[], type: LogEntryType ) {
-        const marker = this.newLogMarker( descriptions, type )
-        // @ts-ignore
-        const lineHandle = this.doc.setGutterMarker( lineNumber, "CodeMirror-markers", marker )
-        // @ts-ignore
-        this.doc.addLineClass( lineNumber, "wrap", "CodeMirror-markedline-" + type )
-        // @ts-ignore
-        this.doc.addLineClass( lineNumber, "gutter", "CodeMirror-markedline-gutter-" + type )
-
-        // @ts-ignore
-        lineHandle.on( "change", ( lineHandle: LineHandle ) => {
-            this.removeLineMarker( lineHandle, type )
-        } )
-
-        this.markedLines.push( { lineHandle, type } )
-    }
-
-    private removeLineMarker( lineHandle: LineHandle, type: LogEntryType ) {
-        // @ts-ignore
-        this.doc.setGutterMarker( lineHandle, "CodeMirror-markers", null )
-        // @ts-ignore
-        this.doc.removeLineClass( lineHandle, "wrap", "CodeMirror-markedline-" + type )
-        // @ts-ignore
-        this.doc.removeLineClass( lineHandle, "gutter", "CodeMirror-markedline-gutter-" + type )
-    }
-
-    private newLogMarker( descriptions: string[], type: LogEntryType ): HTMLElement {
-        const marker = document.createElement( "div" )
-        marker.className = "CodeMirror-marker-" + type
-
-        const markerTooltip = document.createElement( "ul" )
-        markerTooltip.className = "CodeMirror-marker-tooltip"
-        marker.appendChild( markerTooltip )
-
-        for ( let description of descriptions ) {
-            const descriptionListItem = document.createElement( "li" )
-            descriptionListItem.textContent = description
-            markerTooltip.appendChild( descriptionListItem )
-        }
-
-        marker.addEventListener( "mouseenter", () => {
-            markerTooltip.classList.add( "visible" )
-        } )
-        marker.addEventListener( "mouseout", () => {
-            markerTooltip.classList.remove( "visible" )
-        } )
-
-        return marker
     }
 }

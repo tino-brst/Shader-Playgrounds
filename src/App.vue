@@ -1,18 +1,16 @@
 <template>
     <div id="app">
         <div class="editor-panel">
-            <v-tabs v-model="activeShader" :log="log" />
+            <v-tabs v-model="activeShader" />
             <v-editor
                 :active-shader="activeShader"
                 :vertex="codeVertexShader"
                 :fragment="codeFragmentShader"
-                :log="log"
                 :uniforms-editors="uniformsEditors"
                 @change="updateShader"
             />
         </div>
-        <!-- <div class="renderer-panel">
-        </div> -->
+        <!-- <div class="renderer-panel" /> -->
     </div>
 </template>
 
@@ -42,8 +40,8 @@ export interface Log {
     fragment: ShaderLog
 }
 export interface ShaderLog {
-    errors: Map < number, string[] >,
-    warnings: Map < number, string[] >
+    errors: Array <[ number, string[] ]>,
+    warnings: Array <[ number, string[] ]>
 }
 export interface UniformEditor {
     target: string
@@ -66,82 +64,12 @@ export default Vue.extend( {
         activeShader: ShaderType.Vertex,
         codeVertexShader: sampleCodeVertex,
         codeFragmentShader: sampleCodeFragment,
-        log: {
-            vertex: { errors: new Map(), warnings: new Map() },
-            fragment: { errors: new Map(), warnings: new Map() }
-        } as Log,
         uniformsEditors: [] as UniformEditor[]
     } ),
     mounted() {
         // shorcut para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl )
         window.addEventListener( "keydown", this.handleActiveShaderChange )
         window.addEventListener( "keydown", this.handleRunKey )
-
-        // this.updateLog( [
-        //     { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 3, description: "'foo' - syntax error" },
-        //     { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 3, description: "'bar' - undeclared identifier" },
-        //     { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 9, description: "'foobar' - undeclared identifier" },
-        //     { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 14, description: "'bar' - super danger!" },
-        //     { shader: ShaderType.Fragment, type: LogEntryType.Error, line: 15, description: "'bar' - super danger!" },
-        //     { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 14, description: "'foofoo' - just be careful" },
-        //     { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 15, description: "'barbar' - just be careful okay?" },
-        //     { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'foobar' - just be careful okay?" }
-        // ] )
-        // this.uniformsEditors = [
-        //     { type: "mat4", target: "viewMatrix", locked: false },
-        //     { type: "mat4", target: "modelViewProjectionMatrix", locked: false },
-        //     { type: "mat4", target: "modelViewMatrix", locked: false },
-        //     { type: "mat4", target: "normalMatrix", locked: false },
-        //     { type: "int", target: "light.position", locked: false },
-        //     { type: "vec3", target: "light.color", locked: false },
-        //     { type: "vec3", target: "surface.ambient", locked: false },
-        //     { type: "vec3", target: "surface.diffuse", locked: false },
-        //     { type: "vec3", target: "surface.specular", locked: false },
-        //     { type: "float", target: "surface.shininess", locked: false }
-        // ]
-
-        // setTimeout( () => {
-        //     this.updateLog( [
-        //         { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 2, description: "'foo' - syntax error" },
-        //         { shader: ShaderType.Vertex, type: LogEntryType.Error, line: 2, description: "'bar' - undeclared identifier" },
-        //         { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 9, description: "'barbar' - just be careful okay?" },
-        //         { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 9, description: "'foobar' - just be careful okay?" }
-        //     ] )
-        //     this.uniformsEditors = []
-        // }, 2000 )
-
-        // setTimeout( () => {
-        //     this.updateLog( [
-        //         { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'foofoo' - just be careful" },
-        //         { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'barbar' - just be careful okay?" },
-        //         { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'barbar' - just be careful okay?" },
-        //         { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'foobar' - just be careful okay?" }
-        //     ] )
-        //     this.uniformsEditors = [
-        //         { type: "mat4", target: "viewMatrix", locked: false },
-        //         { type: "mat4", target: "modelViewProjectionMatrix", locked: false },
-        //         { type: "mat4", target: "modelViewMatrix", locked: false },
-        //         { type: "mat4", target: "normalMatrix", locked: false },
-        //         { type: "int", target: "light.position", locked: false },
-        //         { type: "vec3", target: "light.color", locked: false },
-        //         { type: "vec3", target: "surface.ambient", locked: false },
-        //         { type: "vec3", target: "surface.diffuse", locked: false },
-        //         { type: "vec3", target: "surface.specular", locked: false },
-        //         { type: "float", target: "surface.shininess", locked: false }
-        //     ]
-        // }, 5000 )
-
-        // setTimeout( () => {
-        //     this.updateLog( [] )
-        //     this.uniformsEditors = [
-        //         { type: "mat4", target: "viewMatrix", locked: false },
-        //         { type: "mat4", target: "modelViewProjectionMatrix", locked: false },
-        //         { type: "mat4", target: "modelViewMatrix", locked: false },
-        //         { type: "mat4", target: "normalMatrix", locked: false },
-        //         { type: "int", target: "light.position", locked: false },
-        //         { type: "vec3", target: "light.color", locked: false }
-        //     ]
-        // }, 10000 )
     },
     methods: {
         updateShader( newValue: string ) {
@@ -152,27 +80,8 @@ export default Vue.extend( {
             }
         },
         updateLog( newEntries: LogEntry[] ) {
-            const logVertexShader: ShaderLog = { errors: new Map(), warnings: new Map() }
-            const logFragmentShader: ShaderLog = { errors: new Map(), warnings: new Map() }
-
-            // organizo el log en vertex/fragment, warnings/errors y los agrupo por nro. de linea
-            for ( let entry of newEntries ) {
-                const shaderLog = ( entry.shader === ShaderType.Vertex ) ? logVertexShader : logFragmentShader
-                const entries = ( entry.type === LogEntryType.Error ) ? shaderLog.errors : shaderLog.warnings
-                const lineNumber = entry.line - 1 // one-based -> zero-based
-                const lineEntries = entries.get( lineNumber )
-
-                if ( lineEntries === undefined ) {
-                    entries.set( lineNumber, [ entry.description ] )
-                } else {
-                    lineEntries.push( entry.description )
-                }
-            }
-
-            this.log = {
-                vertex: logVertexShader,
-                fragment: logFragmentShader
-            }
+            // 📝 esto lo hace el renderer cada vez que se compila los shaders
+            this.$store.commit( "updateLog", newEntries )
         },
         handleActiveShaderChange( event: KeyboardEvent ) {
             if ( event.metaKey === true ) {
@@ -188,10 +97,13 @@ export default Vue.extend( {
                 if ( cleanState ) {
                     cleanState = false
                     this.updateLog( [
-                        { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'foofoo' - just be careful" },
-                        { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 12, description: "'barbar' - just be careful okay?" },
+                        { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 5, description: "'foofoo' - just be careful" },
+                        { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 8, description: "'foofoo' - just be careful" },
+                        { shader: ShaderType.Vertex, type: LogEntryType.Warning, line: 8, description: "'barbar' - just be careful okay?" },
                         { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'barbar' - just be careful okay?" },
-                        { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 8, description: "'foobar' - just be careful okay?" }
+                        { shader: ShaderType.Fragment, type: LogEntryType.Warning, line: 11, description: "'barbar' - just be careful okay?" },
+                        { shader: ShaderType.Fragment, type: LogEntryType.Error, line: 8, description: "'barbar' - just be careful okay?" },
+                        { shader: ShaderType.Fragment, type: LogEntryType.Error, line: 8, description: "'foobar' - just be careful okay?" }
                     ] )
                     this.uniformsEditors = [
                         { type: "mat4", target: "viewMatrix", locked: false },

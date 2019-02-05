@@ -13,7 +13,7 @@ import Vue from "vue"
 import Tooltip from "./Tooltip.vue"
 import UniformEditorOthers from "./UniformEditorOthers.vue"
 import UniformEditorFloat from "./UniformEditorFloat.vue"
-import { LogEntryType, ShaderType, Log, UniformEditor } from "../../App.vue"
+import { LogEntryType, ShaderType, Log, UniformEditor, ShaderLog } from "../../App.vue"
 import Shader from "./Shader"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "./codemirror/lib/codemirror"
 import "./codemirror/mode/glsl/glsl"
@@ -27,6 +27,7 @@ import "./codemirror/addon/fold/brace-fold"
 import "./codemirror/addon/fold/comment-fold"
 import "./codemirror/addon/hint/show-hint"
 import "./codemirror/addon/hint/glsl-hint"
+import { mapGetters } from "vuex"
 
 const TOOLS_KEY = "Alt"
 
@@ -59,10 +60,6 @@ export default Vue.extend( {
             type: String,
             default: "// Fragment Shader"
         },
-        log: {
-            type: Object as () => Log,
-            default: null
-        },
         uniformsEditors: {
             type: Array as () => UniformEditor[],
             default: () => []
@@ -70,8 +67,8 @@ export default Vue.extend( {
     },
     data: () => ( {
         editor: {} as Editor,
-        vertexShader: new Shader(),
-        fragmentShader: new Shader(),
+        vertexShader: new Shader( ShaderType.Vertex ),
+        fragmentShader: new Shader( ShaderType.Fragment ),
         uniformsBasic: new Map() as Map <string, UniformEditor>,
         uniformsStruct: new Map() as Map <string, Map <string, UniformEditor> >,
         shaderChangedSinceLastUpdate: false,
@@ -86,7 +83,8 @@ export default Vue.extend( {
             } else {
                 return ""
             }
-        }
+        },
+        ...mapGetters( [ "vertexLog", "fragmentLog" ] )
     },
     watch: {
         activeShader( newValue: ShaderType ) {
@@ -113,18 +111,6 @@ export default Vue.extend( {
         fragment( newValue: string ) {
             if ( newValue !== this.fragmentShader.getValue() ) {
                 this.fragmentShader.setValue( newValue )
-            }
-        },
-        log( newLog: Log ) {
-            this.vertexShader.setLog( this.log.vertex )
-            this.fragmentShader.setLog( this.log.fragment )
-
-            if ( this.vertexShader.hasErrors() || this.fragmentShader.hasErrors() ) {
-                this.vertexShader.showErrors()
-                this.fragmentShader.showErrors()
-            } else if ( this.vertexShader.hasWarnings() || this.fragmentShader.hasWarnings() ) {
-                this.vertexShader.showWarnings()
-                this.fragmentShader.showWarnings()
             }
         },
         uniformsEditors( newEditors: UniformEditor[] ) {
@@ -158,6 +144,12 @@ export default Vue.extend( {
                 window.removeEventListener( "keyup", this.handleToolsKey )
                 window.removeEventListener( "blur", this.hideTooltip )
             }
+        },
+        vertexLog( newLog: ShaderLog ) {
+            this.vertexShader.setLog( newLog )
+        },
+        fragmentLog( newLog: ShaderLog ) {
+            this.fragmentShader.setLog( newLog )
         }
     },
     mounted() {

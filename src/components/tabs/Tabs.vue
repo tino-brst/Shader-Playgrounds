@@ -2,7 +2,7 @@
     <div class="tabs">
         <div
             class="tab"
-            :class="{ selected: value === 'vertex', errors: log !== null && log.vertex.errors.size, warnings: log !== null && log.vertex.warnings.size }"
+            :class="{ selected: value === 'vertex', errors: vertexLog.errors.length, warnings: vertexLog.warnings.length }"
             @mousedown="updateValue('vertex')"
         >
             <span class="marker" />
@@ -16,7 +16,7 @@
 
         <div
             class="tab"
-            :class="{ selected: value === 'fragment', errors: log !== null && log.fragment.errors.size, warnings: log !== null && log.fragment.warnings.size }"
+            :class="{ selected: value === 'fragment', errors: fragmentLog.errors.length, warnings: fragmentLog.warnings.length }"
             @mousedown="updateValue('fragment')"
         >
             <span class="marker" />
@@ -31,6 +31,7 @@
 <script lang="ts">
 import Vue from "vue"
 import { Log } from "../../App.vue"
+import { mapGetters } from "vuex"
 
 export default Vue.extend( {
     name: "Tabs",
@@ -38,12 +39,9 @@ export default Vue.extend( {
         value: {
             type: String,
             default: ""
-        },
-        log: {
-            type: Object as () => Log,
-            default: null
         }
     },
+    computed: mapGetters( [ "vertexLog", "fragmentLog" ] ),
     methods: {
         updateValue( value: string ) {
             if ( value !== this.value ) {
