@@ -9,7 +9,9 @@
                 @change="updateShader"
             />
         </div>
-        <!-- <div class="renderer-panel" /> -->
+        <div class="renderer-panel" style="display: none">
+            <v-renderer />
+        </div>
     </div>
 </template>
 
@@ -17,6 +19,7 @@
 import Vue from "vue"
 import Tabs from "@/components/Tabs.vue"
 import Editor from "@/components/Editor.vue"
+import Renderer from "@/components/Renderer.vue"
 // ⚠️ pensar cuales van a ser los valores de los shaders por defecto (si van a tener alguno)
 import sampleCodeVertex from "@/scripts/editor/sample-code-vertex"
 import sampleCodeFragment from "@/scripts/editor/sample-code-fragment"
@@ -50,6 +53,7 @@ export default Vue.extend( {
     name: "App",
     components: {
         "v-editor": Editor,
+        "v-renderer": Renderer,
         "v-tabs": Tabs
     },
     data: () => ( {
@@ -152,6 +156,6 @@ body {
     box-sizing: border-box;
     background:  rgb(10, 10, 10);
     border-left: 1px solid rgba(255, 255, 255, 0.25);
-    flex: 0 0 200px;
+    flex: 0 0 300px;
 }
 </style>

@@ -12,8 +12,8 @@ import { UniformEditor } from "./UniformEditor"
 import { UniformsCache } from "./UniformsCache"
 import { VertexAttribute, Uniform } from "./ShaderInputs"
 import { VertexAttributeBuffer } from "./Buffers"
-import defaultFragmentShaderSource from "../shaders/default.frag.glsl"
-import defaultVertexShaderSource from "../shaders/default.vert.glsl"
+import defaultFragmentShaderSource from "./default_shaders/default.frag.glsl"
+import defaultVertexShaderSource from "./default_shaders/default.vert.glsl"
 
 export class Renderer {
     private canvas: HTMLCanvasElement
@@ -84,6 +84,9 @@ export class Renderer {
         // tamaño inicial del viewport / aspect de la camara / etc
 
         this.updateSize()
+
+        // modelo y shaders por defecto
+
         this.setModel( "cube" )
         this.setShaderProgram( defaultVertexShaderSource, defaultFragmentShaderSource )
     }

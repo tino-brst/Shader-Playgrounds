@@ -8,6 +8,11 @@ const isDevelopment = process.env.NODE_ENV !== "production"
 // be closed automatically when the JavaScript object is garbage collected.
 let win : BrowserWindow | null
 
+// Chrome by default black lists certain GPUs because of bugs.
+// if your are not able to view webgl try enabling --ignore-gpu-blacklist option
+// But, this will make electron/chromium less stable.
+app.commandLine.appendSwitch( "--ignore-gpu-blacklist" )
+
 // Standard scheme must be registered before the app is ready
 protocol.registerStandardSchemes( [ "app" ], { secure: true } )
 function createWindow() {
