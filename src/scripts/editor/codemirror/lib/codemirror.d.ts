@@ -120,9 +120,9 @@ declare namespace CodeMirror { // eslint-disable-line
     To fire your own events, use CodeMirror.signal(target, name, args...), where target is a non-DOM-node object. */
     function signal( target: any, name: string, ...args: any[] ): void;
 
-    type DOMEvent = "mousedown" | "dblclick" | "touchstart" | "contextmenu" | "keydown" | "keypress" | "keyup" | "cut" | "copy" | "paste" | "dragstart" | "dragenter" | "dragover" | "dragleave" | "drop";
+    type DOMEvent = "mousedown" | "dblclick" | "touchstart" | "contextmenu" | "keydown" | "keypress" | "keyup" | "cut" | "copy" | "paste" | "dragstart" | "dragenter" | "dragover" | "dragleave" | "drop"
 
-    type CoordsMode = "window" | "page" | "local";
+    type CoordsMode = "window" | "page" | "local"
 
     interface Token {
         /** The character(on the given line) at which the token starts. */

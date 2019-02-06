@@ -1,9 +1,7 @@
 import { Geometry } from "../geometry/Geometry"
 
 export class Box extends Geometry {
-
     constructor( width: number = 2, height: number = 2, depth: number = 2 ) {
-
         super()
 
         const halfWidth  = width  / 2
@@ -44,7 +42,5 @@ export class Box extends Geometry {
         // this.computePerFaceVertexNormals()
 
         this.loadArrays()
-
     }
-
 }

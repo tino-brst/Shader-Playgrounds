@@ -2,9 +2,7 @@ import { Geometry } from "../geometry/Geometry"
 import { vec3 } from "gl-matrix"
 
 export class IcoSphere extends Geometry {
-
     constructor( radius: number = 1 ) {
-
         super()
 
         const t = ( 1 + Math.sqrt( 5 ) ) / 2
@@ -62,14 +60,10 @@ export class IcoSphere extends Geometry {
         // 🔁
 
         this.vertexPositions.forEach( ( position ) => {
-
             vec3.normalize( position, position )
             vec3.scale( position, position, radius )
-
         } )
 
         this.loadArrays()
-
     }
-
 }

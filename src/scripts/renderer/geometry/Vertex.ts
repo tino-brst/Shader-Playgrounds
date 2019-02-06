@@ -4,23 +4,19 @@ export interface IVertexOptionals {
 }
 
 export class Vertex {
-
     public positionIndex: number
     public normalIndex: number | undefined
     public textureCoordinatesIndex: number | undefined
 
     constructor( positionIndex: number, optionals?: IVertexOptionals ) {
-
         this.positionIndex = positionIndex
 
         optionals = optionals || {}
         this.normalIndex = optionals.normalIndex
         this.textureCoordinatesIndex = optionals.textureCoordinatesIndex
-
     }
 
     public static toString( positionIndex: number, optionals?: IVertexOptionals ) {
-
         optionals = optionals || {}
 
         const vertexValues = []
@@ -30,7 +26,5 @@ export class Vertex {
         vertexValues.push( optionals.normalIndex )
 
         return vertexValues.join( "/" )
-
     }
-
 }

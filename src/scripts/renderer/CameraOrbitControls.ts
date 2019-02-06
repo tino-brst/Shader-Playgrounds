@@ -1,7 +1,6 @@
 import { Camera } from "./Camera"
 
 export class CameraOrbitControls {
-
     public enabled: boolean
     public naturalScroll: boolean
     public dragFactor: number
@@ -13,7 +12,6 @@ export class CameraOrbitControls {
     private registerZone: HTMLElement
 
     constructor( camera: Camera, registerZone: HTMLElement ) {
-
         this.enabled       = true
         this.naturalScroll = true
         this.dragFactor    = 0.6
@@ -27,72 +25,46 @@ export class CameraOrbitControls {
         const eventListenerOptions: AddEventListenerOptions = { capture: true, passive: true }
 
         this.registerZone.addEventListener( "wheel", ( event ) => {
-
-this.zoom( event )
-
-}, eventListenerOptions )
+            this.zoom( event )
+        }, eventListenerOptions )
         this.registerZone.addEventListener( "mousedown", ( event ) => {
-
-this.dragStart( event )
-
-}, eventListenerOptions )
+            this.dragStart( event )
+        }, eventListenerOptions )
         document.addEventListener( "mousemove", ( event ) => {
-
-this.dragMove( event )
-
-}, eventListenerOptions )
+            this.dragMove( event )
+        }, eventListenerOptions )
         document.addEventListener( "mouseup", () => {
-
-this.dragEnd()
-
-}, eventListenerOptions )
-
+            this.dragEnd()
+        }, eventListenerOptions )
     }
 
     private zoom( event: WheelEvent ) {
-
         if ( this.enabled ) {
-
             const value = event.deltaY * this.zoomFactor
 
             if ( this.naturalScroll ) {
-
                 this.camera.zoom( - value )
-
             } else {
-
                 this.camera.zoom( value )
-
             }
-
         }
-
     }
 
     private dragStart( event: MouseEvent ) {
-
         if ( this.enabled ) {
-
             const leftClick = 1
 
             if ( event.which === leftClick ) {
-
                 this.dragging = true
                 this.lastX    = event.clientX
                 this.lastY    = event.clientY
-
             }
-
         }
-
     }
 
     private dragMove( event: MouseEvent ) {
-
         if ( this.enabled ) {
-
             if ( this.dragging ) {
-
                 const mouseChangeX = ( event.clientX - this.lastX )
                 const mouseChangeY = ( event.clientY - this.lastY )
 
@@ -104,21 +76,13 @@ this.dragEnd()
 
                 this.lastX = event.clientX
                 this.lastY = event.clientY
-
             }
-
         }
-
     }
 
     private dragEnd() {
-
         if ( this.enabled ) {
-
             this.dragging = false
-
         }
-
     }
-
 }
