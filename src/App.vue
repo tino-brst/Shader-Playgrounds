@@ -15,10 +15,11 @@
 
 <script lang="ts">
 import Vue from "vue"
-import Tabs from "./components/tabs/Tabs.vue"
-import Editor from "./components/editor/Editor.vue"
-import sampleCodeVertex from "./sample-code-vertex"
-import sampleCodeFragment from "./sample-code-fragment"
+import Tabs from "@/components/Tabs.vue"
+import Editor from "@/components/Editor.vue"
+// ⚠️ pensar cuales van a ser los valores de los shaders por defecto (si van a tener alguno)
+import sampleCodeVertex from "@/scripts/editor/sample-code-vertex"
+import sampleCodeFragment from "@/scripts/editor/sample-code-fragment"
 
 export enum ShaderType {
     Vertex = "vertex",

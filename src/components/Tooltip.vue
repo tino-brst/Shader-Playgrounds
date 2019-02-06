@@ -1,9 +1,11 @@
 <template>
     <div class="tooltip" ref="tooltip" @mousedown.stop :class="{ visible: visible, below: below }" :style="tooltipStyle">
         <slot>
-            <div class="default-content"> ••• </div>
+            <div class="default-content">
+                •••
+            </div>
         </slot>
-        <div class="tip" ref="tip" :style="tipStyle"></div>
+        <div class="tip" ref="tip" :style="tipStyle" />
     </div>
 </template>
 
@@ -14,7 +16,7 @@ const TARGET_OFFSET = 10
 const VIEWPORT_MARGIN = 5
 
 export default Vue.extend( {
-    name: "tooltip",
+    name: "Tooltip",
     props: {
         show: {
             type: Boolean,

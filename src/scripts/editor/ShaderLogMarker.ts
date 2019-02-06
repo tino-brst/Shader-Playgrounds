@@ -1,5 +1,5 @@
 import { LineHandle } from "./codemirror/lib/codemirror"
-import store from "@/store"
+import store from "@/store/store"
 import Shader from "./Shader"
 
 enum LogEntryType { // ⚠️ parche: estoy duplicando la definicion de LogEntryType y ShaderLog

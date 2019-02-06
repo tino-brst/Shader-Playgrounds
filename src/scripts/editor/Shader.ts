@@ -1,4 +1,4 @@
-import CodeMirror, { Doc, LineHandle, Editor, Position, TextMarker } from "./codemirror/lib/codemirror"
+import CodeMirror, { Doc, Editor, Position, TextMarker } from "./codemirror/lib/codemirror"
 // @ts-ignore
 import { UniformEditor } from "@/App.vue"
 import ShaderLogMarker from "./ShaderLogMarker"
