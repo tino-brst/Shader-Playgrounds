@@ -22,20 +22,10 @@ export class CameraOrbitControls {
         this.camera        = camera
         this.registerZone  = registerZone
 
-        const eventListenerOptions: AddEventListenerOptions = { capture: true, passive: true }
-
-        this.registerZone.addEventListener( "wheel", ( event ) => {
-            this.zoom( event )
-        }, eventListenerOptions )
-        this.registerZone.addEventListener( "mousedown", ( event ) => {
-            this.dragStart( event )
-        }, eventListenerOptions )
-        document.addEventListener( "mousemove", ( event ) => {
-            this.dragMove( event )
-        }, eventListenerOptions )
-        document.addEventListener( "mouseup", () => {
-            this.dragEnd()
-        }, eventListenerOptions )
+        this.registerZone.addEventListener( "wheel", ( event ) => { this.zoom( event ) }, { passive: true } )
+        this.registerZone.addEventListener( "mousedown", ( event ) => { this.dragStart( event ) } )
+        document.addEventListener( "mousemove", ( event ) => { this.dragMove( event ) } )
+        document.addEventListener( "mouseup", () => { this.dragEnd() } )
     }
 
     private zoom( event: WheelEvent ) {
@@ -51,6 +41,8 @@ export class CameraOrbitControls {
     }
 
     private dragStart( event: MouseEvent ) {
+        event.preventDefault()
+
         if ( this.enabled ) {
             const leftClick = 1
 
