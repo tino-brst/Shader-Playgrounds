@@ -83,13 +83,14 @@
       this.size = barSize;
     }
 
+    var buttonMargins = 4 // para que el boton del scroll no llegue hasta el borde;
     var buttonSize = this.screen * (this.size / this.total);
     if (buttonSize < minButtonSize) {
       this.size -= minButtonSize - buttonSize;
       buttonSize = minButtonSize;
     }
     this.inner.style[this.orientation == "horizontal" ? "width" : "height"] =
-      buttonSize + "px";
+      buttonSize - ( buttonMargins * 2 ) + "px";
     this.setPos(this.pos, sizeChanged);
   };
 

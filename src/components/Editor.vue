@@ -21,6 +21,7 @@ import "@/scripts/editor/codemirror/addon/selection/active-line"
 import "@/scripts/editor/codemirror/addon/edit/matchbrackets"
 import "@/scripts/editor/codemirror/addon/edit/closebrackets"
 import "@/scripts/editor/codemirror/addon/scroll/scrollpastend"
+import "@/scripts/editor/codemirror/addon/scroll/simplescrollbars"
 import "@/scripts/editor/codemirror/addon/fold/foldgutter"
 import "@/scripts/editor/codemirror/addon/fold/foldcode"
 import "@/scripts/editor/codemirror/addon/fold/brace-fold"
@@ -167,6 +168,7 @@ export default Vue.extend( {
             matchBrackets: true,
             autoCloseBrackets: { pairs: "()[]{}''\"\"", explode: "[]{}()" },
             scrollPastEnd: true,
+            scrollbarStyle: "simple",
             foldGutter: true,
             foldOptions: { widget: "•••", minFoldSize: 1 },
             hintOptions: { completeSingle: false, alignWithWord: true }
@@ -319,10 +321,6 @@ export default Vue.extend( {
     padding: 0 6px; /* Horizontal padding of content */
 }
 
-.CodeMirror-scrollbar-filler, .CodeMirror-gutter-filler {
-    background-color: white; /* The little square between H and V scrollbars */
-}
-
 /* 🎨 Active line */
 
 .CodeMirror-activeline {
@@ -333,6 +331,59 @@ export default Vue.extend( {
 }
 .CodeMirror-activeline .CodeMirror-linenumber {
     color: rgb(170, 170, 170);
+}
+
+/* 🎨 Scroll bars */
+
+.CodeMirror-simplescroll-horizontal div,
+.CodeMirror-simplescroll-vertical div {
+  position: absolute;
+  background: rgba( 80, 80, 80 );
+  border-radius: 2px;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.CodeMirror-simplescroll-horizontal div:active,
+.CodeMirror-simplescroll-vertical div:active,
+.CodeMirror-simplescroll-horizontal div:hover,
+.CodeMirror-simplescroll-vertical div:hover {
+  opacity: 0.9;
+}
+
+.CodeMirror-simplescroll-horizontal,
+.CodeMirror-simplescroll-vertical {
+  position: absolute;
+  z-index: 6;
+  background: none;
+}
+
+.CodeMirror-simplescroll-horizontal {
+  bottom: 0; left: 0;
+  height: 16px;
+}
+.CodeMirror-simplescroll-horizontal div {
+  bottom: 0;
+  height: 8px;
+  margin-bottom: 4px;
+  margin-left: 4px;
+}
+
+.CodeMirror-simplescroll-vertical {
+  right: 0; top: 0;
+  width: 16px;
+}
+.CodeMirror-simplescroll-vertical div {
+  right: 0;
+  width: 8px;
+  margin-right: 4px;
+  margin-top: 4px;
+}
+
+.CodeMirror-scrollbar-filler,
+.CodeMirror-gutter-filler {
+    display: none; /* The little square between H and V scrollbars */
 }
 
 /* 🎨 Gutters */

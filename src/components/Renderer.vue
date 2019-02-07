@@ -21,6 +21,7 @@ export default Vue.extend( {
 <style>
 .renderer {
     height: 100%;
+    overflow: hidden;
 }
 .renderer canvas {
     height: 100%;
