@@ -56,8 +56,8 @@ export default new Vuex.Store( {
             state.vertexLog = vertexLog
             state.fragmentLog = fragmentLog
         },
-        updateUniformsEditors( state, newEditors: UniformEditor[] ) {
-            state.uniformsEditors = newEditors
+        updateUniformsEditors( state, newEditors: Map <string, UniformEditor> ) {
+            state.uniformsEditors = Array.from( newEditors.values() )
         },
         clearLineLog( state, { shader, line }: { shader: ShaderType, line: number } ) {
             const log      = ( shader === ShaderType.Vertex ) ? state.vertexLog : state.fragmentLog
