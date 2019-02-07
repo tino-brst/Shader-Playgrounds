@@ -23,33 +23,14 @@ import Vue from "vue"
 import Tabs from "@/components/Tabs.vue"
 import Editor from "@/components/Editor.vue"
 import Renderer from "@/components/Renderer.vue"
+import { ShaderType } from "@/scripts/renderer/_constants"
+
 // ⚠️ pensar cuales van a ser los valores de los shaders por defecto (si van a tener alguno)
 import sampleCodeVertex from "@/scripts/renderer/default_shaders/default.vert.glsl"
 import sampleCodeFragment from "@/scripts/renderer/default_shaders/default.frag.glsl"
 
 const VERTEX_SHADER_KEY = "1"
 const FRAGMENT_SHADER_KEY = "2"
-
-export enum ShaderType {
-    Vertex = "vertex",
-    Fragment = "fragment"
-}
-export enum LogEntryType {
-    Error = "error",
-    Warning = "warning"
-}
-export interface LogEntry {
-    shader: ShaderType,
-    type: LogEntryType,
-    line: number,
-    description: string
-}
-export interface UniformEditor {
-    target: string
-    type: "int" | "float" | "mat4" | "vec3"
-    locked: boolean
-    // setValue: ( value: any ) => void
-}
 
 export default Vue.extend( {
     name: "App",

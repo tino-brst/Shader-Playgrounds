@@ -10,11 +10,13 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { mapState } from "vuex"
 import Tooltip from "@/components/Tooltip.vue"
 import UniformEditorOthers from "@/components/UniformEditorOthers.vue"
 import UniformEditorFloat from "@/components/UniformEditorFloat.vue"
-import { LogEntryType, ShaderType, UniformEditor } from "@/App.vue"
-import Shader from "@/scripts/editor/Shader"
+import { ShaderType } from "@/scripts/renderer/_constants"
+import Shader, { ShaderLog } from "@/scripts/editor/Shader"
+import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "@/scripts/editor/codemirror/lib/codemirror"
 import "@/scripts/editor/codemirror/mode/glsl/glsl"
 import "@/scripts/editor/codemirror/addon/selection/active-line"
@@ -28,14 +30,9 @@ import "@/scripts/editor/codemirror/addon/fold/brace-fold"
 import "@/scripts/editor/codemirror/addon/fold/comment-fold"
 import "@/scripts/editor/codemirror/addon/hint/show-hint"
 import "@/scripts/editor/codemirror/addon/hint/glsl-hint"
-import { mapState } from "vuex"
 
 const TOOLS_KEY = "Alt"
 
-interface ShaderLog {
-    errors: Array <[ number, string[] ]>,
-    warnings: Array <[ number, string[] ]>
-}
 interface Uniform {
     range: Range,
     editor: UniformEditor
@@ -340,7 +337,7 @@ export default Vue.extend( {
   position: absolute;
   background: rgba( 80, 80, 80 );
   border-radius: 2px;
-  opacity: 0.6;
+  opacity: 0.4;
   cursor: pointer;
   transition: opacity 0.15s;
 }

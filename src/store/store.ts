@@ -1,32 +1,11 @@
 import Vue from "vue"
 import Vuex from "vuex"
+import { InspectorLogEntry, LogEntryType } from "@/scripts/renderer/InspectorLogEntry"
+import { ShaderType } from "@/scripts/renderer/_constants"
+import { UniformEditor } from "@/scripts/renderer/UniformEditor"
+import { ShaderLog } from "@/scripts/editor/Shader"
 
 Vue.use( Vuex )
-
-interface ShaderLog {
-    errors: Array <[ number, string[] ]>,
-    warnings: Array <[ number, string[] ]>
-}
-enum ShaderType {
-    Vertex = "vertex",
-    Fragment = "fragment"
-}
-enum LogEntryType {
-    Error = "error",
-    Warning = "warning"
-}
-interface LogEntry {
-    shader: ShaderType,
-    type: LogEntryType,
-    line: number,
-    description: string
-}
-interface UniformEditor {
-    target: string
-    type: "int" | "float" | "mat4" | "vec3"
-    locked: boolean
-    // setValue: ( value: any ) => void
-}
 
 export default new Vuex.Store( {
     state: {
@@ -35,7 +14,7 @@ export default new Vuex.Store( {
         uniformsEditors: [] as UniformEditor[]
     },
     mutations: {
-        updateLog( state, newEntries: LogEntry[] ) {
+        updateLog( state, newEntries: InspectorLogEntry[] ) {
             const vertexLog: ShaderLog = { errors: [], warnings: [] }
             const fragmentLog: ShaderLog = { errors: [], warnings: [] }
 

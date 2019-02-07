@@ -1,11 +1,7 @@
 import { LineHandle } from "./codemirror/lib/codemirror"
+import { LogEntryType } from "@/scripts/renderer/InspectorLogEntry"
 import store from "@/store/store"
 import Shader from "./Shader"
-
-enum LogEntryType { // ⚠️ parche: estoy duplicando la definicion de LogEntryType y ShaderLog
-    Error = "error",
-    Warning = "warning"
-}
 
 export default class ShaderLogMarker {
     private lineNumber: number

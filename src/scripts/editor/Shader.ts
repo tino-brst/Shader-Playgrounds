@@ -1,12 +1,12 @@
 import CodeMirror, { Doc, Editor, Position, TextMarker } from "./codemirror/lib/codemirror"
-// @ts-ignore
-import { UniformEditor } from "@/App.vue"
+import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import ShaderLogMarker from "./ShaderLogMarker"
 
-interface ShaderLog { // ⚠️ parche: estoy duplicando la definicion de LogEntryType y ShaderLog
+export interface ShaderLog {
     errors: Array <[ number, string[] ]>,
     warnings: Array <[ number, string[] ]>
 }
+
 export interface LogEntry {
     shader: ShaderType,
     type: LogEntryType,
