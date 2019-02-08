@@ -14,6 +14,7 @@
                 :vertex="codeVertexShader"
                 :fragment="codeFragmentShader"
             />
+            <div class="toolbar" />
         </div>
     </div>
 </template>
@@ -72,6 +73,7 @@ export default Vue.extend( {
 <style>
 html {
     height: 100%;
+    background: rgb( 20, 20, 20 ); /* ⚠️ PARCHE: para evitar el borde blanco en objetos con blur (se podria hacer que el elemento con blur tenga otro atras que sea el color de fondo y sea mas grande que el elemento en si) */
 }
 
 body {
@@ -81,6 +83,10 @@ body {
 
 #app {
     -webkit-font-smoothing: antialiased;
+    font-family: IBM Plex Sans;
+    font-size: 13px;
+    font-weight: 500;
+    color: white;
     height: 100%;
     display: flex;
     flex-direction: row;
@@ -101,5 +107,29 @@ body {
     background:  rgb(8, 8, 8);
     border-left: 1px solid rgba(255, 255, 255, 0.25);
     flex: 0 0 300px;
+    position: relative;
+}
+
+.renderer-panel .toolbar {
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 23px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba( 30, 30, 30, 0.9 );
+    backdrop-filter: saturate(180%) blur(15px);
+}
+
+.renderer-panel .toolbar:last-child::after {
+    content: "";
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    position: absolute;
+    background-color: rgba( 255, 255, 255, 0.08 );
 }
 </style>

@@ -53,13 +53,11 @@ export default Vue.extend( {
 
 <style scoped>
 .tabs {
+    user-select: none;
     z-index: 4;
     display: flex;
     flex-direction: row;
     align-items: center;
-    font-family: IBM Plex Sans;
-    font-size: 13px;
-    font-weight: 500;
     flex: 0 0 30px;
     box-sizing: border-box;
     background: rgb(30, 30, 30);
