@@ -98,7 +98,7 @@ body {
 .renderer-panel {
     height: 100%;
     box-sizing: border-box;
-    background:  rgb(10, 10, 10);
+    background:  rgb(8, 8, 8);
     border-left: 1px solid rgba(255, 255, 255, 0.25);
     flex: 0 0 300px;
 }

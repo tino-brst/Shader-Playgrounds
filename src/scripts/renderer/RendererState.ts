@@ -21,7 +21,7 @@ export class RendererState {
         this.attributeBuffersNeedUpdate = true
         this.animationsEnabled = true
 
-        this.gl.clearColor( 0.08, 0.08, 0.08, 1 )
+        this.gl.clearColor( 0, 0, 0, 0 ) // <- fondo transparente, se maneja el color de fondo desde el css del canvas
         this.gl.pixelStorei( this.gl.UNPACK_FLIP_Y_WEBGL, 1 )
         this.gl.enable( this.gl.DEPTH_TEST )
         this.gl.enable( this.gl.CULL_FACE )
