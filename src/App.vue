@@ -10,6 +10,7 @@
                     :fragment="codeFragmentShader"
                     @change="updateShader"
                 />
+                <div class="toolbar" />
             </div>
             <div class="right-panel">
                 <v-renderer
@@ -75,7 +76,6 @@ export default Vue.extend( {
 <style>
 html {
     height: 100%;
-    background: rgb( 30, 30, 30 ); /* ⚠️ PARCHE: para evitar el borde blanco en objetos con blur (se podria hacer que el elemento con blur tenga otro atras que sea el color de fondo y sea mas grande que el elemento en si) */
 }
 
 body {
@@ -92,13 +92,15 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    background: black;
 }
 
 .title-bar {
     -webkit-app-region: drag;
     user-select: none;
     flex: 0 0 22px;
-    background: rgb(10,10,10);
+    background: rgb(60,60,60);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .panels {
@@ -114,15 +116,23 @@ body {
     flex-direction: column;
     flex-wrap: nowrap;
     flex: 1 1 auto;
-    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    border-right: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .right-panel {
     height: auto;
     box-sizing: border-box;
     background:  rgb(8, 8, 8);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
     flex: 0 0 300px;
     position: relative;
+}
+
+.left-panel .toolbar {
+    z-index: 1;
+    flex: 0 0 25px;
+    box-sizing: border-box;
+    background: rgb(60, 60, 60);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
 }
 </style>

@@ -64,8 +64,8 @@ accent-color = rgb( 20, 100, 220 )
     }
 
     .icon {
-        width: 1rem
-        height: 1rem
+        width: 15px
+        height: 15px
         display: flex
         align-items: center
         justify-content: center

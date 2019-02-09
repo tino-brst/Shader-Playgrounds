@@ -46,48 +46,48 @@
 
 .CodeMirror-simplescroll-horizontal div,
 .CodeMirror-simplescroll-vertical div {
-  position: absolute;
-  background: rgba( 80, 80, 80 );
-  border-radius: 2px;
-  opacity: 0.4;
-  cursor: pointer;
-  transition: opacity 0.15s;
+    position: absolute;
+    background: rgba( 80, 80, 80 );
+    border-radius: 2px;
+    opacity: 0.4;
+    cursor: pointer;
+    transition: opacity 0.15s;
 }
 
 .CodeMirror-simplescroll-horizontal div:active,
 .CodeMirror-simplescroll-vertical div:active,
 .CodeMirror-simplescroll-horizontal div:hover,
 .CodeMirror-simplescroll-vertical div:hover {
-  opacity: 0.9;
+    opacity: 0.9;
 }
 
 .CodeMirror-simplescroll-horizontal,
 .CodeMirror-simplescroll-vertical {
-  position: absolute;
-  z-index: 6;
-  background: none;
+    position: absolute;
+    z-index: 6;
+    background: none;
 }
 
 .CodeMirror-simplescroll-horizontal {
-  bottom: 0; left: 0;
-  height: 16px;
+    bottom: 0; left: 0;
+    height: 14px;
 }
 .CodeMirror-simplescroll-horizontal div {
-  bottom: 0;
-  height: 8px;
-  margin-bottom: 4px;
-  margin-left: 4px;
+    bottom: 0;
+    height: 6px;
+    margin-bottom: 4px;
+    margin-left: 4px;
 }
 
 .CodeMirror-simplescroll-vertical {
-  right: 0; top: 0;
-  width: 16px;
+    right: 0; top: 0;
+    width: 14px;
 }
 .CodeMirror-simplescroll-vertical div {
-  right: 0;
-  width: 8px;
-  margin-right: 4px;
-  margin-top: 4px;
+    right: 0;
+    width: 6px;
+    margin-right: 4px;
+    margin-top: 4px;
 }
 
 .CodeMirror-scrollbar-filler,

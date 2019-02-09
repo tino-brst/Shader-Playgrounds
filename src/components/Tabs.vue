@@ -60,16 +60,15 @@ export default Vue.extend( {
     align-items: center;
     flex: 0 0 30px;
     box-sizing: border-box;
-    background: rgb(30, 30, 30);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.15);
+    background: black;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
 }
 
 .separator {
     width: 1px;
     height: 100%;
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .tab {
@@ -78,16 +77,16 @@ export default Vue.extend( {
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgb(180, 180, 180);
-    background: rgb(35, 35, 35);
+    color: rgb(150, 150, 150);
+    background: rgb(25, 25, 25);
     cursor: pointer;
     user-select: none;
     transition: all 0.1s;
     position: relative;
 }
 .tab:hover {
-    background: rgb(45, 45, 45);
-    color: rgb(250, 250, 250);
+    background: rgb(30, 30, 30);
+    color: rgb(220, 220, 220);
 }
 .tab.selected {
     color: white;
