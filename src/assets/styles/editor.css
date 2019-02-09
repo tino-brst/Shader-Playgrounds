@@ -597,6 +597,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 .cm-s-default .cm-boolean { color: rgb(167, 152, 255); }
 .cm-s-default .cm-punctuation { color: rgb(100, 100, 100); }
 .cm-s-default .cm-operator { color: rgb(150, 150, 150) }
+.cm-s-default .cm-operator.cm-assign { color: rgb(255, 255, 255) }
 .cm-s-default .cm-bracket { color: rgb(150, 150, 150); }
 .cm-s-default .cm-comment { color: rgb(108, 121, 134); font-style: italic; }
 

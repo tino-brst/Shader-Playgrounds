@@ -17,7 +17,7 @@ const operators = [
     "+", "-", "!", "*", "/", "?", ":",
     "<", ">", "<=", ">=", "==", "!=",
     "&&", "||", "^^",
-    "=", "+=", "-=", "*=", "/="
+    "+=", "-=", "*=", "/="
 ]
 const functions = [
     "main",
@@ -72,7 +72,8 @@ CodeMirror.defineSimpleMode( "glsl", {
         { regex: /\/\/.*/, token: "comment" },
         { regex: /\/\*/, token: "comment", next: "comment" },
         // operators
-        { regex: asRegExp( operators ), token: "operator" },
+        { regex: new RegExp( "(" + operators.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator" },
+        { regex: /=/, token: "operator assign" },
         // punctuation
         { regex: /\.|;|,/, token: "punctuation" },
         // brackets, indentation
