@@ -97,17 +97,15 @@ export class Renderer {
         const programWasUsable = this.program.usable
 
         this.program.setShadersSourceAndLink( vertexSaderSource, fragmentShaderSource )
+        this.clearUniformsCacheAndEditors()
 
         if ( this.program.usable ) {
             this.program.use()
-
             this.updateUniformsCacheAndEditors( this.inspector.getUniformsInfo( this.program ) )
-
             this.state.attributeBuffersNeedUpdate = true
 
             if ( ! programWasUsable ) {
                 this.loop()
-
                 this.cameraOrbitControls.enabled = true
             }
         } else {
@@ -297,9 +295,6 @@ export class Renderer {
     }
 
     private updateUniformsCacheAndEditors( uniformsInfo: Map < string, string > ) {
-        this.uniformsCache.clear()
-        this.uniformsEditors.clear()
-
         for ( const [ name, type ] of uniformsInfo ) {
             if ( type in ShaderVariableType ) {
                 const cachedValue = this.uniformsCache.add( name, type as ShaderVariableType )
@@ -357,5 +352,10 @@ export class Renderer {
         }
 
         this.updateInspectorAvailableVertexAttributes( geometry.vertexAttributesBuffers )
+    }
+
+    private clearUniformsCacheAndEditors() {
+        this.uniformsCache.clear()
+        this.uniformsEditors.clear()
     }
 }
