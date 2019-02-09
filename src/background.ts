@@ -17,7 +17,12 @@ app.commandLine.appendSwitch( "--ignore-gpu-blacklist" )
 protocol.registerStandardSchemes( [ "app" ], { secure: true } )
 function createWindow() {
     // Create the browser window.
-    win = new BrowserWindow( { width: 800, height: 600, webPreferences: { experimentalFeatures: true } } )
+    win = new BrowserWindow( {
+        width: 800,
+        height: 600,
+        titleBarStyle: "hidden",
+        webPreferences: { experimentalFeatures: true }
+    } )
 
     if ( isDevelopment || process.env.IS_TEST ) {
         // Load the url of the dev server if in development mode

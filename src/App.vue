@@ -1,19 +1,22 @@
 <template>
     <div id="app">
-        <div class="editor-panel">
-            <v-tabs v-model="activeShader" />
-            <v-editor
-                :active-shader="activeShader"
-                :vertex="codeVertexShader"
-                :fragment="codeFragmentShader"
-                @change="updateShader"
-            />
-        </div>
-        <div class="renderer-panel">
-            <v-renderer
-                :vertex="codeVertexShader"
-                :fragment="codeFragmentShader"
-            />
+        <div class="title-bar" />
+        <div class="panels">
+            <div class="left-panel">
+                <v-tabs v-model="activeShader" />
+                <v-editor
+                    :active-shader="activeShader"
+                    :vertex="codeVertexShader"
+                    :fragment="codeFragmentShader"
+                    @change="updateShader"
+                />
+            </div>
+            <div class="right-panel">
+                <v-renderer
+                    :vertex="codeVertexShader"
+                    :fragment="codeFragmentShader"
+                />
+            </div>
         </div>
     </div>
 </template>
@@ -88,23 +91,37 @@ body {
     color: white;
     height: 100%;
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
+    flex-direction: column;
 }
 
-.editor-panel {
-    height: 100%;
+.title-bar {
+    -webkit-app-region: drag;
+    user-select: none;
+    flex: 0 0 22px;
+    background: rgb(10,10,10);
+}
+
+.panels {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    flex-grow: 1;
+}
+
+.left-panel {
+    height: auto;
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
     flex: 1 1 auto;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.renderer-panel {
-    height: 100%;
+.right-panel {
+    height: auto;
     box-sizing: border-box;
     background:  rgb(8, 8, 8);
-    border-left: 1px solid rgba(255, 255, 255, 0.25);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
     flex: 0 0 300px;
     position: relative;
 }

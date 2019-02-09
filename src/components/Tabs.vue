@@ -61,6 +61,7 @@ export default Vue.extend( {
     flex: 0 0 30px;
     box-sizing: border-box;
     background: rgb(30, 30, 30);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.15);
 }
