@@ -30,8 +30,8 @@ import Renderer from "@/components/Renderer.vue"
 import { ShaderType } from "@/scripts/renderer/_constants"
 
 // ⚠️ pensar cuales van a ser los valores de los shaders por defecto (si van a tener alguno)
-import sampleCodeVertex from "@/scripts/renderer/default_shaders/default.vert.glsl"
-import sampleCodeFragment from "@/scripts/renderer/default_shaders/default.frag.glsl"
+import sampleCodeVertex from "@/assets/shaders/normalsAsColor.vert.glsl"
+import sampleCodeFragment from "@/assets/shaders/normalsAsColor.frag.glsl"
 
 const VERTEX_SHADER_KEY = "1"
 const FRAGMENT_SHADER_KEY = "2"

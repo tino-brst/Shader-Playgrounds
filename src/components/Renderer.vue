@@ -61,8 +61,10 @@ export default Vue.extend( {
         wireframeEnabled: false as boolean
     } ),
     watch: {
+        // ⚠️ revisar que mas hacia falta chequear ante cambios en modelo
         selectedModel( newModel: string ) {
             this.renderer.setModel( this.selectedModel )
+            this.updateErrorsAndWarnings()
         },
         animationsEnabled( newValue: boolean ) {
             this.renderer.setAnimations( newValue )
@@ -74,7 +76,8 @@ export default Vue.extend( {
     mounted() {
         this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement )
         this.availableModels = this.renderer.getAvailableModels().map( model => model.name )
-        this.selectedModel = this.availableModels[ 0 ]
+        this.selectedModel = this.availableModels[ 1 ]
+        this.wireframeEnabled = true
         this.compileAndRun()
 
         window.addEventListener( "keydown", this.handleRunKey )
@@ -87,10 +90,15 @@ export default Vue.extend( {
         },
         compileAndRun() {
             this.renderer.setShaderProgram( this.vertex, this.fragment )
-
-            const uniformsEditors = this.renderer.getUniformsEditors()
+            this.updateErrorsAndWarnings()
+            this.updateUniformsEditors()
+        },
+        updateErrorsAndWarnings() {
             const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
             this.$store.commit( "updateLog", errorsAndWarnings )
+        },
+        updateUniformsEditors() {
+            const uniformsEditors = this.renderer.getUniformsEditors()
             this.$store.commit( "updateUniformsEditors", uniformsEditors )
         }
     }
