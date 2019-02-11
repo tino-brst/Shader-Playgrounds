@@ -77,7 +77,7 @@ export default Vue.extend( {
         this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement )
         this.availableModels = this.renderer.getAvailableModels().map( model => model.name )
         this.selectedModel = this.availableModels[ 1 ]
-        this.wireframeEnabled = true
+        this.wireframeEnabled = false
         this.compileAndRun()
 
         window.addEventListener( "keydown", this.handleRunKey )
