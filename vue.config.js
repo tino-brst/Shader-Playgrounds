@@ -15,5 +15,14 @@ module.exports = {
             .use( "raw-loader" )
             .loader( "raw-loader" )
             .end()
+    },
+    pluginOptions: {
+        electronBuilder: {
+            builderOptions: {
+                "mac": {
+                    "target": [ "dir" ]
+                }
+            }
+        }
     }
 }
