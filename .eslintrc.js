@@ -32,6 +32,6 @@ module.exports = {
 		"vue/attributes-order": false
 	},
 	parserOptions: {
-		parser: "typescript-eslint-parser"
+		parser: "@typescript-eslint/parser"
     }
 }
