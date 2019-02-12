@@ -13,7 +13,7 @@
   "dependencies": {
     "fuzzysort": "^1.1.4",
     "gl-matrix": "^2.8.1",
-    "glsl-transpiler": "^1.8.5",
+    "glsl-transpiler": "1.8.5",
     "vue": "^2.6.5",
     "vue-feather-icons": "^4.10.0",
     "vuex": "^3.1.0"
