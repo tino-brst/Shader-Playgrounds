@@ -14,7 +14,8 @@ import { mapState } from "vuex"
 import Tooltip from "@/components/Tooltip.vue"
 import UniformEditorOthers from "@/components/UniformEditorOthers.vue"
 import UniformEditorFloat from "@/components/UniformEditorFloat.vue"
-import { ShaderType } from "@/scripts/renderer/_constants"
+import UniformEditorVec2 from "@/components/UniformEditorVec2.vue"
+import { ShaderType, ShaderVariableType } from "@/scripts/renderer/_constants"
 import Shader, { ShaderLog } from "@/scripts/editor/Shader"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "@/scripts/editor/codemirror/lib/codemirror"
@@ -47,6 +48,7 @@ export default Vue.extend( {
     components: {
         "v-tooltip": Tooltip,
         "v-uniform-editor-float": UniformEditorFloat,
+        "v-uniform-editor-vec2": UniformEditorVec2,
         "v-uniform-editor-others": UniformEditorOthers
     },
     props: {
@@ -77,7 +79,22 @@ export default Vue.extend( {
     computed: {
         editorTypeComponent(): string {
             if ( this.lastUniformSelected.editor ) {
-                return this.lastUniformSelected.editor.type === "float" ? "v-uniform-editor-float" : "v-uniform-editor-others"
+                let component = "v-uniform-editor-"
+                switch ( this.lastUniformSelected.editor.type ) {
+                    case ShaderVariableType.float: {
+                        component += "float"
+                        break
+                    }
+                    case ShaderVariableType.vec2: {
+                        component += "vec2"
+                        break
+                    }
+                    default: {
+                        component += "others"
+                        break
+                    }
+                }
+                return component
             } else {
                 return ""
             }
