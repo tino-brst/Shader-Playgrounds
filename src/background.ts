@@ -20,6 +20,7 @@ function createWindow() {
     win = new BrowserWindow( {
         width: 1000,
         height: 600,
+        backgroundColor: "#3c3c3c",
         titleBarStyle: "hidden",
         webPreferences: { experimentalFeatures: true }
     } )
