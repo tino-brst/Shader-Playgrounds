@@ -1,18 +1,18 @@
 <template>
     <div class="uniform-editor-float">
-        <v-number-input v-model="value" />
+        <v-float-input v-model="value" />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
-import NumberInput from "@/components/NumberInput.vue"
+import FloatInput from "@/components/FloatInput.vue"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 
 export default Vue.extend( {
     name: "UniformEditorFloat",
     components: {
-        "v-number-input": NumberInput
+        "v-float-input": FloatInput
     },
     props: {
         editor: {

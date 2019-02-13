@@ -104,6 +104,7 @@ export default Vue.extend( {
     box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3);
     opacity: 0;
     pointer-events: none;
+    user-select: none;
     transition: opacity 100ms, transform 100ms;
 }
 .tooltip.visible {

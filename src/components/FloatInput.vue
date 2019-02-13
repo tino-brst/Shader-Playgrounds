@@ -42,13 +42,22 @@ export default Vue.extend( {
         label: {
             type: String,
             default: ""
+        },
+        step: {
+            type: Number,
+            default: 0.1
+        },
+        stepMultiplier: {
+            type: Number,
+            default: 10
+        },
+        decimals: {
+            type: Number,
+            default: 2
         }
     },
     data() {
         return {
-            step: 0.1,
-            stepMultiplier: 10,
-            decimals: 2,
             editing: false,
             dragging: false
         }

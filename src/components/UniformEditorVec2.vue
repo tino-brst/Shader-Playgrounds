@@ -1,20 +1,20 @@
 <template>
     <div class="uniform-editor-vec2">
-        <v-number-input v-model="x" label="x" />
+        <v-float-input v-model="x" label="x" />
         <div class="separator" />
-        <v-number-input v-model="y" label="y" />
+        <v-float-input v-model="y" label="y" />
     </div>
 </template>
 
 <script lang="ts">
 import Vue from "vue"
-import NumberInput from "@/components/NumberInput.vue"
+import FloatInput from "@/components/FloatInput.vue"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 
 export default Vue.extend( {
     name: "UniformEditorVec2",
     components: {
-        "v-number-input": NumberInput
+        "v-float-input": FloatInput
     },
     props: {
         editor: {
@@ -39,7 +39,8 @@ export default Vue.extend( {
             this.editor.setValue( this.vec2 )
         },
         editor() {
-            [ this.x, this.y ] = this.editor.getValue() as Float32Array
+            this.vec2 = this.editor.getValue() as Float32Array
+            [ this.x, this.y ] = this.vec2
         }
     }
 } )
