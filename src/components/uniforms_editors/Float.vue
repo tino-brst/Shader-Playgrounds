@@ -1,5 +1,5 @@
 <template>
-    <div class="uniform-editor-float">
+    <div class="uniform-editor float">
         <v-float-input v-model="value" />
     </div>
 </template>
@@ -34,25 +34,4 @@ export default Vue.extend( {
 } )
 </script>
 
-<style>
-.uniform-editor-float {
-    position: relative;
-    width: fit-content;
-    height: fit-content;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.uniform-editor-float::after {
-    content: "";
-    position: absolute;
-    box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-}
-</style>
+<style src="@/assets/styles/uniform_editor.css" />

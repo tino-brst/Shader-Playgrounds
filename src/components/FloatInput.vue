@@ -53,7 +53,7 @@ export default Vue.extend( {
         },
         decimals: {
             type: Number,
-            default: 2
+            default: 1
         }
     },
     data() {
@@ -147,7 +147,7 @@ export default Vue.extend( {
 }
 
 .number-input input {
-    width: 45px;
+    width: 42px;
     padding-top: 4px;
     padding-bottom: 4px;
     padding-left: 8px;

@@ -12,9 +12,7 @@
 import Vue from "vue"
 import { mapState } from "vuex"
 import Tooltip from "@/components/Tooltip.vue"
-import UniformEditorOthers from "@/components/uniforms_editors/Others.vue"
-import UniformEditorFloat from "@/components/uniforms_editors/Float.vue"
-import UniformEditorVec2 from "@/components/uniforms_editors/Vec2.vue"
+import UniformsEditors from "@/components/uniforms_editors/UniformsEditors.ts"
 import { ShaderType, ShaderVariableType } from "@/scripts/renderer/_constants"
 import Shader, { ShaderLog } from "@/scripts/editor/Shader"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
@@ -47,9 +45,10 @@ export default Vue.extend( {
     name: "Editor",
     components: {
         "v-tooltip": Tooltip,
-        "v-uniform-editor-float": UniformEditorFloat,
-        "v-uniform-editor-vec2": UniformEditorVec2,
-        "v-uniform-editor-others": UniformEditorOthers
+        "v-uniform-editor-float": UniformsEditors.float,
+        "v-uniform-editor-vec2": UniformsEditors.vec2,
+        "v-uniform-editor-vec3": UniformsEditors.vec3,
+        "v-uniform-editor-others": UniformsEditors.others
     },
     props: {
         activeShader: {
@@ -87,6 +86,10 @@ export default Vue.extend( {
                     }
                     case ShaderVariableType.vec2: {
                         component += "vec2"
+                        break
+                    }
+                    case ShaderVariableType.vec3: {
+                        component += "vec3"
                         break
                     }
                     default: {
