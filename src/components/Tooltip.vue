@@ -12,7 +12,7 @@
 <script lang="ts">
 import Vue from "vue"
 
-const TARGET_OFFSET = 10
+const TARGET_OFFSET = 6
 const VIEWPORT_MARGIN = 5
 
 export default Vue.extend( {
@@ -99,13 +99,10 @@ export default Vue.extend( {
     position: fixed;
     z-index: 10;
     border-radius: 6px;
-    box-sizing: border-box;
     border: 1px solid rgb(30, 30, 30);
     background: rgb(50, 50, 50);
-    box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3), inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
-    font-family: IBM Plex Sans;
+    box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3);
     opacity: 0;
-    backface-visibility: hidden;
     pointer-events: none;
     transition: opacity 100ms, transform 100ms;
 }
@@ -127,7 +124,7 @@ export default Vue.extend( {
     width: 12px;
     height: 12px;
     left: 3px;
-    top: -6px;
+    top: -8px;
     box-sizing: border-box;
     transform: rotate(45deg);
     border-radius: 2px;
@@ -139,7 +136,7 @@ export default Vue.extend( {
     bottom: 100%;
 }
 .tooltip.below .tip::after {
-    top: 12px;
+    top: 14px;
 }
 
 .tooltip .default-content {

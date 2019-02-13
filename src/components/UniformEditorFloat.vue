@@ -24,10 +24,10 @@ export default Vue.extend( {
         value: 0 as number
     } ),
     watch: {
-        value( newValue: number ) {
-            this.editor.setValue( newValue )
+        value() {
+            this.editor.setValue( this.value )
         },
-        editor( newEditor: UniformEditor ) {
+        editor() {
             this.value = this.editor.getValue()
         }
     }
@@ -42,6 +42,17 @@ export default Vue.extend( {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 5px 8px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.uniform-editor-float::after {
+    content: "";
+    position: absolute;
+    box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 }
 </style>

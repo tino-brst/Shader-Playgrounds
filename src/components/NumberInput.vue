@@ -1,22 +1,24 @@
 <template>
-    <div class="number-input">
-        <label><slot /></label>
-        <div class="input-controls-group" @wheel.prevent="onScroll" :class="{ dragging, editing }">
+    <div class="number-input" :class="{ dragging, editing, 'without-label': label === '' }">
+        <div class="input-controls-wrapper" @wheel.prevent="onScroll">
             <input
                 type="text"
                 ref="input"
-                :value="value.toFixed( 2 )"
+                :value="value.toFixed( decimals )"
                 @focus="enterEditingMode"
                 @blur="saveEdit"
                 @keypress.enter="$event.target.blur()"
             >
-            <div class="controls" @mousedown="dragStart">
-                <button @mouseup="stepUp">
-                    <v-chevron-up-icon class="icon" />
-                </button>
-                <button @mouseup="stepDown">
-                    <v-chevron-down-icon class="icon" />
-                </button>
+            <div class="controls-label-wrapper">
+                <label v-if="label !== ''" v-text="label[ 0 ]" />
+                <div class="controls" @mousedown="dragStart">
+                    <button class="up" @mouseup="stepUp">
+                        <v-chevron-up-icon class="icon" />
+                    </button>
+                    <button class="down" @mouseup="stepDown">
+                        <v-chevron-down-icon class="icon" />
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -36,13 +38,17 @@ export default Vue.extend( {
         value: {
             type: Number,
             required: true
+        },
+        label: {
+            type: String,
+            default: ""
         }
     },
     data() {
         return {
             step: 0.1,
             stepMultiplier: 10,
-            decimals: 3,
+            decimals: 2,
             editing: false,
             dragging: false
         }
@@ -120,38 +126,26 @@ export default Vue.extend( {
     flex-direction: row;
 }
 
-.number-input label {
-    align-self: center;
-    height: 100%;
-    /* margin-right: 0.4rem; */
-    font-size: 14px;
-    user-select: none;
-    color: rgba( 255, 255, 255, 0.5 )
-}
-
-.number-input .input-controls-group {
+.number-input .input-controls-wrapper {
     display: flex;
-    box-sizing: border-box;
-    background-color: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 3pt;
-    overflow: hidden;
+    background-color: transparent;
     transition: all 0.15s;
 }
-.number-input .input-controls-group:hover,
-.number-input .input-controls-group.dragging,
-.number-input .input-controls-group.editing {
-    background-color: rgba(255,255,255,0.1);
+.number-input:hover,
+.number-input.dragging,
+.number-input.editing {
+    background-color: rgba(255,255,255,0.05);
 }
 
 .number-input input {
-    width: 3.5rem;
-    padding-top: 0.1rem;
-    padding-bottom: 0.1rem;
-    padding-left: 0.3rem;
+    width: 45px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left: 8px;
     align-self: center;
     font-family: IBM Plex Sans;
-    font-size: 15px;
+    font-size: 14px;
+    font-weight: 500;
     text-overflow: ellipsis;
     color: white;
     background-color: transparent;
@@ -159,17 +153,52 @@ export default Vue.extend( {
     outline: none;
 }
 .number-input input::selection {
-    background: rgba( 255, 255, 255, 0.2 );
-    border-radius: 2pt;
+    background: rgba( 255, 255, 255, 0.15 );
+}
+
+.number-input .controls-label-wrapper {
+    width: 22px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.number-input label {
+    position: absolute;
+    font-size: 16px;
+    padding-bottom: 3px;
+    padding-right: 2px;
+    user-select: none;
+    color: rgba( 255, 255, 255, 0.5 );
+    transition: opacity 0.3s;
+}
+.number-input:hover label,
+.number-input.dragging label {
+    opacity: 0;
 }
 
 .number-input .controls {
-    width: 1rem;
+    position: absolute;
+    width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    background-color: rgba(255,255,255,0.1);
+    background-color: royalblue;
+    opacity: 0;
+    transition: all 0.1s;
+}
+/* sin label los controles se mantienen visibles */
+.number-input.without-label .controls {
+    opacity: 1;
+    transition: none;
+}
+
+.number-input:hover .controls,
+.number-input.dragging .controls {
+    opacity: 1;
 }
 
 .number-input button {
@@ -181,16 +210,23 @@ export default Vue.extend( {
     outline: none;
     cursor: pointer;
     color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .number-input button .icon {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    width: 110%;
+    height: 110%;
 }
-.number-input .input-controls-group:not(.dragging) button:active {
-    filter: brightness( 0.8 )
+.number-input:not(.dragging) button:active {
+    opacity: 0.8;
+}
+.number-input .controls button.up {
+    padding-top: 1px;
+}
+.number-input .controls button.down {
+    padding-bottom: 1px;
 }
 
 </style>
