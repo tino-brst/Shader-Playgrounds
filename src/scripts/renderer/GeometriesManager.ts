@@ -1,8 +1,7 @@
 import { Box } from "./primitives/Box"
 import { Geometry } from "./geometry/Geometry"
 import { IcoSphere } from "./primitives/IcoSphere"
-import teapotData from "../models/teapot.obj"
-import dragonData from "../models/dragon.obj"
+// import teapotData from "@/assets/models/teapot.obj"
 
 interface IGeometryInfo {
     name: string
@@ -82,6 +81,5 @@ export class GeometriesManager {
         this.defaultGeometries.set( "cube", new Box() )
         this.defaultGeometries.set( "icosphere", new IcoSphere() )
         // this.defaultGeometries.set( "teapot", new Geometry( teapotData ) )
-        // this.defaultGeometries.set( "dragon", new Geometry( dragonData ) )
     }
 }
