@@ -12,10 +12,10 @@
             <div class="controls-label-wrapper">
                 <label v-if="label !== ''" v-text="label[ 0 ]" />
                 <div class="controls" @mousedown="dragStart">
-                    <button class="up" @mouseup="stepUp">
+                    <button class="up" @mouseup="stepUp" tabindex="-1">
                         <v-chevron-up-icon class="icon" />
                     </button>
-                    <button class="down" @mouseup="stepDown">
+                    <button class="down" @mouseup="stepDown" tabindex="-1">
                         <v-chevron-down-icon class="icon" />
                     </button>
                 </div>

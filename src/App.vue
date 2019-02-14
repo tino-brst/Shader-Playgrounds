@@ -90,6 +90,7 @@ body {
     font-weight: 500;
     color: white;
     height: 100%;
+    user-select: none;
     display: flex;
     flex-direction: column;
     background: black;
