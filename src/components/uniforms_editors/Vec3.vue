@@ -53,4 +53,4 @@ export default Vue.extend( {
 } )
 </script>
 
-<style src="@/assets/styles/uniform_editor.css" />
+<style src="@/styles/uniform_editor.css" />

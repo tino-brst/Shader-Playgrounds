@@ -305,4 +305,4 @@ export default Vue.extend( {
 } )
 </script>
 
-<style src="@/assets/styles/editor.css" />
+<style src="@/styles/editor.css" />

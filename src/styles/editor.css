@@ -176,7 +176,7 @@
     width: 14px;
     height: 14px;
     content: "";
-    mask: url("../icons/error.svg");
+    mask: url("/assets/icons/error.svg");
     mask-size: cover;
     background: rgb(255, 59, 48);
 }
@@ -187,7 +187,7 @@
     width: 15px;
     height: 13px;
     content: "";
-    mask: url("../icons/warning.svg");
+    mask: url("/assets/icons/warning.svg");
     mask-size: cover;
     background: orange;
 }
@@ -423,7 +423,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     width: 16px;
     height: 16px;
     content: "";
-    mask: url("../icons/local.svg");
+    mask: url("/assets/icons/local.svg");
     mask-size: cover;
     background-color: rgb(105, 117, 133);
 }
@@ -521,7 +521,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     width: 16px;
     height: 16px;
     content: "";
-    mask: url("../icons/iteration.svg");
+    mask: url("/assets/icons/iteration.svg");
     mask-size: cover;
     background-color: rgb(74, 65, 129);
 }
@@ -536,7 +536,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     width: 15px;
     height: 15px;
     content: "";
-    mask: url("../icons/selection.svg");
+    mask: url("/assets/icons/selection.svg");
     mask-size: cover;
     background-color: rgb(55, 47, 104);
 }

@@ -30,8 +30,8 @@ import Renderer from "@/components/Renderer.vue"
 import { ShaderType } from "@/scripts/renderer/_constants"
 
 // ⚠️ pensar cuales van a ser los valores de los shaders por defecto (si van a tener alguno)
-import sampleCodeVertex from "@/assets/shaders/normalsAsColor.vert.glsl"
-import sampleCodeFragment from "@/assets/shaders/normalsAsColor.frag.glsl"
+import sampleCodeVertex from "@/sample_shaders/normalsAsColor.vert.glsl"
+import sampleCodeFragment from "@/sample_shaders/normalsAsColor.frag.glsl"
 
 const VERTEX_SHADER_KEY = "1"
 const FRAGMENT_SHADER_KEY = "2"
@@ -93,7 +93,6 @@ body {
     user-select: none;
     display: flex;
     flex-direction: column;
-    background: black;
 }
 
 .title-bar {
@@ -117,7 +116,8 @@ body {
     flex-direction: column;
     flex-wrap: nowrap;
     flex: 1 1 auto;
-    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgb(60, 60, 60);
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .right-panel {
