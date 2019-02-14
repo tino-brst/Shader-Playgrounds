@@ -1,7 +1,9 @@
-import { Box } from "./primitives/Box"
+import fs from "fs-jetpack"
+import path from "path"
 import { Geometry } from "./geometry/Geometry"
-import { IcoSphere } from "./primitives/IcoSphere"
-// import teapotData from "@/assets/models/teapot.obj"
+
+const MODELS_FOLDER = "/assets/models"
+const MODELS_EXTENSION = ".obj"
 
 interface IGeometryInfo {
     name: string
@@ -78,8 +80,17 @@ export class GeometriesManager {
     }
 
     private initDefaultGeometries() {
-        this.defaultGeometries.set( "cube", new Box() )
-        this.defaultGeometries.set( "icosphere", new IcoSphere() )
-        // this.defaultGeometries.set( "teapot", new Geometry( teapotData ) )
+        const availableModelsPaths = fs.find( __static + MODELS_FOLDER, {
+            matching: "*.obj",
+            files: true,
+            directories: false,
+            recursive: false
+        } )
+
+        for ( let modelPath of availableModelsPaths ) {
+            const modelName = path.basename( modelPath, MODELS_EXTENSION)
+            const modelGeometry = new Geometry( fs.read( modelPath ) )
+            this.defaultGeometries.set( modelName, modelGeometry )
+        }
     }
 }

@@ -76,7 +76,7 @@ export default Vue.extend( {
     mounted() {
         this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement )
         this.availableModels = this.renderer.getAvailableModels().map( model => model.name )
-        this.selectedModel = this.availableModels[ 1 ]
+        this.selectedModel = this.availableModels[ 0 ]
         this.wireframeEnabled = false
         this.compileAndRun()
 
