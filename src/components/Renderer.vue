@@ -74,11 +74,14 @@ export default Vue.extend( {
         }
     },
     mounted() {
-        this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement )
+        this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement, this.onTexturesLoaded )
         this.availableModels = this.renderer.getAvailableModels().map( model => model.name )
         this.selectedModel = this.availableModels[ 0 ]
         this.wireframeEnabled = false
         this.compileAndRun()
+
+        // @ts-ignore
+        global.renderer = this.renderer // ❗️ solo para debugging
 
         window.addEventListener( "keydown", this.handleRunKey )
     },
@@ -100,6 +103,9 @@ export default Vue.extend( {
         updateUniformsEditors() {
             const uniformsEditors = this.renderer.getUniformsEditors()
             this.$store.commit( "updateUniformsEditors", uniformsEditors )
+        },
+        onTexturesLoaded() {
+            this.renderer.setTextureForUnit( "crate", 0 )
         }
     }
 } )

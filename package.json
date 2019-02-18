@@ -37,7 +37,8 @@
     "typescript": "^3.3.3",
     "vue-cli-plugin-electron-builder": "^1.0.1",
     "vue-template-compiler": "^2.6.6",
-    "webpack-glsl-loader": "^1.0.1"
+    "webpack-glsl-loader": "^1.0.1",
+    "worker-loader": "^2.0.0"
   },
   "main": "background.js"
 }

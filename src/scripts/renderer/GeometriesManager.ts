@@ -3,7 +3,7 @@ import path from "path"
 import { Geometry } from "./geometry/Geometry"
 
 const MODELS_FOLDER = "/assets/models"
-const MODELS_EXTENSION = ".obj"
+const MODELS_EXTENSION = "obj"
 
 interface IGeometryInfo {
     name: string
@@ -81,16 +81,21 @@ export class GeometriesManager {
 
     private initDefaultGeometries() {
         const availableModelsPaths = fs.find( __static + MODELS_FOLDER, {
-            matching: "*.obj",
+            matching: "*." + MODELS_EXTENSION,
             files: true,
             directories: false,
             recursive: false
         } )
 
-        for ( let modelPath of availableModelsPaths ) {
-            const modelName = path.basename( modelPath, MODELS_EXTENSION)
-            const modelGeometry = new Geometry( fs.read( modelPath ) )
-            this.defaultGeometries.set( modelName, modelGeometry )
-        }
+        const modelPath = availableModelsPaths[ 0 ]
+        const modelName = path.basename( modelPath, "." + MODELS_EXTENSION )
+        const modelGeometry = new Geometry( fs.read( modelPath ) )
+        this.defaultGeometries.set( modelName, modelGeometry )
+
+        // for ( let modelPath of availableModelsPaths ) {
+        //     const modelName = path.basename( modelPath, "." + MODELS_EXTENSION )
+        //     const modelGeometry = new Geometry( fs.read( modelPath ) )
+        //     this.defaultGeometries.set( modelName, modelGeometry )
+        // }
     }
 }
