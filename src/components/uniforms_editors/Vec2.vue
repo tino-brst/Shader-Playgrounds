@@ -7,6 +7,7 @@
 </template>
 
 <script lang="ts">
+import "@/styles/uniform_editor.css"
 import Vue from "vue"
 import FloatInput from "@/components/FloatInput.vue"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
@@ -45,5 +46,3 @@ export default Vue.extend( {
     }
 } )
 </script>
-
-<style src="@/styles/uniform_editor.css" />

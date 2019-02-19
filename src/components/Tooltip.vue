@@ -111,6 +111,16 @@ export default Vue.extend( {
     opacity: 1;
     pointer-events: all;
 }
+.tooltip::after {
+    content: "";
+    position: absolute;
+    box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    pointer-events: none;
+}
 
 .tip {
     position: absolute;
