@@ -29,7 +29,7 @@ export class Renderer {
     private geometriesManager: GeometriesManager
     private texturesManager: TexturesManager
 
-    constructor( canvas: HTMLCanvasElement, onTexturesLoaded: () => void ) {
+    constructor( canvas: HTMLCanvasElement, onTexturesLoaded: ( textures: string[] ) => void ) {
         // setup del canvas y contexto WebGL
 
         this.canvas = canvas

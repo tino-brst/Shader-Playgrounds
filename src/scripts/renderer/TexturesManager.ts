@@ -3,9 +3,13 @@ import path from "path"
 import Jimp from "jimp"
 import Worker from "worker-loader!./TexturesManager.worker" // eslint-disable-line
 
-const TEXTURES_FOLDER = "/assets/textures"
+const TEXTURES_FOLDER = "assets/textures"
 const TEXTURES_EXTENSION = "jpg"
 
+export enum TextureType {
+    color   = "color",
+    normals = "normals"
+}
 interface ITextureInfo {
     name: string
     locked: boolean
@@ -20,7 +24,7 @@ export class TexturesManager {
     private availableTextureUnits: number
     private gl: WebGLRenderingContext
 
-    constructor( gl: WebGLRenderingContext, onTexturesLoaded: () => void ) {
+    constructor( gl: WebGLRenderingContext, onTexturesLoaded: ( textures: string[] ) => void ) {
         this.gl = gl
         this.defaultTextures = new Map()
         this.userTextures = new Map()
@@ -29,20 +33,8 @@ export class TexturesManager {
         this.editingUnit = this.maxTextureUnits - 1
         this.availableTextureUnits = this.maxTextureUnits - 1
 
-        this.initTextures()
-        // this.loadTextures().then( onTexturesLoaded )
-
-        const worker = new Worker()
-        worker.postMessage( "assets/textures/crate.jpg" )
-        worker.onmessage = ( event ) => {
-            const newTextureName = this.getAvailableName( "crate" )
-            const newTexture = this.gl.createTexture() as WebGLTexture
-
-            this.setTextureImage( newTexture, event.data )
-            this.defaultTextures.set( newTextureName, newTexture )
-
-            onTexturesLoaded()
-        }
+        this.initUnitTextures()
+        this.loadDefaultTextures( onTexturesLoaded )
     }
 
     // 👥  Metodos Publicos
@@ -80,6 +72,7 @@ export class TexturesManager {
         return false
     }
 
+    // ⚠️ Eliminar funcionalidad que no se va a usar
     public add( image: TexImageSource, name?: string ) {
         const newTextureName = this.getAvailableName( name )
         const newTexture = this.gl.createTexture() as WebGLTexture
@@ -89,6 +82,71 @@ export class TexturesManager {
     }
 
     // ✋🏼  Metodos Privados
+
+    private initUnitTextures() {
+        // creo y asigno a todas las unidades de textura una textura "en blanco"
+
+        const defaultTexture = this.gl.createTexture() as WebGLTexture
+        const defaultTextureName = "blank"
+
+        this.setTextureAsBlank( defaultTexture )
+        this.defaultTextures.set( defaultTextureName, defaultTexture )
+
+        for ( let unitNumber = 0; unitNumber < this.availableTextureUnits; unitNumber ++ ) {
+            this.unitsTextures.set( unitNumber, defaultTextureName )
+            this.setTextureForUnit( defaultTextureName, unitNumber )
+        }
+    }
+
+    private setTextureAsBlank( texture: WebGLTexture ) {
+        this.gl.activeTexture( this.gl.TEXTURE0 + this.editingUnit )
+        this.gl.bindTexture( this.gl.TEXTURE_2D, texture )
+
+        const level = 0
+        const width = 1
+        const height = 1
+        const border = 0
+        const internalFormat = this.gl.RGBA
+        const srcFormat = this.gl.RGBA
+        const srcType = this.gl.UNSIGNED_BYTE
+        const pixel = new Uint8Array( [ 200, 200, 200, 255 ] )
+
+        this.gl.texImage2D( this.gl.TEXTURE_2D, level, internalFormat, width, height, border, srcFormat, srcType, pixel )
+    }
+
+    private loadDefaultTextures( onTexturesLoaded: ( textures: string[] ) => void ) {
+        // cargo texturas por defecto ( ⚠️ chequear primero que exista la carpeta! )
+
+        // paths a imagenes que el worker va a levantar (formato: "assets/textures/image.jpg")
+        const texturesPaths = fs.find( __static + "/" + TEXTURES_FOLDER, {
+            matching: "*" + TEXTURES_EXTENSION,
+            files: true,
+            directories: false,
+            recursive: false
+        } ).map( texturePath => TEXTURES_FOLDER + "/" + path.basename( texturePath ) )
+
+        const worker = new Worker()
+        worker.postMessage( texturesPaths )
+        worker.onmessage = ( { data: imagesData } ) => {
+            // creo texturas con cada imagen
+            for ( let index = 0; index < texturesPaths.length; index ++ ) {
+                const texturePath = texturesPaths[ index ]
+                const textureName = path.basename( texturePath, "." + TEXTURES_EXTENSION )
+                const image = imagesData[ index ]
+
+                this.loadTexture( image, textureName )
+            }
+            onTexturesLoaded( Array.from( this.defaultTextures.keys() ) )
+        }
+    }
+
+    private loadTexture( image: TexImageSource, name?: string ) {
+        const newTextureName = this.getAvailableName( name )
+        const newTexture = this.gl.createTexture() as WebGLTexture
+
+        this.setTextureImage( newTexture, image )
+        this.defaultTextures.set( newTextureName, newTexture )
+    }
 
     private getAvailableName( name: string = "untitled" ) {
         let availableName = name
@@ -134,58 +192,6 @@ export class TexturesManager {
             this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE )
             this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR )
         }
-    }
-
-    private setTextureAsBlank( texture: WebGLTexture ) {
-        this.gl.activeTexture( this.gl.TEXTURE0 + this.editingUnit )
-        this.gl.bindTexture( this.gl.TEXTURE_2D, texture )
-
-        const level = 0
-        const width = 1
-        const height = 1
-        const border = 0
-        const internalFormat = this.gl.RGBA
-        const srcFormat = this.gl.RGBA
-        const srcType = this.gl.UNSIGNED_BYTE
-        const pixel = new Uint8Array( [ 200, 200, 200, 255 ] )
-
-        this.gl.texImage2D( this.gl.TEXTURE_2D, level, internalFormat, width, height, border, srcFormat, srcType, pixel )
-    }
-
-    private initTextures() {
-        // creo y asigno a todas las unidades de textura una textura "en blanco"
-
-        const defaultTexture = this.gl.createTexture() as WebGLTexture
-        const defaultTextureName = "blank"
-
-        this.setTextureAsBlank( defaultTexture )
-        this.defaultTextures.set( defaultTextureName, defaultTexture )
-
-        for ( let unitNumber = 0; unitNumber < this.availableTextureUnits; unitNumber ++ ) {
-            this.unitsTextures.set( unitNumber, defaultTextureName )
-            this.setTextureForUnit( defaultTextureName, unitNumber )
-        }
-    }
-
-    private async loadTextures() {
-        // cargo texturas por defecto ( ⚠️ chequear primero que exista la carpeta! )
-        // const availableTexturesFiles = fs.find( __static + TEXTURES_FOLDER, {
-        //     matching: "*" + TEXTURES_EXTENSION,
-        //     files: true,
-        //     directories: false,
-        //     recursive: false
-        // } ).map( texturePath => path.basename( texturePath ) )
-
-        // const image = await Jimp.read( "assets/textures/crate.jpg" )
-
-        // const data = new Uint8ClampedArray( image.bitmap.data )
-        // const imageData = new ImageData( data, image.bitmap.width, image.bitmap.height )
-
-        // const newTextureName = this.getAvailableName( "crate" )
-        // const newTexture = this.gl.createTexture() as WebGLTexture
-
-        // this.setTextureImage( newTexture, imageData )
-        // this.defaultTextures.set( newTextureName, newTexture )
     }
 
     private isPowerOf2( value: number ) {

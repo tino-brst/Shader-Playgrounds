@@ -104,7 +104,8 @@ export default Vue.extend( {
             const uniformsEditors = this.renderer.getUniformsEditors()
             this.$store.commit( "updateUniformsEditors", uniformsEditors )
         },
-        onTexturesLoaded() {
+        onTexturesLoaded( textures: string[] ) {
+            console.log( textures )
             this.renderer.setTextureForUnit( "crate", 0 )
         }
     }
