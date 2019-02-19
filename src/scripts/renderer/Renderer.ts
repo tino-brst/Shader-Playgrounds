@@ -29,7 +29,7 @@ export class Renderer {
     private geometriesManager: GeometriesManager
     private texturesManager: TexturesManager
 
-    constructor( canvas: HTMLCanvasElement, onTexturesLoaded: ( textures: string[] ) => void ) {
+    constructor( canvas: HTMLCanvasElement, onTexturesLoaded: () => void ) {
         // setup del canvas y contexto WebGL
 
         this.canvas = canvas
@@ -132,8 +132,8 @@ export class Renderer {
         }
     }
 
-    public setTextureForUnit( name: string, textureUnit: number ) {
-        return this.texturesManager.setTextureForUnit( name, textureUnit )
+    public setTextureForUnit( name: string, unit: number ) {
+        return this.texturesManager.setTextureForUnit( name, unit )
     }
 
     public setWireframe( enabled: boolean ) {
@@ -149,10 +149,6 @@ export class Renderer {
         this.geometriesManager.add( data, name )
     }
 
-    public addTexture( image: HTMLImageElement, name?: string ) {
-        this.texturesManager.add( image, name )
-    }
-
     public getErrorsAndWarnings() {
         return this.inspector.checkForErrorsAndWarnings( this.program )
     }
@@ -166,7 +162,15 @@ export class Renderer {
     }
 
     public getAvailableTextures() {
-        return this.texturesManager.getAvailableTexturesInfo()
+        return this.texturesManager.getAvailableTextures()
+    }
+
+    public getAvailableTextureUnits() {
+        return this.texturesManager.getAvailableTextureUnits()
+    }
+
+    public getTextureAssignedToUnit( unit: number ) {
+        return this.texturesManager.getTextureAssignedToUnit( unit )
     }
 
     // ✋🏼  Metodos Privados

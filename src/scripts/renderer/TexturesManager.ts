@@ -1,6 +1,5 @@
 import fs from "fs-jetpack"
 import path from "path"
-import Jimp from "jimp"
 import Worker from "worker-loader!./TexturesManager.worker" // eslint-disable-line
 
 const TEXTURES_FOLDER = "assets/textures"
@@ -10,47 +9,35 @@ export enum TextureType {
     color   = "color",
     normals = "normals"
 }
-interface ITextureInfo {
-    name: string
-    locked: boolean
-}
 
 export class TexturesManager {
-    private defaultTextures: Map < string, WebGLTexture >
-    private userTextures: Map < string, WebGLTexture >
+    private textures: Map < string, WebGLTexture >
     private unitsTextures: Map < number, string >
     private maxTextureUnits: number
     private editingUnit: number
     private availableTextureUnits: number
     private gl: WebGLRenderingContext
 
-    constructor( gl: WebGLRenderingContext, onTexturesLoaded: ( textures: string[] ) => void ) {
+    constructor( gl: WebGLRenderingContext, onTexturesLoaded: () => void ) {
         this.gl = gl
-        this.defaultTextures = new Map()
-        this.userTextures = new Map()
+        this.textures = new Map()
         this.unitsTextures = new Map()
         this.maxTextureUnits = this.gl.getParameter( this.gl.MAX_TEXTURE_IMAGE_UNITS )
         this.editingUnit = this.maxTextureUnits - 1
         this.availableTextureUnits = this.maxTextureUnits - 1
 
         this.initUnitTextures()
-        this.loadDefaultTextures( onTexturesLoaded )
+        this.loadAvailableTextures( onTexturesLoaded )
     }
 
     // 👥  Metodos Publicos
 
-    public getAvailableTexturesInfo() {
-        const texturesInfo: ITextureInfo[] = []
+    public getAvailableTextures() {
+        return Array.from( this.textures.keys() )
+    }
 
-        for ( const [ name, geometry ] of this.defaultTextures ) {
-            texturesInfo.push( { name, locked: true } )
-        }
-
-        for ( const [ name, geometry ] of this.userTextures ) {
-            texturesInfo.push( { name, locked: false } )
-        }
-
-        return texturesInfo
+    public getAvailableTextureUnits() {
+        return this.availableTextureUnits
     }
 
     public getTextureAssignedToUnit( unit: number ) {
@@ -59,7 +46,7 @@ export class TexturesManager {
 
     public setTextureForUnit( name: string, textureUnit: number ) {
         if ( textureUnit < this.availableTextureUnits ) {
-            const texture = this.defaultTextures.get( name ) || this.userTextures.get( name )
+            const texture = this.textures.get( name )
 
             if ( texture !== undefined ) {
                 this.gl.activeTexture( this.gl.TEXTURE0 + textureUnit )
@@ -72,15 +59,6 @@ export class TexturesManager {
         return false
     }
 
-    // ⚠️ Eliminar funcionalidad que no se va a usar
-    public add( image: TexImageSource, name?: string ) {
-        const newTextureName = this.getAvailableName( name )
-        const newTexture = this.gl.createTexture() as WebGLTexture
-
-        this.setTextureImage( newTexture, image )
-        this.userTextures.set( newTextureName, newTexture )
-    }
-
     // ✋🏼  Metodos Privados
 
     private initUnitTextures() {
@@ -90,7 +68,7 @@ export class TexturesManager {
         const defaultTextureName = "blank"
 
         this.setTextureAsBlank( defaultTexture )
-        this.defaultTextures.set( defaultTextureName, defaultTexture )
+        this.textures.set( defaultTextureName, defaultTexture )
 
         for ( let unitNumber = 0; unitNumber < this.availableTextureUnits; unitNumber ++ ) {
             this.unitsTextures.set( unitNumber, defaultTextureName )
@@ -98,23 +76,7 @@ export class TexturesManager {
         }
     }
 
-    private setTextureAsBlank( texture: WebGLTexture ) {
-        this.gl.activeTexture( this.gl.TEXTURE0 + this.editingUnit )
-        this.gl.bindTexture( this.gl.TEXTURE_2D, texture )
-
-        const level = 0
-        const width = 1
-        const height = 1
-        const border = 0
-        const internalFormat = this.gl.RGBA
-        const srcFormat = this.gl.RGBA
-        const srcType = this.gl.UNSIGNED_BYTE
-        const pixel = new Uint8Array( [ 200, 200, 200, 255 ] )
-
-        this.gl.texImage2D( this.gl.TEXTURE_2D, level, internalFormat, width, height, border, srcFormat, srcType, pixel )
-    }
-
-    private loadDefaultTextures( onTexturesLoaded: ( textures: string[] ) => void ) {
+    private loadAvailableTextures( onTexturesLoaded: () => void ) {
         // cargo texturas por defecto ( ⚠️ chequear primero que exista la carpeta! )
 
         // paths a imagenes que el worker va a levantar (formato: "assets/textures/image.jpg")
@@ -136,8 +98,24 @@ export class TexturesManager {
 
                 this.loadTexture( image, textureName )
             }
-            onTexturesLoaded( Array.from( this.defaultTextures.keys() ) )
+            onTexturesLoaded()
         }
+    }
+
+    private setTextureAsBlank( texture: WebGLTexture ) {
+        this.gl.activeTexture( this.gl.TEXTURE0 + this.editingUnit )
+        this.gl.bindTexture( this.gl.TEXTURE_2D, texture )
+
+        const level = 0
+        const width = 1
+        const height = 1
+        const border = 0
+        const internalFormat = this.gl.RGBA
+        const srcFormat = this.gl.RGBA
+        const srcType = this.gl.UNSIGNED_BYTE
+        const pixel = new Uint8Array( [ 200, 200, 200, 255 ] )
+
+        this.gl.texImage2D( this.gl.TEXTURE_2D, level, internalFormat, width, height, border, srcFormat, srcType, pixel )
     }
 
     private loadTexture( image: TexImageSource, name?: string ) {
@@ -145,7 +123,7 @@ export class TexturesManager {
         const newTexture = this.gl.createTexture() as WebGLTexture
 
         this.setTextureImage( newTexture, image )
-        this.defaultTextures.set( newTextureName, newTexture )
+        this.textures.set( newTextureName, newTexture )
     }
 
     private getAvailableName( name: string = "untitled" ) {
@@ -158,12 +136,12 @@ export class TexturesManager {
             availableName = "untitled"
         }
 
-        if ( this.userTextures.has( availableName ) || this.defaultTextures.has( availableName ) ) {
+        if ( this.textures.has( availableName ) ) {
             const separator = " "
 
             let index = 1
 
-            while ( this.userTextures.has( availableName + separator + index ) ) {
+            while ( this.textures.has( availableName + separator + index ) ) {
                 index ++
             }
 
