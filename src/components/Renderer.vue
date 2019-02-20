@@ -31,6 +31,7 @@ import Vue from "vue"
 import Select from "@/components/Select.vue"
 import Checkbox from "@/components/Checkbox.vue"
 import { Renderer } from "@/scripts/renderer/Renderer"
+import { mapState } from "vuex"
 const { RefreshCwIcon, BoxIcon } = require( "vue-feather-icons" )
 
 const RUN_KEY = "t"
@@ -60,6 +61,7 @@ export default Vue.extend( {
         animationsEnabled: true as boolean,
         wireframeEnabled: false as boolean
     } ),
+    computed: mapState( [ "textureUnitToUpdate" ] ),
     watch: {
         // ⚠️ revisar que mas hacia falta chequear ante cambios en modelo
         selectedModel( newModel: string ) {
@@ -71,6 +73,11 @@ export default Vue.extend( {
         },
         wireframeEnabled( newValue: boolean ) {
             this.renderer.setWireframe( newValue )
+        },
+        textureUnitToUpdate( newValue: { unit: number, texture: string } ) {
+            if ( this.renderer.setTextureForUnit( newValue.texture, newValue.unit ) ) {
+                this.$store.commit( "updateTextureAssignedToTextureUnit", newValue )
+            }
         }
     },
     mounted() {
@@ -78,6 +85,7 @@ export default Vue.extend( {
         this.availableModels = this.renderer.getAvailableModels().map( model => model.name )
         this.selectedModel = this.availableModels[ 0 ]
         this.wireframeEnabled = false
+        this.$store.commit( "updateTexturesAssignedToTextureUnits", this.renderer.getTexturesAssignedToTextureUnits() )
         this.compileAndRun()
 
         // @ts-ignore
@@ -105,8 +113,7 @@ export default Vue.extend( {
             this.$store.commit( "updateUniformsEditors", uniformsEditors )
         },
         onTexturesLoaded() {
-            console.log( this.renderer.getAvailableTextures(), this.renderer.getAvailableTextureUnits() )
-            this.renderer.setTextureForUnit( "crate", 0 )
+            this.$store.commit( "updateAvailableTextures", this.renderer.getAvailableTextures() )
         }
     }
 } )

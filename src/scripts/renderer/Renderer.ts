@@ -173,6 +173,10 @@ export class Renderer {
         return this.texturesManager.getTextureAssignedToUnit( unit )
     }
 
+    public getTexturesAssignedToTextureUnits() {
+        return this.texturesManager.getTexturesAssignedToTextureUnits()
+    }
+
     // ✋🏼  Metodos Privados
 
     private loop() {

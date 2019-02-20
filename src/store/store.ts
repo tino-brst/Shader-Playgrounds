@@ -11,7 +11,10 @@ export default new Vuex.Store( {
     state: {
         vertexLog: { errors: [], warnings: [] } as ShaderLog,
         fragmentLog: { errors: [], warnings: [] } as ShaderLog,
-        uniformsEditors: [] as UniformEditor[]
+        uniformsEditors: [] as UniformEditor[],
+        availableTextures: [] as string[],
+        texturesAssignedToTextureUnits: [] as string[],
+        textureUnitToUpdate: { unit: 0, texture: "" }
     },
     mutations: {
         updateLog( state, newEntries: InspectorLogEntry[] ) {
@@ -37,6 +40,18 @@ export default new Vuex.Store( {
         },
         updateUniformsEditors( state, newEditors: Map <string, UniformEditor> ) {
             state.uniformsEditors = Array.from( newEditors.values() )
+        },
+        updateAvailableTextures( state, newTextures: string[] ) {
+            state.availableTextures = newTextures
+        },
+        updateTexturesAssignedToTextureUnits( state, newTextures: string[] ) {
+            state.texturesAssignedToTextureUnits = newTextures
+        },
+        updateTextureAssignedToTextureUnit(  state, newValue: { unit: number, texture: string } ) {
+            Vue.set( state.texturesAssignedToTextureUnits, newValue.unit, newValue.texture )
+        },
+        setTextureUnitForUpdate( state, newValue: { unit: number, texture: string } ) {
+            state.textureUnitToUpdate = newValue
         },
         clearLineLog( state, { shader, line }: { shader: ShaderType, line: number } ) {
             const log      = ( shader === ShaderType.Vertex ) ? state.vertexLog : state.fragmentLog

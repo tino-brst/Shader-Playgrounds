@@ -1,5 +1,5 @@
 <template>
-    <label class="checkbox" :class="{ checked: value, disabled }" title="enable animations">
+    <label class="checkbox" :class="{ checked: value, disabled }">
         <input type="checkbox" :value="value" @input="updateValue()">
         <span class="icon">
             <slot name="icon">

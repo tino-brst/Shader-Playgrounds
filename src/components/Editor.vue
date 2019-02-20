@@ -48,6 +48,7 @@ export default Vue.extend( {
         "v-uniform-editor-float": UniformsEditors.float,
         "v-uniform-editor-vec2": UniformsEditors.vec2,
         "v-uniform-editor-vec3": UniformsEditors.vec3,
+        "v-uniform-editor-sampler2D": UniformsEditors.sampler2D,
         "v-uniform-editor-others": UniformsEditors.others
     },
     props: {
@@ -76,6 +77,7 @@ export default Vue.extend( {
         tooltipVisible: false
     } ),
     computed: {
+        // ⚠️ MEJORAR! es un garron cada vez que se quiere agregar un editor nuevo
         editorTypeComponent(): string {
             if ( this.lastUniformSelected.editor ) {
                 let component = "v-uniform-editor-"
@@ -90,6 +92,10 @@ export default Vue.extend( {
                     }
                     case ShaderVariableType.vec3: {
                         component += "vec3"
+                        break
+                    }
+                    case ShaderVariableType.sampler2D: {
+                        component += "sampler2D"
                         break
                     }
                     default: {

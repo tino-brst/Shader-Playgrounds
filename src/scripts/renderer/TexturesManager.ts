@@ -44,6 +44,10 @@ export class TexturesManager {
         return this.unitsTextures.get( unit )
     }
 
+    public getTexturesAssignedToTextureUnits() {
+        return [ ...this.unitsTextures.values() ]
+    }
+
     public setTextureForUnit( name: string, textureUnit: number ) {
         if ( textureUnit < this.availableTextureUnits ) {
             const texture = this.textures.get( name )
@@ -51,6 +55,7 @@ export class TexturesManager {
             if ( texture !== undefined ) {
                 this.gl.activeTexture( this.gl.TEXTURE0 + textureUnit )
                 this.gl.bindTexture( this.gl.TEXTURE_2D, texture )
+                this.unitsTextures.set( textureUnit, name )
 
                 return true
             }
