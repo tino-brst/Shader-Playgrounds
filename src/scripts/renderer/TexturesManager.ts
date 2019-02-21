@@ -4,6 +4,7 @@ import Worker from "worker-loader!./TexturesManager.worker" // eslint-disable-li
 
 const TEXTURES_FOLDER = "assets/textures"
 const TEXTURES_EXTENSION = "jpg"
+const MIN_TEXTURE_IMAGE_UNITS = 8 // minimo nro. de unidades de textura que se pueden encontrar en una implementacion de WebGL
 
 export enum TextureType {
     color   = "color",
@@ -22,7 +23,8 @@ export class TexturesManager {
         this.gl = gl
         this.textures = new Map()
         this.unitsTextures = new Map()
-        this.maxTextureUnits = this.gl.getParameter( this.gl.MAX_TEXTURE_IMAGE_UNITS )
+        // this.maxTextureUnits = this.gl.getParameter( this.gl.MAX_TEXTURE_IMAGE_UNITS )
+        this.maxTextureUnits = MIN_TEXTURE_IMAGE_UNITS // se limita al estandar para ajustarse al minimo comun denominador
         this.editingUnit = this.maxTextureUnits - 1
         this.availableTextureUnits = this.maxTextureUnits - 1
 
