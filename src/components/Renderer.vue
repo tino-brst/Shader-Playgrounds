@@ -2,26 +2,25 @@
     <div class="renderer">
         <canvas ref="canvas" />
         <div class="toolbar">
-            <v-select
-                autohide
-                dropup
-                v-model="selectedModel"
-                :options="availableModels"
-            >
-                model:
-            </v-select>
-            <div class="toolbar-space-flex" />
-            <v-checkbox v-model="animationsEnabled">
-                <template slot="icon">
-                    <v-refresh-cw-icon />
-                </template>
-            </v-checkbox>
-            <div class="toolbar-space" />
-            <v-checkbox v-model="wireframeEnabled">
-                <template slot="icon">
-                    <v-box-icon />
-                </template>
-            </v-checkbox>
+            <v-progress-bar :loading="loading" :done="loadingDone" />
+            <span class="loading-info" :class="{ visible: loading && ! loadingDone } "> loading models & textures </span>
+            <div class="toolbar-items">
+                <v-select autohide dropup v-model="selectedModel" :options="availableModels">
+                    model:
+                </v-select>
+                <div class="toolbar-space-flex" />
+                <v-checkbox v-model="animationsEnabled">
+                    <template slot="icon">
+                        <v-refresh-cw-icon />
+                    </template>
+                </v-checkbox>
+                <div class="toolbar-space" />
+                <v-checkbox v-model="wireframeEnabled">
+                    <template slot="icon">
+                        <v-box-icon />
+                    </template>
+                </v-checkbox>
+            </div>
         </div>
     </div>
 </template>
@@ -30,6 +29,7 @@
 import Vue from "vue"
 import Select from "@/components/Select.vue"
 import Checkbox from "@/components/Checkbox.vue"
+import ProgressBar from "@/components/ProgressBar.vue"
 import { Renderer } from "@/scripts/renderer/Renderer"
 import { mapState } from "vuex"
 const { RefreshCwIcon, BoxIcon } = require( "vue-feather-icons" )
@@ -39,6 +39,7 @@ const RUN_KEY = "t"
 export default Vue.extend( {
     name: "Renderer",
     components: {
+        "v-progress-bar": ProgressBar,
         "v-select": Select,
         "v-checkbox": Checkbox,
         "v-refresh-cw-icon": RefreshCwIcon,
@@ -59,9 +60,17 @@ export default Vue.extend( {
         availableModels: [] as string[],
         selectedModel: "" as string,
         animationsEnabled: true as boolean,
-        wireframeEnabled: false as boolean
+        wireframeEnabled: false as boolean,
+        loading: false,
+        modelsLoaded: false,
+        texturesLoaded: false
     } ),
-    computed: mapState( [ "textureUnitToUpdate" ] ),
+    computed: {
+        loadingDone(): boolean {
+            return this.modelsLoaded && this.texturesLoaded
+        },
+        ...mapState( [ "textureUnitToUpdate" ] )
+    },
     watch: {
         // ⚠️ revisar que mas hacia falta chequear ante cambios en modelo
         selectedModel( newModel: string ) {
@@ -85,6 +94,7 @@ export default Vue.extend( {
         this.availableModels = this.renderer.getAvailableModels()
         this.selectedModel = this.availableModels[ 0 ]
         this.wireframeEnabled = false
+        this.loading = true
         this.$store.commit( "updateTexturesAssignedToTextureUnits", this.renderer.getTexturesAssignedToTextureUnits() )
         this.compileAndRun()
 
@@ -111,9 +121,11 @@ export default Vue.extend( {
         },
         onGeometriesLoaded() {
             this.availableModels = this.renderer.getAvailableModels()
+            this.modelsLoaded = true
         },
         onTexturesLoaded() {
             this.$store.commit( "updateAvailableTextures", this.renderer.getAvailableTextures() )
+            this.texturesLoaded = true
         }
     }
 } )
@@ -133,18 +145,14 @@ export default Vue.extend( {
 
 .renderer .toolbar {
     position: absolute;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
     height: 25px;
     left: 0;
     right: 0;
     bottom: 0;
     border-top: 1px solid rgb( 20, 20, 20 );
-    padding-left: 8px;
-    padding-right: 8px;
+    z-index: 1;
 }
-.renderer .toolbar:last-child::after { /* light inner border */
+.renderer .toolbar::after { /* light inner border */
     content: "";
     top: 0;
     left: 0;
@@ -153,7 +161,7 @@ export default Vue.extend( {
     position: absolute;
     background-color: rgba( 255, 255, 255, 0.08 );
 }
-.renderer .toolbar:last-child::before { /* light inner border */
+.renderer .toolbar::before { /* gaussian blur background */
     content: "";
     left: 0; top: 0; right: 0; bottom: 0;
     position: absolute;
@@ -161,15 +169,41 @@ export default Vue.extend( {
     backdrop-filter: saturate(180%) blur(15px);
     z-index: 0;
 }
-.renderer .toolbar > * {
+
+.renderer .toolbar-items {
+    height: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+.renderer .toolbar-items > * {
     z-index: 1;
 }
 
-.renderer .toolbar .toolbar-space {
+.renderer .toolbar-items .toolbar-space {
     flex: 0 0 10px;
 }
-.renderer .toolbar .toolbar-space-flex {
+.renderer .toolbar-items .toolbar-space-flex {
     flex-grow: 1;
 }
 
+.renderer .toolbar .loading-info {
+    position: absolute;
+    top: -32px;
+    left: 8px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(120, 120, 120, 0.8);
+    color: rgba(0, 0, 0, 0.8);
+    z-index: -1;
+    transition: all 0.5s;
+    opacity: 0;
+}
+.renderer .toolbar .loading-info.visible {
+    opacity: 1;
+}
 </style>

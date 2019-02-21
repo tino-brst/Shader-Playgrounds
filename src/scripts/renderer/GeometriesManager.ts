@@ -74,14 +74,14 @@ export class GeometriesManager {
         }
 
         Promise.all( promises ).then( ( modelsData ) => {
-            console.time( "models loaded" )
+            // console.time( "models loaded" ) ⏱
             for ( let index = 0; index < modelsData.length; index ++ ) {
                 const modelPath = availableModelsPaths[ index ]
                 const modelName = this.getAvailableName( path.basename( modelPath, "." + MODELS_EXTENSION ) )
                 const modelGeometry = new Geometry( modelsData[ index ] )
                 this.geometries.set( modelName, modelGeometry )
             }
-            console.timeEnd( "models loaded" )
+            // console.timeEnd( "models loaded" ) ⏱
             onGeometriesLoaded()
         } )
     }
