@@ -6,11 +6,6 @@ const TEXTURES_FOLDER = "assets/textures"
 const TEXTURES_EXTENSION = "jpg"
 const MIN_TEXTURE_IMAGE_UNITS = 8 // minimo nro. de unidades de textura que se pueden encontrar en una implementacion de WebGL
 
-export enum TextureType {
-    color   = "color",
-    normals = "normals"
-}
-
 export class TexturesManager {
     private textures: Map < string, WebGLTexture >
     private unitsTextures: Map < number, string >
@@ -36,14 +31,6 @@ export class TexturesManager {
 
     public getAvailableTextures() {
         return Array.from( this.textures.keys() )
-    }
-
-    public getAvailableTextureUnits() {
-        return this.availableTextureUnits
-    }
-
-    public getTextureAssignedToUnit( unit: number ) {
-        return this.unitsTextures.get( unit )
     }
 
     public getTexturesAssignedToTextureUnits() {
@@ -84,8 +71,6 @@ export class TexturesManager {
     }
 
     private loadAvailableTextures( onTexturesLoaded: () => void ) {
-        // cargo texturas por defecto ( ⚠️ chequear primero que exista la carpeta! )
-
         // paths a imagenes que el worker va a levantar (formato: "assets/textures/image.jpg")
         const texturesPaths = fs.find( __static + "/" + TEXTURES_FOLDER, {
             matching: "*" + TEXTURES_EXTENSION,

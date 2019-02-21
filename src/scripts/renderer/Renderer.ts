@@ -12,8 +12,8 @@ import { UniformEditor } from "./UniformEditor"
 import { UniformsCache } from "./UniformsCache"
 import { VertexAttribute, Uniform } from "./ShaderInputs"
 import { VertexAttributeBuffer } from "./Buffers"
-import defaultFragmentShaderSource from "./default_shaders/default.frag.glsl"
-import defaultVertexShaderSource from "./default_shaders/default.vert.glsl"
+import defaultFragmentShaderSource from "./defaults/default.frag.glsl"
+import defaultVertexShaderSource from "./defaults/default.vert.glsl"
 
 export class Renderer {
     private canvas: HTMLCanvasElement
@@ -29,7 +29,7 @@ export class Renderer {
     private geometriesManager: GeometriesManager
     private texturesManager: TexturesManager
 
-    constructor( canvas: HTMLCanvasElement, onTexturesLoaded: () => void ) {
+    constructor( canvas: HTMLCanvasElement, onGeometriesLoaded: () => void, onTexturesLoaded: () => void ) {
         // setup del canvas y contexto WebGL
 
         this.canvas = canvas
@@ -41,7 +41,7 @@ export class Renderer {
 
         // asset managers
 
-        this.geometriesManager = new GeometriesManager()
+        this.geometriesManager = new GeometriesManager( onGeometriesLoaded )
         this.texturesManager = new TexturesManager( this.gl, onTexturesLoaded )
 
         // setup de programa principal
@@ -145,10 +145,6 @@ export class Renderer {
         this.state.animationsEnabled = enabled
     }
 
-    public addModel( data: string, name?: string ) {
-        this.geometriesManager.add( data, name )
-    }
-
     public getErrorsAndWarnings() {
         return this.inspector.checkForErrorsAndWarnings( this.program )
     }
@@ -158,19 +154,11 @@ export class Renderer {
     }
 
     public getAvailableModels() {
-        return this.geometriesManager.getAvailableGeometriesInfo()
+        return this.geometriesManager.getAvailableGeometries()
     }
 
     public getAvailableTextures() {
         return this.texturesManager.getAvailableTextures()
-    }
-
-    public getAvailableTextureUnits() {
-        return this.texturesManager.getAvailableTextureUnits()
-    }
-
-    public getTextureAssignedToUnit( unit: number ) {
-        return this.texturesManager.getTextureAssignedToUnit( unit )
     }
 
     public getTexturesAssignedToTextureUnits() {

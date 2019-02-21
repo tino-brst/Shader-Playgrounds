@@ -1,55 +1,29 @@
 import fs from "fs-jetpack"
 import path from "path"
+import cube from "./defaults/cube.obj"
 import { Geometry } from "./geometry/Geometry"
 
 const MODELS_FOLDER = "/assets/models"
 const MODELS_EXTENSION = "obj"
 
-interface IGeometryInfo {
-    name: string
-    locked: boolean
-}
-
 export class GeometriesManager {
-    private defaultGeometries: Map < string, Geometry >
-    private userGeometries: Map < string, Geometry >
+    private geometries: Map < string, Geometry >
 
-    constructor() {
-        this.defaultGeometries = new Map()
-        this.userGeometries    = new Map()
+    constructor( onGeometriesLoaded: () => void ) {
+        this.geometries = new Map()
 
-        this.initDefaultGeometries()
+        this.loadDefaultGeometry( "cube", cube )
+        this.loadAvailableGeometries( onGeometriesLoaded )
     }
 
     // 👥  Metodos Publicos
 
-    public getAvailableGeometriesInfo() {
-        const geometriesInfo: IGeometryInfo[] = []
-
-        for ( const [ name, geometry ] of this.defaultGeometries ) {
-            geometriesInfo.push( { name, locked: true } )
-        }
-
-        for ( const [ name, geometry ] of this.userGeometries ) {
-            geometriesInfo.push( { name, locked: false } )
-        }
-
-        return geometriesInfo
+    public getAvailableGeometries() {
+        return [ ...this.geometries.keys() ]
     }
 
     public get( name: string ) {
-        return this.defaultGeometries.get( name ) || this.userGeometries.get( name )
-    }
-
-    public add( data: string, name?: string ) {
-        const newGeometryName = this.getAvailableName( name )
-        const newGeometry = new Geometry( data )
-
-        this.userGeometries.set( newGeometryName, newGeometry )
-    }
-
-    public delete( name: string ) {
-        return this.userGeometries.delete( name )
+        return this.geometries.get( name )
     }
 
     // ✋🏼  Metodos Privados
@@ -64,12 +38,12 @@ export class GeometriesManager {
             availableName = "untitled"
         }
 
-        if ( this.userGeometries.has( availableName ) || this.defaultGeometries.has( availableName ) ) {
+        if ( this.geometries.has( availableName ) ) {
             const separator = " "
 
             let index = 1
 
-            while ( this.userGeometries.has( availableName + separator + index ) ) {
+            while ( this.geometries.has( availableName + separator + index ) ) {
                 index ++
             }
 
@@ -79,7 +53,13 @@ export class GeometriesManager {
         return availableName
     }
 
-    private initDefaultGeometries() {
+    private loadDefaultGeometry( name: string, modelData: string ) {
+        const modelName = this.getAvailableName( name )
+        const modelGeometry = new Geometry( modelData )
+        this.geometries.set( modelName, modelGeometry )
+    }
+
+    private loadAvailableGeometries( onGeometriesLoaded: () => void ) {
         const availableModelsPaths = fs.find( __static + MODELS_FOLDER, {
             matching: "*." + MODELS_EXTENSION,
             files: true,
@@ -87,15 +67,22 @@ export class GeometriesManager {
             recursive: false
         } )
 
-        const modelPath = availableModelsPaths[ 0 ]
-        const modelName = path.basename( modelPath, "." + MODELS_EXTENSION )
-        const modelGeometry = new Geometry( fs.read( modelPath ) )
-        this.defaultGeometries.set( modelName, modelGeometry )
+        const promises: Promise <string>[] = []
 
-        // for ( let modelPath of availableModelsPaths ) {
-        //     const modelName = path.basename( modelPath, "." + MODELS_EXTENSION )
-        //     const modelGeometry = new Geometry( fs.read( modelPath ) )
-        //     this.defaultGeometries.set( modelName, modelGeometry )
-        // }
+        for ( let modelPath of availableModelsPaths ) {
+            promises.push( fs.readAsync( modelPath ) as Promise <string> )
+        }
+
+        Promise.all( promises ).then( ( modelsData ) => {
+            console.time( "models loaded" )
+            for ( let index = 0; index < modelsData.length; index ++ ) {
+                const modelPath = availableModelsPaths[ index ]
+                const modelName = this.getAvailableName( path.basename( modelPath, "." + MODELS_EXTENSION ) )
+                const modelGeometry = new Geometry( modelsData[ index ] )
+                this.geometries.set( modelName, modelGeometry )
+            }
+            console.timeEnd( "models loaded" )
+            onGeometriesLoaded()
+        } )
     }
 }

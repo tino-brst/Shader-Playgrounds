@@ -81,15 +81,12 @@ export default Vue.extend( {
         }
     },
     mounted() {
-        this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement, this.onTexturesLoaded )
-        this.availableModels = this.renderer.getAvailableModels().map( model => model.name )
+        this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement, this.onGeometriesLoaded, this.onTexturesLoaded )
+        this.availableModels = this.renderer.getAvailableModels()
         this.selectedModel = this.availableModels[ 0 ]
         this.wireframeEnabled = false
         this.$store.commit( "updateTexturesAssignedToTextureUnits", this.renderer.getTexturesAssignedToTextureUnits() )
         this.compileAndRun()
-
-        // @ts-ignore
-        global.renderer = this.renderer // ❗️ solo para debugging
 
         window.addEventListener( "keydown", this.handleRunKey )
     },
@@ -111,6 +108,9 @@ export default Vue.extend( {
         updateUniformsEditors() {
             const uniformsEditors = this.renderer.getUniformsEditors()
             this.$store.commit( "updateUniformsEditors", uniformsEditors )
+        },
+        onGeometriesLoaded() {
+            this.availableModels = this.renderer.getAvailableModels()
         },
         onTexturesLoaded() {
             this.$store.commit( "updateAvailableTextures", this.renderer.getAvailableTextures() )
