@@ -96,7 +96,7 @@ export default Vue.extend( {
 }
 
 .uniform-editor.sampler2D {
-    height: 270px;
+    height: 200px;
     width: 290px;
     flex-direction: column;
     font-family: IBM Plex Sans;
@@ -159,7 +159,7 @@ export default Vue.extend( {
 }
 
 .uniform-editor.sampler2D .unit-number:hover:not(.selected) {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
 }
 .uniform-editor.sampler2D .unit-number:hover:not(.selected) span {
     opacity: 0.9;
@@ -260,7 +260,7 @@ export default Vue.extend( {
 /* texture hover */
 .uniform-editor.sampler2D .texture-cell:hover .image-container::before {
     border: 4px solid rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     opacity: 1;
 }
 .uniform-editor.sampler2D .texture-cell:hover span {

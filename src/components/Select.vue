@@ -183,7 +183,7 @@ accent-color = royalblue
                 cursor: pointer
                 color: rgba( 255, 255, 255, 0.4 )
                 padding: 0.2rem 0.5rem 0.2rem 0.5rem
-                transition: all 0.1s
+                transition: color 0.1s
 
                 .icon {
 
@@ -197,9 +197,11 @@ accent-color = royalblue
 
                 }
 
-                &.selected-option {
+                &.selected-option,
+                &.selected-option:hover {
 
                     color: white
+                    background: accent-color
 
                     .icon {
 
@@ -212,7 +214,7 @@ accent-color = royalblue
 
                 &:hover {
 
-                    background-color: accent-color
+                    background-color: rgba(255, 255, 255, 0.05)
                     color: white
 
                 }

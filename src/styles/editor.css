@@ -354,7 +354,7 @@ div.CodeMirror span.CodeMirror-matchingbracket {
     cursor: pointer;
 }
 .CodeMirror-hint:hover {
-    background: rgba(65, 105, 225, 0.2);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .CodeMirror-hint .display-text {

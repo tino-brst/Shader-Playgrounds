@@ -5,7 +5,7 @@
             <v-progress-bar :loading="loading" :done="loadingDone" />
             <span class="loading-info" :class="{ visible: loading && ! loadingDone } "> loading models & textures </span>
             <div class="toolbar-items">
-                <v-select autohide dropup v-model="selectedModel" :options="availableModels">
+                <v-select dropup v-model="selectedModel" :options="availableModels">
                     model:
                 </v-select>
                 <div class="toolbar-space-flex" />
@@ -198,7 +198,7 @@ export default Vue.extend( {
     padding: 2px 6px;
     border-radius: 3px;
     background: rgba(120, 120, 120, 0.8);
-    color: rgba(0, 0, 0, 0.8);
+    color: rgba(0, 0, 0, 0.9);
     z-index: -1;
     transition: all 0.5s;
     opacity: 0;
