@@ -48,6 +48,7 @@ export default Vue.extend( {
         "v-uniform-editor-float": UniformsEditors.float,
         "v-uniform-editor-vec2": UniformsEditors.vec2,
         "v-uniform-editor-vec3": UniformsEditors.vec3,
+        "v-uniform-editor-vec4": UniformsEditors.vec4,
         "v-uniform-editor-sampler2D": UniformsEditors.sampler2D,
         "v-uniform-editor-others": UniformsEditors.others
     },
@@ -92,6 +93,10 @@ export default Vue.extend( {
                     }
                     case ShaderVariableType.vec3: {
                         component += "vec3"
+                        break
+                    }
+                    case ShaderVariableType.vec4: {
+                        component += "vec4"
                         break
                     }
                     case ShaderVariableType.sampler2D: {
