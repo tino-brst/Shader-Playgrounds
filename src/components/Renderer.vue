@@ -151,6 +151,7 @@ export default Vue.extend( {
     bottom: 0;
     border-top: 1px solid rgb( 20, 20, 20 );
     z-index: 1;
+    pointer-events: none;
 }
 .renderer .toolbar::after { /* light inner border */
     content: "";

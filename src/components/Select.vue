@@ -2,7 +2,11 @@
     <div class="select">
         <label> <slot> set label </slot> </label>
         <div class="options-container" ref="clickableArea">
-            <div class="selected" @click="isActive = ! isActive" :class="{ active: isActive }">
+            <div
+                class="selected"
+                @click="isActive = ! isActive"
+                :class="{ active: isActive }"
+            >
                 <span> {{ value }} </span>
                 <v-chevron-down-icon v-if="! dropup" class="icon" />
                 <v-chevron-up-icon v-if="dropup" class="icon" />
@@ -91,6 +95,7 @@ accent-color = royalblue
     display: flex
     align-items: center
     user-select: none
+    pointer-events: all;
 
     label {
 
@@ -192,8 +197,7 @@ accent-color = royalblue
                     margin-left: 0.5rem
                     margin-top: 0.1rem
                     opacity: 0
-                    transform: scale( 0.5 )
-                    transition: all 0.15s
+                    transition: all 0.1s
 
                 }
 
@@ -206,7 +210,6 @@ accent-color = royalblue
                     .icon {
 
                         opacity: 1
-                        transform: scale( 1 )
 
                     }
 

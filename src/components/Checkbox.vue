@@ -1,6 +1,10 @@
 <template>
-    <label class="checkbox" :class="{ checked: value, disabled }">
-        <input type="checkbox" :value="value" @input="updateValue()">
+    <div
+        class="checkbox"
+        :class="{ checked: value, disabled }"
+        @mousedown.prevent=""
+        @click="updateValue"
+    >
         <span class="icon">
             <slot name="icon">
                 <span class="check-icon-box">
@@ -9,7 +13,7 @@
             </slot>
         </span>
         <slot name="label" />
-    </label>
+    </div>
 </template>
 
 <script lang="ts">
@@ -54,6 +58,7 @@ accent-color = rgb( 20, 100, 220 )
     width: fit-content
     color: white
     cursor: pointer
+    pointer-events: all
 
     input[type="checkbox"] {
 

@@ -3,7 +3,7 @@
         <div
             class="tab"
             :class="{ selected: value === 'vertex', errors: vertexLog.errors.length, warnings: vertexLog.warnings.length }"
-            @mousedown="updateValue('vertex')"
+            @mousedown.prevent="updateValue('vertex')"
         >
             <span class="marker" />
             <span> Vertex </span>
@@ -17,7 +17,7 @@
         <div
             class="tab"
             :class="{ selected: value === 'fragment', errors: fragmentLog.errors.length, warnings: fragmentLog.warnings.length }"
-            @mousedown="updateValue('fragment')"
+            @mousedown.prevent="updateValue('fragment')"
         >
             <span class="marker" />
             <span> Fragment </span>

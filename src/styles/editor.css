@@ -586,13 +586,13 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 
 /* 🎨 Color scheme */
 
-.cm-s-default .cm-keyword { color: rgb(239, 113, 168); font-weight: 500; }
+.cm-s-default .cm-keyword { color: rgb(239, 113, 168) }
 .cm-s-default .cm-type { color: rgb(117, 180, 146); }
 .cm-s-default .cm-atom { color: rgb(239, 113, 168); font-style: italic; font-weight: 600; }
 .cm-s-default .cm-meta { color: rgb(122, 201, 175); }
 .cm-s-default .cm-builtin { color: rgb(145, 212, 98); }
 .cm-s-default .cm-identifier { color: white; }
-.cm-s-default .cm-attribute { color: rgb(200, 200, 200); font-style: italic; }
+.cm-s-default .cm-attribute { color: rgb(180, 180, 180); font-style: italic; font-weight: 600; }
 .cm-s-default .cm-number { color: rgb(167, 152, 255); }
 .cm-s-default .cm-boolean { color: rgb(167, 152, 255); }
 .cm-s-default .cm-punctuation { color: rgb(100, 100, 100); }
