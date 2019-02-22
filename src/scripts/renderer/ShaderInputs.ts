@@ -140,6 +140,12 @@ export class Uniform extends ShaderInput {
                     this.gl.uniform3fv( this.location, value )
                 }
 
+            case ShaderVariableType.vec4:
+
+                return ( value: Float32Array ) => {
+                    this.gl.uniform4fv( this.location, value )
+                }
+
             case ShaderVariableType.int:
 
                 return ( value: number ) => {
