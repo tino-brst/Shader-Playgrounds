@@ -254,11 +254,45 @@
 /* 🎨 Matching brackets */
 
 div.CodeMirror span.CodeMirror-matchingbracket {
+    position: relative;
     color: white;
+    font-weight: bold;
+}
+div.CodeMirror span.CodeMirror-matchingbracket::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: calc(100% + 4px);
+    top: -2px;
+    z-index: -1;
     background: rgba(255, 255, 255, 0.15);
     border-radius: 2px;
-    padding: 2px 0px;
-    font-weight: bold;
+
+    animation-name: matchingbracket-pulse;
+    animation-duration: 1.5s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease;
+}
+
+@keyframes matchingbracket-pulse {
+    from {
+        transform: scale3d(1, 1, 1);
+        background: rgba(255, 255, 255, 0.15);
+    }
+    10% {
+        background: royalblue;
+        transform: scale3d(1.2, 1.2, 1.2);
+    }
+    20% {
+        transform: scale3d(1, 1, 1);
+    }
+    75% {
+        background: royalblue;
+    }
+    to {
+        transform: scale3d(1, 1, 1);
+        background: rgba(255, 255, 255, 0.15);
+    }
 }
 
 /* 🎨 Selection */
@@ -655,11 +689,14 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 }
 
 @keyframes pulse {
-    0%, 100% {
+    from {
         opacity: 0;
     }
     50% {
         opacity: 1;
+    }
+    to {
+        opacity: 0;
     }
 }
 
