@@ -2,8 +2,8 @@
     <div class="renderer">
         <canvas ref="canvas" />
         <div class="toolbar">
-            <v-progress-bar :loading="loading" :done="loadingDone" />
-            <span class="loading-info" :class="{ visible: loading && ! loadingDone } "> loading models & textures </span>
+            <v-progress-bar :started="loading" :finished="modelsLoaded && texturesLoaded" />
+            <span class="loading-info" :class="{ visible: loading && ! ( modelsLoaded && texturesLoaded ) } "> loading models & textures </span>
             <div class="toolbar-items">
                 <v-select dropup v-model="model" :options="availableModels">
                     model:
@@ -91,9 +91,6 @@ export default Vue.extend( {
                 this.renderer.setWireframe( newValue )
             }
         },
-        loadingDone(): boolean {
-            return this.modelsLoaded && this.texturesLoaded
-        },
         ...mapState( [ "textureUnitToUpdate" ] )
     },
     watch: {
@@ -105,11 +102,11 @@ export default Vue.extend( {
     },
     mounted() {
         this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement, this.onGeometriesLoaded, this.onTexturesLoaded )
+        this.loading = true
         this.availableModels = this.renderer.getAvailableModels()
         this.model = this.availableModels[ 0 ]
         this.animation = true
         this.wireframe = true
-        this.loading = true
         this.$store.commit( "updateTexturesAssignedToTextureUnits", this.renderer.getTexturesAssignedToTextureUnits() )
         this.compileAndRun()
 

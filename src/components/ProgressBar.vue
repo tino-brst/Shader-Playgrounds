@@ -1,5 +1,5 @@
 <template>
-    <div class="progress-bar" :class="{ loading, done }">
+    <div class="progress-bar" :class="{ started, finished }">
         <div class="progress" />
     </div>
 </template>
@@ -8,11 +8,11 @@
 export default {
     name: "ProgressBar",
     props: {
-        loading: {
+        started: {
             type: Boolean,
             default: false
         },
-        done: {
+        finished: {
             type: Boolean,
             default: false
         }
@@ -30,10 +30,10 @@ export default {
     transition: opacity 1s;
     z-index: 1;
 }
-.progress-bar.loading {
+.progress-bar.started {
     opacity: 1;
 }
-.progress-bar.done {
+.progress-bar.finished {
     opacity: 0;
     transition: opacity .8s;
 }
@@ -48,10 +48,10 @@ export default {
     transition: width 5s;
     overflow: hidden;
 }
-.progress-bar.loading .progress {
+.progress-bar.started .progress {
     width: 75%;
 }
-.progress-bar.done .progress {
+.progress-bar.finished .progress {
     width: 100%;
     transition: width .8s;
 }
