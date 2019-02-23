@@ -8,7 +8,7 @@
                     :active-shader="activeShader"
                     :vertex="codeVertexShader"
                     :fragment="codeFragmentShader"
-                    @change="updateShader"
+                    @change="updateShaderCode"
                 />
                 <div class="toolbar" />
             </div>
@@ -53,7 +53,7 @@ export default Vue.extend( {
         window.addEventListener( "keydown", this.handleActiveShaderChange )
     },
     methods: {
-        updateShader( newValue: string ) {
+        updateShaderCode( newValue: string ) {
             if ( this.activeShader === ShaderType.Vertex ) {
                 this.codeVertexShader = newValue
             } else {

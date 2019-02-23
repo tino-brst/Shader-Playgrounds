@@ -5,17 +5,17 @@
             <v-progress-bar :loading="loading" :done="loadingDone" />
             <span class="loading-info" :class="{ visible: loading && ! loadingDone } "> loading models & textures </span>
             <div class="toolbar-items">
-                <v-select dropup v-model="selectedModel" :options="availableModels">
+                <v-select dropup v-model="model" :options="availableModels">
                     model:
                 </v-select>
                 <div class="toolbar-space-flex" />
-                <v-checkbox v-model="animationsEnabled">
+                <v-checkbox v-model="animation">
                     <template slot="icon">
                         <v-refresh-cw-icon />
                     </template>
                 </v-checkbox>
                 <div class="toolbar-space" />
-                <v-checkbox v-model="wireframeEnabled">
+                <v-checkbox v-model="wireframe">
                     <template slot="icon">
                         <v-box-icon />
                     </template>
@@ -58,31 +58,45 @@ export default Vue.extend( {
     data: () => ( {
         renderer: {} as Renderer,
         availableModels: [] as string[],
-        selectedModel: "" as string,
-        animationsEnabled: true as boolean,
-        wireframeEnabled: false as boolean,
         loading: false,
         modelsLoaded: false,
         texturesLoaded: false
     } ),
     computed: {
+        model: {
+            get(): string {
+                return this.$store.state.model
+            },
+            set( newModel: string ) {
+                this.$store.commit( "setModel", newModel )
+                this.renderer.setModel( newModel )
+                this.updateErrorsAndWarnings()
+            }
+        },
+        animation: {
+            get(): boolean {
+                return this.$store.state.animation
+            },
+            set( newValue: boolean ) {
+                this.$store.commit( "setAnimation", newValue )
+                this.renderer.setAnimation( newValue )
+            }
+        },
+        wireframe: {
+            get(): boolean {
+                return this.$store.state.wireframe
+            },
+            set( newValue: boolean ) {
+                this.$store.commit( "setWireframe", newValue )
+                this.renderer.setWireframe( newValue )
+            }
+        },
         loadingDone(): boolean {
             return this.modelsLoaded && this.texturesLoaded
         },
         ...mapState( [ "textureUnitToUpdate" ] )
     },
     watch: {
-        // ⚠️ revisar que mas hacia falta chequear ante cambios en modelo
-        selectedModel( newModel: string ) {
-            this.renderer.setModel( this.selectedModel )
-            this.updateErrorsAndWarnings()
-        },
-        animationsEnabled( newValue: boolean ) {
-            this.renderer.setAnimations( newValue )
-        },
-        wireframeEnabled( newValue: boolean ) {
-            this.renderer.setWireframe( newValue )
-        },
         textureUnitToUpdate( newValue: { unit: number, texture: string } ) {
             if ( this.renderer.setTextureForUnit( newValue.texture, newValue.unit ) ) {
                 this.$store.commit( "updateTextureAssignedToTextureUnit", newValue )
@@ -92,8 +106,9 @@ export default Vue.extend( {
     mounted() {
         this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement, this.onGeometriesLoaded, this.onTexturesLoaded )
         this.availableModels = this.renderer.getAvailableModels()
-        this.selectedModel = this.availableModels[ 0 ]
-        this.wireframeEnabled = false
+        this.model = this.availableModels[ 0 ]
+        this.animation = true
+        this.wireframe = true
         this.loading = true
         this.$store.commit( "updateTexturesAssignedToTextureUnits", this.renderer.getTexturesAssignedToTextureUnits() )
         this.compileAndRun()

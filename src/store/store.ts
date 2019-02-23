@@ -9,6 +9,9 @@ Vue.use( Vuex )
 
 export default new Vuex.Store( {
     state: {
+        model: "",
+        animation: true,
+        wireframe: true,
         vertexLog: { errors: [], warnings: [] } as ShaderLog,
         fragmentLog: { errors: [], warnings: [] } as ShaderLog,
         uniformsEditors: [] as UniformEditor[],
@@ -17,6 +20,15 @@ export default new Vuex.Store( {
         textureUnitToUpdate: { unit: 0, texture: "" }
     },
     mutations: {
+        setModel( state, newModel: string ) {
+            state.model = newModel
+        },
+        setAnimation( state, newValue: boolean ) {
+            state.animation = newValue
+        },
+        setWireframe( state, newValue: boolean ) {
+            state.wireframe = newValue
+        },
         updateLog( state, newEntries: InspectorLogEntry[] ) {
             const vertexLog: ShaderLog = { errors: [], warnings: [] }
             const fragmentLog: ShaderLog = { errors: [], warnings: [] }

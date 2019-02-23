@@ -141,7 +141,7 @@ export class Renderer {
         this.state.drawBufferNeedsUpdate = true
     }
 
-    public setAnimations( enabled: boolean ) {
+    public setAnimation( enabled: boolean ) {
         this.state.animationsEnabled = enabled
     }
 
