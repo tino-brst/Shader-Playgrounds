@@ -9,6 +9,9 @@ Vue.use( Vuex )
 
 export default new Vuex.Store( {
     state: {
+        vertexCode: "",
+        fragmentCode: "",
+        activeShader: ShaderType.Vertex,
         model: "",
         animation: true,
         wireframe: true,
@@ -20,6 +23,15 @@ export default new Vuex.Store( {
         textureUnitToUpdate: { unit: 0, texture: "" }
     },
     mutations: {
+        setVertexCode( state, newValue ) {
+            state.vertexCode = newValue
+        },
+        setFragmentCode( state, newValue ) {
+            state.fragmentCode = newValue
+        },
+        setActiveShader( state, newValue ) {
+            state.activeShader = newValue
+        },
         setModel( state, newModel: string ) {
             state.model = newModel
         },

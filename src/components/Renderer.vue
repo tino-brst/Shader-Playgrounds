@@ -27,14 +27,13 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { EventBus } from "@/event-bus"
 import Select from "@/components/Select.vue"
 import Checkbox from "@/components/Checkbox.vue"
 import ProgressBar from "@/components/ProgressBar.vue"
 import { Renderer } from "@/scripts/renderer/Renderer"
 import { mapState } from "vuex"
 const { RefreshCwIcon, BoxIcon } = require( "vue-feather-icons" )
-
-const RUN_KEY = "t"
 
 export default Vue.extend( {
     name: "Renderer",
@@ -44,16 +43,6 @@ export default Vue.extend( {
         "v-checkbox": Checkbox,
         "v-refresh-cw-icon": RefreshCwIcon,
         "v-box-icon": BoxIcon
-    },
-    props: {
-        vertex: {
-            type: String,
-            default: ""
-        },
-        fragment: {
-            type: String,
-            default: ""
-        }
     },
     data: () => ( {
         renderer: {} as Renderer,
@@ -91,7 +80,7 @@ export default Vue.extend( {
                 this.renderer.setWireframe( newValue )
             }
         },
-        ...mapState( [ "textureUnitToUpdate" ] )
+        ...mapState( [ "textureUnitToUpdate", "vertexCode", "fragmentCode" ] )
     },
     watch: {
         textureUnitToUpdate( newValue: { unit: number, texture: string } ) {
@@ -108,18 +97,13 @@ export default Vue.extend( {
         this.animation = true
         this.wireframe = true
         this.$store.commit( "updateTexturesAssignedToTextureUnits", this.renderer.getTexturesAssignedToTextureUnits() )
-        this.compileAndRun()
 
-        window.addEventListener( "keydown", this.handleRunKey )
+        EventBus.$on( "compileAndRun", this.compileAndRun )
     },
     methods: {
-        handleRunKey( event: KeyboardEvent ) {
-            if ( event.metaKey === true && event.key === RUN_KEY ) {
-                this.compileAndRun()
-            }
-        },
         compileAndRun() {
-            this.renderer.setShaderProgram( this.vertex, this.fragment )
+            // @ts-ignore
+            this.renderer.setShaderProgram( this.vertexCode, this.fragmentCode )
             this.updateErrorsAndWarnings()
             this.updateUniformsEditors()
         },

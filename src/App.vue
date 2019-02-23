@@ -4,19 +4,11 @@
         <div class="panels">
             <div class="left-panel">
                 <v-tabs v-model="activeShader" />
-                <v-editor
-                    :active-shader="activeShader"
-                    :vertex="codeVertexShader"
-                    :fragment="codeFragmentShader"
-                    @change="updateShaderCode"
-                />
+                <v-editor />
                 <div class="toolbar" />
             </div>
             <div class="right-panel">
-                <v-renderer
-                    :vertex="codeVertexShader"
-                    :fragment="codeFragmentShader"
-                />
+                <v-renderer />
             </div>
         </div>
     </div>
@@ -24,17 +16,19 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { EventBus } from "@/event-bus"
 import Tabs from "@/components/Tabs.vue"
 import Editor from "@/components/Editor.vue"
 import Renderer from "@/components/Renderer.vue"
 import { ShaderType } from "@/scripts/renderer/_constants"
 
 // ⚠️ pensar cuales van a ser los valores de los shaders por defecto (si van a tener alguno)
-import sampleCodeVertex from "@/sample_shaders/textures.vert.glsl"
-import sampleCodeFragment from "@/sample_shaders/textures.frag.glsl"
+import sampleVertexCode from "@/sample_shaders/textures.vert.glsl"
+import sampleFragmentCode from "@/sample_shaders/textures.frag.glsl"
 
 const VERTEX_SHADER_KEY = "1"
 const FRAGMENT_SHADER_KEY = "2"
+const COMPILE_AND_RUN_KEY = "t"
 
 export default Vue.extend( {
     name: "App",
@@ -43,23 +37,28 @@ export default Vue.extend( {
         "v-renderer": Renderer,
         "v-tabs": Tabs
     },
-    data: () => ( {
-        activeShader: ShaderType.Vertex,
-        codeVertexShader: sampleCodeVertex,
-        codeFragmentShader: sampleCodeFragment
-    } ),
+    computed: {
+        activeShader: {
+            get(): string {
+                return this.$store.state.activeShader
+            },
+            set( newValue: string ) {
+                this.$store.commit( "setActiveShader", newValue )
+            }
+        }
+    },
     mounted() {
         // shorcut para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl )
         window.addEventListener( "keydown", this.handleActiveShaderChange )
+        window.addEventListener( "keydown", this.handleRunKey )
+
+        // levanto info de archivo y restauro estado 📥
+        this.$store.commit( "setVertexCode", sampleVertexCode )
+        this.$store.commit( "setFragmentCode", sampleFragmentCode )
+        // la app arranca tratando de compilar el codigo levantado
+        EventBus.$emit( "compileAndRun" )
     },
     methods: {
-        updateShaderCode( newValue: string ) {
-            if ( this.activeShader === ShaderType.Vertex ) {
-                this.codeVertexShader = newValue
-            } else {
-                this.codeFragmentShader = newValue
-            }
-        },
         handleActiveShaderChange( event: KeyboardEvent ) {
             if ( event.metaKey === true ) {
                 if ( event.key === VERTEX_SHADER_KEY ) {
@@ -67,6 +66,11 @@ export default Vue.extend( {
                 } else if ( event.key === FRAGMENT_SHADER_KEY ) {
                     this.activeShader = ShaderType.Fragment
                 }
+            }
+        },
+        handleRunKey( event: KeyboardEvent ) {
+            if ( event.metaKey === true && event.key === COMPILE_AND_RUN_KEY ) {
+                EventBus.$emit( "compileAndRun" )
             }
         }
     }

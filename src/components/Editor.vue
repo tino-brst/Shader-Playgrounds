@@ -52,20 +52,6 @@ export default Vue.extend( {
         "v-uniform-editor-sampler2D": UniformsEditors.sampler2D,
         "v-uniform-editor-others": UniformsEditors.others
     },
-    props: {
-        activeShader: {
-            type: String,
-            default: "vertex" // no le gusta el enum de Typescript
-        },
-        vertex: {
-            type: String,
-            default: "// Vertex Shader"
-        },
-        fragment: {
-            type: String,
-            default: "// Fragment Shader"
-        }
-    },
     data: () => ( {
         editor: {} as Editor,
         vertexShader: new Shader( ShaderType.Vertex ),
@@ -77,8 +63,13 @@ export default Vue.extend( {
         tooltipTarget: document.createElement( "span" ) as HTMLElement,
         tooltipVisible: false
     } ),
-    computed: {
-        // ⚠️ MEJORAR! es un garron cada vez que se quiere agregar un editor nuevo
+    computed: mapState( {
+        activeShader: ( state: any ) => state.activeShader as ShaderType,
+        vertexCode: ( state: any ) => state.vertexCode as string,
+        fragmentCode: ( state: any ) => state.fragmentCode as string,
+        vertexLog: ( state: any ) => state.vertexLog as ShaderLog,
+        fragmentLog: ( state: any ) => state.fragmentLog as ShaderLog,
+        uniformsEditors: ( state: any ) => state.uniformsEditors as UniformEditor[],
         editorTypeComponent(): string {
             if ( this.lastUniformSelected.editor ) {
                 let component = "v-uniform-editor-"
@@ -112,9 +103,8 @@ export default Vue.extend( {
             } else {
                 return ""
             }
-        },
-        ...mapState( [ "vertexLog", "fragmentLog", "uniformsEditors" ] )
-    },
+        }
+    } ),
     watch: {
         activeShader( newValue: ShaderType ) {
             // cierro code-hints, tooltips, etc en caso de estar activas
@@ -132,12 +122,12 @@ export default Vue.extend( {
                 newActiveShader.enableUniformsTools( this.uniformsBasic, this.uniformsStruct, this.editor )
             }
         },
-        vertex( newValue: string ) {
+        vertexCode( newValue: string ) {
             if ( newValue !== this.vertexShader.getValue() ) {
                 this.vertexShader.setValue( newValue )
             }
         },
-        fragment( newValue: string ) {
+        fragmentCode( newValue: string ) {
             if ( newValue !== this.fragmentShader.getValue() ) {
                 this.fragmentShader.setValue( newValue )
             }
@@ -183,8 +173,8 @@ export default Vue.extend( {
         }
     },
     mounted() {
-        this.vertexShader.setValue( this.vertex )
-        this.fragmentShader.setValue( this.fragment )
+        this.vertexShader.setValue( this.vertexCode )
+        this.fragmentShader.setValue( this.fragmentCode )
 
         this.editor = CodeMirror( this.$refs.editor as HTMLElement, {
             value: this.activeShader === ShaderType.Vertex ? this.vertexShader.doc : this.fragmentShader.doc,
@@ -201,15 +191,10 @@ export default Vue.extend( {
             foldOptions: { widget: "•••", minFoldSize: 1 },
             hintOptions: { completeSingle: false, alignWithWord: true }
         } )
-
-        this.editor.on( "change", this.updateValue )
         this.editor.on( "keydown", this.handleShowHints )
         this.editor.focus()
     },
     methods: {
-        updateValue() {
-            this.$emit( "change", this.editor.getValue() )
-        },
         handleShowHints( editor: Editor, event: Event ) {
             if ( ! editor.state.completionActive ) {    // evito reactivacion innecesaria de hints
                 // @ts-ignore
