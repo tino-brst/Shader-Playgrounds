@@ -69,10 +69,10 @@ export default class Shader {
     public setLog( log: ShaderLog ) {
         this.clearLog()
         this.log = log
-        // ⚠️ fiero
+
         if ( this.log.errors.length > 0 ) {
             this.showLog( LogEntryType.Error )
-        } else {
+        } else if ( this.log.warnings.length > 0 ) {
             this.showLog( LogEntryType.Warning )
         }
     }

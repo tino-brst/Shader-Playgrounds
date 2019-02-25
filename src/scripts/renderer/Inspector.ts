@@ -65,7 +65,7 @@ export class Inspector {
 
         for ( const line of errorLines ) {
             const lineElements = line.split( ": " )
-            const lineNumber = parseInt( lineElements[ 1 ].split( ":" )[ 1 ] )
+            const lineNumber = parseInt( lineElements[ 1 ].split( ":" )[ 1 ] ) || 0 // "|| 0" en caso de NaN en nro de linea
             const description = lineElements[ 2 ] + "- " + lineElements[ 3 ]
 
             const error = new InspectorLogEntry(
