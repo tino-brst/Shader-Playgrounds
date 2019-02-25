@@ -9,12 +9,12 @@ Vue.use( Vuex )
 
 export default new Vuex.Store( {
     state: {
-        vertexCode: "",
-        fragmentCode: "",
-        activeShader: ShaderType.Vertex,
-        model: "",
-        animation: true,
-        wireframe: true,
+        vertexCode: null as string | null,
+        fragmentCode: null as string | null,
+        activeShader: null as ShaderType | null,
+        model: null as string | null,
+        animation: null as boolean | null,
+        wireframe: null as boolean | null,
         vertexLog: { errors: [], warnings: [] } as ShaderLog,
         fragmentLog: { errors: [], warnings: [] } as ShaderLog,
         uniformsEditors: [] as UniformEditor[],
@@ -100,6 +100,34 @@ export default new Vuex.Store( {
             } else {
                 state.fragmentLog = { errors, warnings }
             }
+        },
+        loadAppState( state, appState ) {
+            state.vertexCode = appState.vertex
+            state.fragmentCode = appState.fragment
+        }
+    },
+    getters: {
+        appState( state ) {
+            const appState = {
+                vertex: state.vertexCode,
+                fragment: state.fragmentCode,
+                activeShader: state.activeShader,
+                model: state.model,
+                animations: state.animation,
+                wireframe: state.wireframe
+            }
+
+            return appState
+        }
+    },
+    actions: {
+        loadAppState( context, appState ) {
+            context.commit( "setVertexCode", appState.vertex )
+            context.commit( "setFragmentCode", appState.fragment )
+            context.commit( "setActiveShader", appState.activeShader )
+            context.commit( "setModel", appState.model )
+            context.commit( "setAnimation", appState.animations )
+            context.commit( "setWireframe", appState.wireframe )
         }
     }
 } )

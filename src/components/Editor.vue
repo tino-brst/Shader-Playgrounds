@@ -174,8 +174,7 @@ export default Vue.extend( {
         }
     },
     mounted() {
-        this.vertexShader.setValue( this.vertexCode )
-        this.fragmentShader.setValue( this.fragmentCode )
+        this.loadShadersCode()
 
         const editorOptions = {
             value: this.activeShader === ShaderType.Vertex ? this.vertexShader.doc : this.fragmentShader.doc,
@@ -197,7 +196,7 @@ export default Vue.extend( {
         this.editor.on( "keydown", this.handleShowHints )
         this.editor.focus()
 
-        EventBus.$on( "saveShadersCode", this.saveShadersCode )
+        EventBus.$on( "commitShadersCode", this.commitShadersCode )
     },
     methods: {
         handleShowHints( editor: Editor, event: Event ) {
@@ -302,9 +301,13 @@ export default Vue.extend( {
             document.removeEventListener( "mousedown", this.handleClicksOutside )
             this.editor.off( "scroll", this.handleScroll )
         },
-        saveShadersCode() {
+        commitShadersCode() {
             this.$store.commit( "setVertexCode", this.vertexShader.getValue() )
             this.$store.commit( "setFragmentCode", this.fragmentShader.getValue() )
+        },
+        loadShadersCode() {
+            this.vertexShader.setValue( this.vertexCode )
+            this.fragmentShader.setValue( this.fragmentCode )
         }
     }
 } )

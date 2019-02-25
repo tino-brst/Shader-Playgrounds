@@ -58,8 +58,6 @@ export default Vue.extend( {
             },
             set( newModel: string ) {
                 this.$store.commit( "setModel", newModel )
-                this.renderer.setModel( newModel )
-                this.updateErrorsAndWarnings()
             }
         },
         animation: {
@@ -68,7 +66,6 @@ export default Vue.extend( {
             },
             set( newValue: boolean ) {
                 this.$store.commit( "setAnimation", newValue )
-                this.renderer.setAnimation( newValue )
             }
         },
         wireframe: {
@@ -77,7 +74,6 @@ export default Vue.extend( {
             },
             set( newValue: boolean ) {
                 this.$store.commit( "setWireframe", newValue )
-                this.renderer.setWireframe( newValue )
             }
         },
         ...mapState( [ "textureUnitToUpdate", "vertexCode", "fragmentCode" ] )
@@ -87,15 +83,26 @@ export default Vue.extend( {
             if ( this.renderer.setTextureForUnit( newValue.texture, newValue.unit ) ) {
                 this.$store.commit( "updateTextureAssignedToTextureUnit", newValue )
             }
+        },
+        model( newValue: string ) {
+            this.renderer.setModel( newValue )
+            this.updateErrorsAndWarnings()
+        },
+        animation( newValue: boolean ) {
+            this.renderer.setAnimation( newValue )
+        },
+        wireframe( newValue: boolean ) {
+            this.renderer.setWireframe( newValue )
         }
     },
     mounted() {
         this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement, this.onGeometriesLoaded, this.onTexturesLoaded )
         this.loading = true
+
         this.availableModels = this.renderer.getAvailableModels()
-        this.model = this.availableModels[ 0 ]
         this.animation = true
         this.wireframe = true
+
         this.$store.commit( "updateTexturesAssignedToTextureUnits", this.renderer.getTexturesAssignedToTextureUnits() )
 
         EventBus.$on( "compileAndRun", this.compileAndRun )
@@ -118,6 +125,9 @@ export default Vue.extend( {
         onGeometriesLoaded() {
             this.availableModels = this.renderer.getAvailableModels()
             this.modelsLoaded = true
+
+            this.renderer.setModel( this.model )
+            this.updateErrorsAndWarnings()
         },
         onTexturesLoaded() {
             this.$store.commit( "updateAvailableTextures", this.renderer.getAvailableTextures() )

@@ -15,8 +15,11 @@
 </template>
 
 <script lang="ts">
+import fs from "fs-jetpack"
+import { remote } from "electron"
 import Vue from "vue"
 import { EventBus } from "@/event-bus"
+import { mapGetters, mapActions } from "vuex"
 import Tabs from "@/components/Tabs.vue"
 import Editor from "@/components/Editor.vue"
 import Renderer from "@/components/Renderer.vue"
@@ -26,9 +29,13 @@ import { ShaderType } from "@/scripts/renderer/_constants"
 import sampleVertexCode from "@/sample_shaders/textures.vert.glsl"
 import sampleFragmentCode from "@/sample_shaders/textures.frag.glsl"
 
+const app = remote.app
+
 const VERTEX_SHADER_KEY = "1"
 const FRAGMENT_SHADER_KEY = "2"
 const COMPILE_AND_RUN_KEY = "t"
+const SAVE_KEY = "s"
+const OPEN_KEY = "o"
 
 export default Vue.extend( {
     name: "App",
@@ -45,18 +52,22 @@ export default Vue.extend( {
             set( newValue: string ) {
                 this.$store.commit( "setActiveShader", newValue )
             }
-        }
+        },
+        ...mapGetters( [ "appState" ] )
     },
     mounted() {
         // shorcut para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl )
         window.addEventListener( "keydown", this.handleActiveShaderChange )
         window.addEventListener( "keydown", this.handleRunKey )
+        window.addEventListener( "keydown", this.handleSaveKey )
+        window.addEventListener( "keydown", this.handleOpenKey )
 
-        // levanto info de archivo y restauro estado 📥
-        this.$store.commit( "setVertexCode", sampleVertexCode )
-        this.$store.commit( "setFragmentCode", sampleFragmentCode )
-        // la app arranca tratando de compilar el codigo levantado
-        EventBus.$emit( "compileAndRun" )
+        const desktopPath = app.getPath( "desktop" )
+        const fileName = "test.shdr"
+
+        const appState = fs.read( desktopPath + "/" + fileName, "json" )
+        // @ts-ignore
+        this.loadAppState( appState )
     },
     methods: {
         // 🤔 se podrian juntar todos con un switch ( cmd + case: [ tecla del shortcut ] )
@@ -71,10 +82,36 @@ export default Vue.extend( {
         },
         handleRunKey( event: KeyboardEvent ) {
             if ( event.metaKey === true && event.key === COMPILE_AND_RUN_KEY ) {
-                EventBus.$emit( "saveShadersCode" )
+                EventBus.$emit( "commitShadersCode" )
                 EventBus.$emit( "compileAndRun" )
             }
-        }
+        },
+        handleSaveKey( event: KeyboardEvent ) {
+            if ( event.metaKey === true && event.key === SAVE_KEY ) {
+                EventBus.$emit( "commitShadersCode" )
+
+                const desktopPath = app.getPath( "desktop" )
+                const fileName = "test.shdr"
+                const appState = ( this as any ).appState
+
+                fs.writeAsync( desktopPath + "/" + fileName, appState ).then( () => {
+                    console.log( "saved!" )
+                } )
+            }
+        },
+        handleOpenKey( event: KeyboardEvent ) {
+            if ( event.metaKey === true && event.key === OPEN_KEY ) {
+                const desktopPath = app.getPath( "desktop" )
+                const fileName = "test.shdr"
+
+                fs.readAsync( desktopPath + "/" + fileName, "json" ).then( ( file ) => {
+                    const appState = file
+                    // @ts-ignore
+                    this.loadAppState( appState )
+                } )
+            }
+        },
+        ...mapActions( [ "loadAppState" ] )
     }
 } )
 </script>
