@@ -2,7 +2,7 @@
     <div
         class="checkbox"
         :class="{ checked: value, disabled }"
-        @mousedown.prevent=""
+        @mousedown.prevent
         @click="updateValue"
     >
         <span class="icon">

@@ -4,6 +4,7 @@
         <div class="options-container" ref="clickableArea">
             <div
                 class="selected"
+                @mousedown.prevent
                 @click="isActive = ! isActive"
                 :class="{ active: isActive }"
             >
@@ -17,6 +18,7 @@
                     v-for="( option, index ) in options"
                     :key="option"
                     :class="{ 'selected-option': option === value}"
+                    @mousedown.prevent
                     @click="updateValue( index )"
                 >
                     {{ option }}

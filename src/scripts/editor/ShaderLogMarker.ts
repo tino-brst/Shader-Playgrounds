@@ -1,6 +1,6 @@
 import { LineHandle } from "./codemirror/lib/codemirror"
 import { LogEntryType } from "@/scripts/renderer/InspectorLogEntry"
-import store from "@/store/store"
+import store from "@/store"
 import Shader from "./Shader"
 
 export default class ShaderLogMarker {
