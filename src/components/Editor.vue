@@ -10,6 +10,7 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { EventBus } from "@/event-bus"
 import { mapState } from "vuex"
 import Tooltip from "@/components/Tooltip.vue"
 import UniformsEditors from "@/components/uniforms_editors/UniformsEditors.ts"
@@ -176,7 +177,7 @@ export default Vue.extend( {
         this.vertexShader.setValue( this.vertexCode )
         this.fragmentShader.setValue( this.fragmentCode )
 
-        this.editor = CodeMirror( this.$refs.editor as HTMLElement, {
+        const editorOptions = {
             value: this.activeShader === ShaderType.Vertex ? this.vertexShader.doc : this.fragmentShader.doc,
             lineNumbers: true,
             indentUnit: 4,
@@ -190,9 +191,13 @@ export default Vue.extend( {
             foldGutter: true,
             foldOptions: { widget: "•••", minFoldSize: 1 },
             hintOptions: { completeSingle: false, alignWithWord: true }
-        } )
+        }
+
+        this.editor = CodeMirror( this.$refs.editor as HTMLElement, editorOptions )
         this.editor.on( "keydown", this.handleShowHints )
         this.editor.focus()
+
+        EventBus.$on( "saveShadersCode", this.saveShadersCode )
     },
     methods: {
         handleShowHints( editor: Editor, event: Event ) {
@@ -296,6 +301,10 @@ export default Vue.extend( {
             this.tooltipVisible = false
             document.removeEventListener( "mousedown", this.handleClicksOutside )
             this.editor.off( "scroll", this.handleScroll )
+        },
+        saveShadersCode() {
+            this.$store.commit( "setVertexCode", this.vertexShader.getValue() )
+            this.$store.commit( "setFragmentCode", this.fragmentShader.getValue() )
         }
     }
 } )

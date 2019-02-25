@@ -59,6 +59,7 @@ export default Vue.extend( {
         EventBus.$emit( "compileAndRun" )
     },
     methods: {
+        // 🤔 se podrian juntar todos con un switch ( cmd + case: [ tecla del shortcut ] )
         handleActiveShaderChange( event: KeyboardEvent ) {
             if ( event.metaKey === true ) {
                 if ( event.key === VERTEX_SHADER_KEY ) {
@@ -70,6 +71,7 @@ export default Vue.extend( {
         },
         handleRunKey( event: KeyboardEvent ) {
             if ( event.metaKey === true && event.key === COMPILE_AND_RUN_KEY ) {
+                EventBus.$emit( "saveShadersCode" )
                 EventBus.$emit( "compileAndRun" )
             }
         }
