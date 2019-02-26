@@ -25,10 +25,6 @@ import Editor from "@/components/Editor.vue"
 import Renderer from "@/components/Renderer.vue"
 import { ShaderType } from "@/scripts/renderer/_constants"
 
-// ⚠️ pensar cuales van a ser los valores de los shaders por defecto (si van a tener alguno)
-import sampleVertexCode from "@/sample_shaders/textures.vert.glsl"
-import sampleFragmentCode from "@/sample_shaders/textures.frag.glsl"
-
 const app = remote.app
 
 const VERTEX_SHADER_KEY = "1"
@@ -62,12 +58,12 @@ export default Vue.extend( {
         window.addEventListener( "keydown", this.handleSaveKey )
         window.addEventListener( "keydown", this.handleOpenKey )
 
-        const desktopPath = app.getPath( "desktop" )
-        const fileName = "test.shdr"
+        // const desktopPath = app.getPath( "desktop" )
+        // const fileName = "test.shdr"
 
-        const appState = fs.read( desktopPath + "/" + fileName, "json" )
-        // @ts-ignore
-        this.loadAppState( appState )
+        // const appState = fs.read( desktopPath + "/" + fileName, "json" )
+        // // @ts-ignore
+        // this.loadAppState( appState )
     },
     methods: {
         // 🤔 se podrian juntar todos con un switch ( cmd + case: [ tecla del shortcut ] )
@@ -105,9 +101,11 @@ export default Vue.extend( {
                 const fileName = "test.shdr"
 
                 fs.readAsync( desktopPath + "/" + fileName, "json" ).then( ( file ) => {
+                    console.log( "opened!" )
                     const appState = file
                     // @ts-ignore
                     this.loadAppState( appState )
+                    EventBus.$emit( "compileAndRun" )
                 } )
             }
         },

@@ -16,7 +16,7 @@ export class RendererState {
         this.gl = gl
         this.currentlyEnabledVertexAttributes = new Set()
         this.previouslyEnabledVertexAttributes = new Set()
-        this.drawMode = DrawMode.Triangles
+        this.drawMode = DrawMode.Lines
         this.drawBufferNeedsUpdate = true
         this.attributeBuffersNeedUpdate = true
         this.animationsEnabled = true

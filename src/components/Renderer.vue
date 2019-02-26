@@ -100,6 +100,7 @@ export default Vue.extend( {
         this.loading = true
 
         this.availableModels = this.renderer.getAvailableModels()
+        this.model = this.availableModels[ 0 ]
         this.animation = true
         this.wireframe = true
 

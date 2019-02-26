@@ -7,14 +7,23 @@ import { ShaderLog } from "@/scripts/editor/Shader"
 
 Vue.use( Vuex )
 
+interface AppState {
+    vertex: string,
+    fragment: string,
+    activeShader: ShaderType,
+    model: string,
+    animations: boolean,
+    wireframe: boolean
+}
+
 export default new Vuex.Store( {
     state: {
-        vertexCode: null as string | null,
-        fragmentCode: null as string | null,
-        activeShader: null as ShaderType | null,
-        model: null as string | null,
-        animation: null as boolean | null,
-        wireframe: null as boolean | null,
+        vertexCode: "",
+        fragmentCode: "",
+        activeShader: ShaderType.Vertex,
+        model: "" as string,
+        animation: true as boolean,
+        wireframe: true as boolean,
         vertexLog: { errors: [], warnings: [] } as ShaderLog,
         fragmentLog: { errors: [], warnings: [] } as ShaderLog,
         uniformsEditors: [] as UniformEditor[],
@@ -100,15 +109,11 @@ export default new Vuex.Store( {
             } else {
                 state.fragmentLog = { errors, warnings }
             }
-        },
-        loadAppState( state, appState ) {
-            state.vertexCode = appState.vertex
-            state.fragmentCode = appState.fragment
         }
     },
     getters: {
         appState( state ) {
-            const appState = {
+            const appState: AppState = {
                 vertex: state.vertexCode,
                 fragment: state.fragmentCode,
                 activeShader: state.activeShader,
@@ -121,7 +126,7 @@ export default new Vuex.Store( {
         }
     },
     actions: {
-        loadAppState( context, appState ) {
+        loadAppState( context, appState: AppState ) {
             context.commit( "setVertexCode", appState.vertex )
             context.commit( "setFragmentCode", appState.fragment )
             context.commit( "setActiveShader", appState.activeShader )
