@@ -116,12 +116,10 @@ export default Vue.extend( {
             this.updateUniformsEditors()
         },
         updateErrorsAndWarnings() {
-            const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
-            this.$store.commit( "updateLog", errorsAndWarnings )
+            this.$store.commit( "updateLog", this.renderer.getErrorsAndWarnings() )
         },
         updateUniformsEditors() {
-            const uniformsEditors = this.renderer.getUniformsEditors()
-            this.$store.commit( "updateUniformsEditors", uniformsEditors )
+            this.$store.commit( "updateUniformsEditors", this.renderer.getUniformsEditors() )
         },
         onGeometriesLoaded() {
             this.availableModels = this.renderer.getAvailableModels()

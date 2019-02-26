@@ -71,8 +71,8 @@ export default new Vuex.Store( {
             state.vertexLog = vertexLog
             state.fragmentLog = fragmentLog
         },
-        updateUniformsEditors( state, newEditors: Map <string, UniformEditor> ) {
-            state.uniformsEditors = Array.from( newEditors.values() )
+        updateUniformsEditors( state, newEditors: UniformEditor[] ) {
+            state.uniformsEditors = newEditors
         },
         updateAvailableTextures( state, newTextures: string[] ) {
             state.availableTextures = newTextures

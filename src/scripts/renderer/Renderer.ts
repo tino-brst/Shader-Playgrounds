@@ -97,7 +97,6 @@ export class Renderer {
         const programWasUsable = this.program.usable
 
         this.program.setShadersSourceAndLink( vertexSaderSource, fragmentShaderSource )
-        this.clearUniformsCacheAndEditors()
 
         if ( this.program.usable ) {
             this.program.use()
@@ -150,7 +149,7 @@ export class Renderer {
     }
 
     public getUniformsEditors() {
-        return this.uniformsEditors
+        return this.program.usable ? Array.from( this.uniformsEditors.values() ) : []
     }
 
     public getAvailableModels() {
@@ -291,6 +290,8 @@ export class Renderer {
     }
 
     private updateUniformsCacheAndEditors( uniformsInfo: Map < string, string > ) {
+        this.clearUniformsCacheAndEditors()
+
         for ( const [ name, type ] of uniformsInfo ) {
             if ( type in ShaderVariableType ) {
                 const cachedValue = this.uniformsCache.add( name, type as ShaderVariableType )
