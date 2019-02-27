@@ -55,8 +55,8 @@ export default class Shader {
 
     // 👥 Metodos Publicos
 
-    public setValue( value: string ) {
-        this.doc.setValue( value || "" )
+    public setValue( value: string = "" ) {
+        this.doc.setValue( value )
         this.doc.clearHistory()
     }
 

@@ -4,7 +4,7 @@
         <div class="panels">
             <div class="left-panel">
                 <v-tabs v-model="activeShader" />
-                <v-editor />
+                <v-editor :active-shader="activeShader" />
                 <div class="toolbar" />
             </div>
             <div class="right-panel">
@@ -40,30 +40,16 @@ export default Vue.extend( {
         "v-renderer": Renderer,
         "v-tabs": Tabs
     },
-    computed: {
-        activeShader: {
-            get(): string {
-                return this.$store.state.activeShader
-            },
-            set( newValue: string ) {
-                this.$store.commit( "setActiveShader", newValue )
-            }
-        },
-        ...mapGetters( [ "appState" ] )
-    },
+    data: () => ( {
+        activeShader: ShaderType.Vertex
+    } ),
     mounted() {
         // shorcut para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl )
+        // cambiar a "keypress" ⌨️ ❗️
         window.addEventListener( "keydown", this.handleActiveShaderChange )
         window.addEventListener( "keydown", this.handleRunKey )
-        window.addEventListener( "keydown", this.handleSaveKey )
-        window.addEventListener( "keydown", this.handleOpenKey )
-
-        // const desktopPath = app.getPath( "desktop" )
-        // const fileName = "test.shdr"
-
-        // const appState = fs.read( desktopPath + "/" + fileName, "json" )
-        // // @ts-ignore
-        // this.loadAppState( appState )
+        // window.addEventListener( "keydown", this.handleSaveKey )
+        // window.addEventListener( "keydown", this.handleOpenKey )
     },
     methods: {
         // 🤔 se podrian juntar todos con un switch ( cmd + case: [ tecla del shortcut ] )
@@ -81,35 +67,35 @@ export default Vue.extend( {
                 EventBus.$emit( "commitShadersCode" )
                 EventBus.$emit( "compileAndRun" )
             }
-        },
-        handleSaveKey( event: KeyboardEvent ) {
-            if ( event.metaKey === true && event.key === SAVE_KEY ) {
-                EventBus.$emit( "commitShadersCode" )
+        }
+        // handleSaveKey( event: KeyboardEvent ) {
+        //     if ( event.metaKey === true && event.key === SAVE_KEY ) {
+        //         EventBus.$emit( "commitShadersCode" )
 
-                const desktopPath = app.getPath( "desktop" )
-                const fileName = "test.shdr"
-                const appState = ( this as any ).appState
+        //         const desktopPath = app.getPath( "desktop" )
+        //         const fileName = "test.shdr"
+        //         const appState = ( this as any ).appState
 
-                fs.writeAsync( desktopPath + "/" + fileName, appState ).then( () => {
-                    console.log( "saved!" )
-                } )
-            }
-        },
-        handleOpenKey( event: KeyboardEvent ) {
-            if ( event.metaKey === true && event.key === OPEN_KEY ) {
-                const desktopPath = app.getPath( "desktop" )
-                const fileName = "test.shdr"
+        //         fs.writeAsync( desktopPath + "/" + fileName, appState ).then( () => {
+        //             console.log( "saved!" )
+        //         } )
+        //     }
+        // },
+        // handleOpenKey( event: KeyboardEvent ) {
+        //     if ( event.metaKey === true && event.key === OPEN_KEY ) {
+        //         const desktopPath = app.getPath( "desktop" )
+        //         const fileName = "test.shdr"
 
-                fs.readAsync( desktopPath + "/" + fileName, "json" ).then( ( file ) => {
-                    console.log( "opened!" )
-                    const appState = file
-                    // @ts-ignore
-                    this.loadAppState( appState )
-                    EventBus.$emit( "compileAndRun" )
-                } )
-            }
-        },
-        ...mapActions( [ "loadAppState" ] )
+        //         fs.readAsync( desktopPath + "/" + fileName, "json" ).then( ( file ) => {
+        //             console.log( "opened!" )
+        //             const appState = file
+        //             // @ts-ignore
+        //             this.loadAppState( appState )
+        //             EventBus.$emit( "compileAndRun" )
+        //         } )
+        //     }
+        // },
+        // ...mapActions( [ "loadAppState" ] )
     }
 } )
 </script>

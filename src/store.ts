@@ -5,25 +5,23 @@ import { ShaderType } from "@/scripts/renderer/_constants"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import { ShaderLog } from "@/scripts/editor/Shader"
 
-Vue.use( Vuex )
-
-interface AppState {
+export interface EditorState {
     vertex: string,
     fragment: string,
-    activeShader: ShaderType,
+    activeShader: ShaderType
+}
+export interface RendererState {
     model: string,
     animations: boolean,
     wireframe: boolean
 }
 
+Vue.use( Vuex )
+
 export default new Vuex.Store( {
     state: {
-        vertexCode: "",
-        fragmentCode: "",
-        activeShader: ShaderType.Vertex,
-        model: "" as string,
-        animation: true as boolean,
-        wireframe: true as boolean,
+        editor: {} as EditorState,
+        renderer: {} as RendererState,
         vertexLog: { errors: [], warnings: [] } as ShaderLog,
         fragmentLog: { errors: [], warnings: [] } as ShaderLog,
         uniformsEditors: [] as UniformEditor[],
@@ -32,23 +30,9 @@ export default new Vuex.Store( {
         textureUnitToUpdate: { unit: 0, texture: "" }
     },
     mutations: {
-        setVertexCode( state, newValue ) {
-            state.vertexCode = newValue
-        },
-        setFragmentCode( state, newValue ) {
-            state.fragmentCode = newValue
-        },
-        setActiveShader( state, newValue ) {
-            state.activeShader = newValue
-        },
-        setModel( state, newModel: string ) {
-            state.model = newModel
-        },
-        setAnimation( state, newValue: boolean ) {
-            state.animation = newValue
-        },
-        setWireframe( state, newValue: boolean ) {
-            state.wireframe = newValue
+        updateShadersCode( state, { vertex, fragment } ) {
+            Vue.set( state.editor, "vertex", vertex )
+            Vue.set( state.editor, "fragment", fragment )
         },
         updateLog( state, newEntries: InspectorLogEntry[] ) {
             const vertexLog: ShaderLog = { errors: [], warnings: [] }
@@ -112,27 +96,11 @@ export default new Vuex.Store( {
         }
     },
     getters: {
-        appState( state ) {
-            const appState: AppState = {
-                vertex: state.vertexCode,
-                fragment: state.fragmentCode,
-                activeShader: state.activeShader,
-                model: state.model,
-                animations: state.animation,
-                wireframe: state.wireframe
-            }
-
-            return appState
-        }
-    },
-    actions: {
-        loadAppState( context, appState: AppState ) {
-            context.commit( "setVertexCode", appState.vertex )
-            context.commit( "setFragmentCode", appState.fragment )
-            context.commit( "setActiveShader", appState.activeShader )
-            context.commit( "setModel", appState.model )
-            context.commit( "setAnimation", appState.animations )
-            context.commit( "setWireframe", appState.wireframe )
+        vertex( state ) {
+            return state.editor.vertex
+        },
+        fragment( state ) {
+            return state.editor.fragment
         }
     }
 } )

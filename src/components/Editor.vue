@@ -31,6 +31,9 @@ import "@/scripts/editor/codemirror/addon/fold/comment-fold"
 import "@/scripts/editor/codemirror/addon/hint/show-hint"
 import "@/scripts/editor/codemirror/addon/hint/glsl-hint"
 
+import sampleVertex from "@/sample_shaders/textures.vert.glsl"
+import sampleFragment from "@/sample_shaders/textures.frag.glsl"
+
 const TOOLS_KEY = "Alt"
 
 interface Uniform {
@@ -53,24 +56,24 @@ export default Vue.extend( {
         "v-uniform-editor-sampler2D": UniformsEditors.sampler2D,
         "v-uniform-editor-others": UniformsEditors.others
     },
+    props: {
+        activeShader: {
+            type: String,
+            default: ShaderType.Vertex
+        }
+    },
     data: () => ( {
         editor: {} as Editor,
         vertexShader: new Shader( ShaderType.Vertex ),
         fragmentShader: new Shader( ShaderType.Fragment ),
         uniformsBasic: new Map() as Map <string, UniformEditor>,
         uniformsStruct: new Map() as Map <string, Map <string, UniformEditor> >,
-        shaderChangedSinceLastUpdate: false,
+        shaderChangedSinceLastUpdate: false, // ⚠️ ver que codemirror tiene un "clean" para docs que se puede usar
         lastUniformSelected: {} as Uniform,
         tooltipTarget: document.createElement( "span" ) as HTMLElement,
         tooltipVisible: false
     } ),
-    computed: mapState( {
-        activeShader: ( state: any ) => state.activeShader as ShaderType,
-        vertexCode: ( state: any ) => state.vertexCode as string,
-        fragmentCode: ( state: any ) => state.fragmentCode as string,
-        vertexLog: ( state: any ) => state.vertexLog as ShaderLog,
-        fragmentLog: ( state: any ) => state.fragmentLog as ShaderLog,
-        uniformsEditors: ( state: any ) => state.uniformsEditors as UniformEditor[],
+    computed: {
         editorTypeComponent(): string {
             if ( this.lastUniformSelected.editor ) {
                 let component = "v-uniform-editor-"
@@ -104,8 +107,9 @@ export default Vue.extend( {
             } else {
                 return ""
             }
-        }
-    } ),
+        },
+        ...mapState( [ "vertexLog", "fragmentLog", "uniformsEditors" ] )
+    },
     watch: {
         activeShader( newValue: ShaderType ) {
             // cierro code-hints, tooltips, etc en caso de estar activas
@@ -123,15 +127,11 @@ export default Vue.extend( {
                 newActiveShader.enableUniformsTools( this.uniformsBasic, this.uniformsStruct, this.editor )
             }
         },
-        vertexCode( newValue: string ) {
-            if ( newValue !== this.vertexShader.getValue() ) {
-                this.vertexShader.setValue( newValue )
-            }
+        vertexLog( newLog: ShaderLog ) {
+            this.vertexShader.setLog( newLog )
         },
-        fragmentCode( newValue: string ) {
-            if ( newValue !== this.fragmentShader.getValue() ) {
-                this.fragmentShader.setValue( newValue )
-            }
+        fragmentLog( newLog: ShaderLog ) {
+            this.fragmentShader.setLog( newLog )
         },
         uniformsEditors( newEditors: UniformEditor[] ) {
             this.shaderChangedSinceLastUpdate = false
@@ -165,16 +165,12 @@ export default Vue.extend( {
                 window.removeEventListener( "keyup", this.handleToolsKey )
                 window.removeEventListener( "blur", this.hideTooltip )
             }
-        },
-        vertexLog( newLog: ShaderLog ) {
-            this.vertexShader.setLog( newLog )
-        },
-        fragmentLog( newLog: ShaderLog ) {
-            this.fragmentShader.setLog( newLog )
         }
     },
     mounted() {
-        this.loadShadersCode()
+        // ❗️ codigo inicial de shaders debugging
+        // this.vertexShader.setValue( sampleVertex )
+        // this.fragmentShader.setValue( sampleFragment )
 
         const editorOptions = {
             value: this.activeShader === ShaderType.Vertex ? this.vertexShader.doc : this.fragmentShader.doc,
@@ -302,12 +298,9 @@ export default Vue.extend( {
             this.editor.off( "scroll", this.handleScroll )
         },
         commitShadersCode() {
-            this.$store.commit( "setVertexCode", this.vertexShader.getValue() )
-            this.$store.commit( "setFragmentCode", this.fragmentShader.getValue() )
-        },
-        loadShadersCode() {
-            this.vertexShader.setValue( this.vertexCode )
-            this.fragmentShader.setValue( this.fragmentCode )
+            const vertex = this.vertexShader.getValue()
+            const fragment = this.fragmentShader.getValue()
+            this.$store.commit( "updateShadersCode", { vertex, fragment } )
         }
     }
 } )

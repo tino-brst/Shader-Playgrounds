@@ -9,7 +9,7 @@
                     model:
                 </v-select>
                 <div class="toolbar-space-flex" />
-                <v-checkbox v-model="animation">
+                <v-checkbox v-model="animations">
                     <template slot="icon">
                         <v-refresh-cw-icon />
                     </template>
@@ -32,7 +32,7 @@ import Select from "@/components/Select.vue"
 import Checkbox from "@/components/Checkbox.vue"
 import ProgressBar from "@/components/ProgressBar.vue"
 import { Renderer } from "@/scripts/renderer/Renderer"
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 const { RefreshCwIcon, BoxIcon } = require( "vue-feather-icons" )
 
 export default Vue.extend( {
@@ -47,36 +47,16 @@ export default Vue.extend( {
     data: () => ( {
         renderer: {} as Renderer,
         availableModels: [] as string[],
+        model: "",
+        animations: true,
+        wireframe: true,
         loading: false,
         modelsLoaded: false,
         texturesLoaded: false
     } ),
     computed: {
-        model: {
-            get(): string {
-                return this.$store.state.model
-            },
-            set( newModel: string ) {
-                this.$store.commit( "setModel", newModel )
-            }
-        },
-        animation: {
-            get(): boolean {
-                return this.$store.state.animation
-            },
-            set( newValue: boolean ) {
-                this.$store.commit( "setAnimation", newValue )
-            }
-        },
-        wireframe: {
-            get(): boolean {
-                return this.$store.state.wireframe
-            },
-            set( newValue: boolean ) {
-                this.$store.commit( "setWireframe", newValue )
-            }
-        },
-        ...mapState( [ "textureUnitToUpdate", "vertexCode", "fragmentCode" ] )
+        ...mapState( [ "textureUnitToUpdate" ] ),
+        ...mapGetters( [ "vertex", "fragment" ] )
     },
     watch: {
         textureUnitToUpdate( newValue: { unit: number, texture: string } ) {
@@ -88,7 +68,7 @@ export default Vue.extend( {
             this.renderer.setModel( newValue )
             this.updateErrorsAndWarnings()
         },
-        animation( newValue: boolean ) {
+        animations( newValue: boolean ) {
             this.renderer.setAnimation( newValue )
         },
         wireframe( newValue: boolean ) {
@@ -101,7 +81,7 @@ export default Vue.extend( {
 
         this.availableModels = this.renderer.getAvailableModels()
         this.model = this.availableModels[ 0 ]
-        this.animation = true
+        this.animations = true
         this.wireframe = true
 
         this.$store.commit( "updateTexturesAssignedToTextureUnits", this.renderer.getTexturesAssignedToTextureUnits() )
@@ -110,8 +90,7 @@ export default Vue.extend( {
     },
     methods: {
         compileAndRun() {
-            // @ts-ignore
-            this.renderer.setShaderProgram( this.vertexCode, this.fragmentCode )
+            this.renderer.setShaderProgram( this.vertex, this.fragment )
             this.updateErrorsAndWarnings()
             this.updateUniformsEditors()
         },
