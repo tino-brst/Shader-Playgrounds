@@ -25,16 +25,13 @@ export class UniformsCache {
 
     // 👥  Metodos Publicos
 
-    public add( name: string, type: ShaderVariableType ) {
+    public add( name: string, type: ShaderVariableType, value?: any ) {
         const key = this.toString( name, type )
-
-        let value
-
         const defaultValue = this.defaults.get( key )
 
         if ( defaultValue !== undefined ) {
             value = defaultValue.value
-        } else {
+        } else if ( value === undefined ) {
             const previousValue = this.previousContent.get( key )
 
             if ( previousValue !== undefined ) {

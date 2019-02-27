@@ -144,6 +144,16 @@ export class Renderer {
         this.state.animationsEnabled = enabled
     }
 
+    public setUniformsState( uniforms: { name: string, type: ShaderVariableType, value: any }[] ) {
+        for ( let uniform of uniforms ) {
+            const name = uniform.name
+            const type = uniform.type
+            const value = uniform.value instanceof Array ? new Float32Array( uniform.value ) : uniform.value
+
+            this.uniformsCache.add( name, type, value )
+        }
+    }
+
     public getErrorsAndWarnings() {
         return this.inspector.checkForErrorsAndWarnings( this.program )
     }
