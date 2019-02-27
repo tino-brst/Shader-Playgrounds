@@ -33,6 +33,7 @@ import Checkbox from "@/components/Checkbox.vue"
 import ProgressBar from "@/components/ProgressBar.vue"
 import { Renderer } from "@/scripts/renderer/Renderer"
 import { mapState, mapGetters } from "vuex"
+import { RendererState } from "@/store"
 const { RefreshCwIcon, BoxIcon } = require( "vue-feather-icons" )
 
 export default Vue.extend( {
@@ -87,6 +88,8 @@ export default Vue.extend( {
         this.$store.commit( "updateTexturesAssignedToTextureUnits", this.renderer.getTexturesAssignedToTextureUnits() )
 
         EventBus.$on( "compileAndRun", this.compileAndRun )
+        EventBus.$on( "commitState", this.commitState )
+        EventBus.$on( "loadState", this.loadState )
     },
     methods: {
         compileAndRun() {
@@ -110,6 +113,22 @@ export default Vue.extend( {
         onTexturesLoaded() {
             this.$store.commit( "updateAvailableTextures", this.renderer.getAvailableTextures() )
             this.texturesLoaded = true
+        },
+        commitState() {
+            const rendererState: RendererState = {
+                model: this.model,
+                animations: this.animations,
+                wireframe: this.wireframe
+            }
+
+            this.$store.commit( "updateRendererState", rendererState )
+        },
+        loadState() {
+            const rendererState = this.$store.state.renderer as RendererState
+
+            this.model = rendererState.model
+            this.animations = rendererState.animations
+            this.wireframe = rendererState.wireframe
         }
     }
 } )

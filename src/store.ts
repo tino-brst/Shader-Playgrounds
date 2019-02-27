@@ -30,6 +30,12 @@ export default new Vuex.Store( {
         textureUnitToUpdate: { unit: 0, texture: "" }
     },
     mutations: {
+        updateEditorState( state, editorState: EditorState ) {
+            state.editor = editorState
+        },
+        updateRendererState( state, rendererState: RendererState ) {
+            state.renderer = rendererState
+        },
         updateShadersCode( state, { vertex, fragment } ) {
             Vue.set( state.editor, "vertex", vertex )
             Vue.set( state.editor, "fragment", fragment )
@@ -101,6 +107,9 @@ export default new Vuex.Store( {
         },
         fragment( state ) {
             return state.editor.fragment
+        },
+        activeShader( state ) {
+            return state.editor.activeShader
         }
     }
 } )

@@ -11,7 +11,7 @@
 <script lang="ts">
 import Vue from "vue"
 import { EventBus } from "@/event-bus"
-import { mapState } from "vuex"
+import { mapState, mapGetters } from "vuex"
 import Tooltip from "@/components/Tooltip.vue"
 import UniformsEditors from "@/components/uniforms_editors/UniformsEditors.ts"
 import { ShaderType, ShaderVariableType } from "@/scripts/renderer/_constants"
@@ -33,6 +33,7 @@ import "@/scripts/editor/codemirror/addon/hint/glsl-hint"
 
 import sampleVertex from "@/sample_shaders/textures.vert.glsl"
 import sampleFragment from "@/sample_shaders/textures.frag.glsl"
+import { EditorState } from "@/store"
 
 const TOOLS_KEY = "Alt"
 
@@ -108,7 +109,8 @@ export default Vue.extend( {
                 return ""
             }
         },
-        ...mapState( [ "vertexLog", "fragmentLog", "uniformsEditors" ] )
+        ...mapState( [ "vertexLog", "fragmentLog", "uniformsEditors" ] ),
+        ...mapGetters( [ "vertex", "fragment" ] )
     },
     watch: {
         activeShader( newValue: ShaderType ) {
@@ -193,6 +195,8 @@ export default Vue.extend( {
         this.editor.focus()
 
         EventBus.$on( "commitShadersCode", this.commitShadersCode )
+        EventBus.$on( "commitState", this.commitState )
+        EventBus.$on( "loadState", this.loadState )
     },
     methods: {
         handleShowHints( editor: Editor, event: Event ) {
@@ -301,6 +305,21 @@ export default Vue.extend( {
             const vertex = this.vertexShader.getValue()
             const fragment = this.fragmentShader.getValue()
             this.$store.commit( "updateShadersCode", { vertex, fragment } )
+        },
+        commitState() {
+            const editorState: EditorState = {
+                vertex: this.vertexShader.getValue(),
+                fragment: this.fragmentShader.getValue(),
+                activeShader: this.activeShader as ShaderType
+            }
+
+            this.$store.commit( "updateEditorState", editorState )
+        },
+        loadState() {
+            const editorState = this.$store.state.editor as EditorState
+
+            this.vertexShader.setValue( editorState.vertex )
+            this.fragmentShader.setValue( editorState.fragment )
         }
     }
 } )

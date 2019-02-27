@@ -24,8 +24,14 @@ import Tabs from "@/components/Tabs.vue"
 import Editor from "@/components/Editor.vue"
 import Renderer from "@/components/Renderer.vue"
 import { ShaderType } from "@/scripts/renderer/_constants"
+import { RendererState, EditorState } from "@/store"
 
 const app = remote.app
+
+interface AppState {
+    renderer: RendererState,
+    editor: EditorState
+}
 
 const VERTEX_SHADER_KEY = "1"
 const FRAGMENT_SHADER_KEY = "2"
@@ -48,8 +54,8 @@ export default Vue.extend( {
         // cambiar a "keypress" ⌨️ ❗️
         window.addEventListener( "keydown", this.handleActiveShaderChange )
         window.addEventListener( "keydown", this.handleRunKey )
-        // window.addEventListener( "keydown", this.handleSaveKey )
-        // window.addEventListener( "keydown", this.handleOpenKey )
+        window.addEventListener( "keydown", this.handleSaveKey )
+        window.addEventListener( "keydown", this.handleOpenKey )
     },
     methods: {
         // 🤔 se podrian juntar todos con un switch ( cmd + case: [ tecla del shortcut ] )
@@ -67,35 +73,44 @@ export default Vue.extend( {
                 EventBus.$emit( "commitShadersCode" )
                 EventBus.$emit( "compileAndRun" )
             }
+        },
+        handleSaveKey( event: KeyboardEvent ) {
+            if ( event.metaKey === true && event.key === SAVE_KEY ) {
+                EventBus.$emit( "commitState" )
+
+                const desktopPath = app.getPath( "desktop" )
+                const fileName = "test.shdr"
+
+                const appState: AppState = {
+                    renderer: this.$store.state.renderer,
+                    editor: this.$store.state.editor
+                }
+
+                fs.writeAsync( desktopPath + "/" + fileName, appState ).then( () => {
+                    console.log( "saved!" )
+                } )
+            }
+        },
+        handleOpenKey( event: KeyboardEvent ) {
+            if ( event.metaKey === true && event.key === OPEN_KEY ) {
+                const desktopPath = app.getPath( "desktop" )
+                const fileName = "test.shdr"
+
+                fs.readAsync( desktopPath + "/" + fileName, "json" ).then( ( file ) => {
+                    console.log( "opened!" )
+                    const appState: AppState = file
+
+                    this.$store.commit( "updateEditorState", appState.editor )
+                    this.$store.commit( "updateRendererState", appState.renderer )
+
+                    // @ts-ignore
+                    this.activeShader = this.$store.getters.activeShader
+
+                    EventBus.$emit( "loadState" )
+                    EventBus.$emit( "compileAndRun" )
+                } )
+            }
         }
-        // handleSaveKey( event: KeyboardEvent ) {
-        //     if ( event.metaKey === true && event.key === SAVE_KEY ) {
-        //         EventBus.$emit( "commitShadersCode" )
-
-        //         const desktopPath = app.getPath( "desktop" )
-        //         const fileName = "test.shdr"
-        //         const appState = ( this as any ).appState
-
-        //         fs.writeAsync( desktopPath + "/" + fileName, appState ).then( () => {
-        //             console.log( "saved!" )
-        //         } )
-        //     }
-        // },
-        // handleOpenKey( event: KeyboardEvent ) {
-        //     if ( event.metaKey === true && event.key === OPEN_KEY ) {
-        //         const desktopPath = app.getPath( "desktop" )
-        //         const fileName = "test.shdr"
-
-        //         fs.readAsync( desktopPath + "/" + fileName, "json" ).then( ( file ) => {
-        //             console.log( "opened!" )
-        //             const appState = file
-        //             // @ts-ignore
-        //             this.loadAppState( appState )
-        //             EventBus.$emit( "compileAndRun" )
-        //         } )
-        //     }
-        // },
-        // ...mapActions( [ "loadAppState" ] )
     }
 } )
 </script>
