@@ -152,6 +152,23 @@ export class Renderer {
         return this.program.usable ? Array.from( this.uniformsEditors.values() ) : []
     }
 
+    public getUniformsState() {
+        const uniformsState: { name: string, type: ShaderVariableType, value: any }[] = []
+
+        if ( this.program.usable ) {
+            for ( let [ name, editor ] of this.uniformsEditors ) {
+                if ( ! editor.locked ) {
+                    const type = editor.type
+                    const rawValue = editor.getValue()
+                    const value = rawValue instanceof Float32Array ? Array.from( rawValue ) : rawValue
+                    uniformsState.push( { name, type, value } )
+                }
+            }
+        }
+
+        return uniformsState
+    }
+
     public getAvailableModels() {
         return this.geometriesManager.getAvailableGeometries()
     }
