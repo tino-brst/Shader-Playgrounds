@@ -118,7 +118,8 @@ export default Vue.extend( {
             const rendererState: RendererState = {
                 model: this.model,
                 animations: this.animations,
-                wireframe: this.wireframe
+                wireframe: this.wireframe,
+                uniforms: this.renderer.getUniformsState()
             }
 
             this.$store.commit( "updateRendererState", rendererState )
@@ -129,6 +130,7 @@ export default Vue.extend( {
             this.model = rendererState.model
             this.animations = rendererState.animations
             this.wireframe = rendererState.wireframe
+            this.renderer.setUniformsState( rendererState.uniforms )
         }
     }
 } )

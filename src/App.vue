@@ -103,7 +103,6 @@ export default Vue.extend( {
                     this.$store.commit( "updateEditorState", appState.editor )
                     this.$store.commit( "updateRendererState", appState.renderer )
 
-                    // @ts-ignore
                     this.activeShader = this.$store.getters.activeShader
 
                     EventBus.$emit( "loadState" )

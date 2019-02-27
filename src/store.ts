@@ -4,6 +4,7 @@ import { InspectorLogEntry, LogEntryType } from "@/scripts/renderer/InspectorLog
 import { ShaderType } from "@/scripts/renderer/_constants"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import { ShaderLog } from "@/scripts/editor/Shader"
+import { UniformState } from "./scripts/renderer/UniformsCache"
 
 export interface EditorState {
     vertex: string,
@@ -13,7 +14,8 @@ export interface EditorState {
 export interface RendererState {
     model: string,
     animations: boolean,
-    wireframe: boolean
+    wireframe: boolean,
+    uniforms: UniformState[]
 }
 
 Vue.use( Vuex )

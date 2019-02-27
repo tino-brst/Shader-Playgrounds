@@ -9,7 +9,7 @@ import { RendererState } from "./RendererState"
 import { ShaderVariableType, DrawMode } from "./_constants"
 import { TexturesManager } from "./TexturesManager"
 import { UniformEditor } from "./UniformEditor"
-import { UniformsCache } from "./UniformsCache"
+import { UniformsCache, UniformState } from "./UniformsCache"
 import { VertexAttribute, Uniform } from "./ShaderInputs"
 import { VertexAttributeBuffer } from "./Buffers"
 import defaultFragmentShaderSource from "./defaults/default.frag.glsl"
@@ -144,7 +144,7 @@ export class Renderer {
         this.state.animationsEnabled = enabled
     }
 
-    public setUniformsState( uniforms: { name: string, type: ShaderVariableType, value: any }[] ) {
+    public setUniformsState( uniforms: UniformState[] ) {
         for ( let uniform of uniforms ) {
             const name = uniform.name
             const type = uniform.type
@@ -163,7 +163,7 @@ export class Renderer {
     }
 
     public getUniformsState() {
-        const uniformsState: { name: string, type: ShaderVariableType, value: any }[] = []
+        const uniformsState: UniformState[] = []
 
         if ( this.program.usable ) {
             for ( let [ name, editor ] of this.uniformsEditors ) {

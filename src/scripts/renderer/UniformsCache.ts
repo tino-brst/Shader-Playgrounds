@@ -4,6 +4,11 @@ import { ShaderInput } from "./ShaderInputs"
 export interface IValueReference {
     value: any
 }
+export interface UniformState {
+    name: string,
+    type: ShaderVariableType,
+    value: any
+}
 
 export class UniformsCache {
     private defaults: Map < string, IValueReference >
