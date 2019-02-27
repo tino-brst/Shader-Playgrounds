@@ -52,7 +52,7 @@ export default Vue.extend( {
     data: () => ( {
         selectedUnit: 0,
         highlightSelected: false,
-        highlightSelectedTimeout: {} as NodeJS.Timeout
+        highlightSelectedTimeout: null as any
     } ),
     computed: mapState( [ "availableTextures", "texturesAssignedToTextureUnits" ] ),
     watch: {
