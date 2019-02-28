@@ -47,6 +47,14 @@ export default Vue.extend( {
             this.editor.setValue( this.vec3 )
         },
         editor() {
+            this.loadValue()
+        }
+    },
+    activated() {
+        this.loadValue()
+    },
+    methods: {
+        loadValue() {
             this.vec3 = this.editor.getValue() as Float32Array
             [ this.x, this.y, this.z ] = this.vec3
         }

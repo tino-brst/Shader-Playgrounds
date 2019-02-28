@@ -31,6 +31,9 @@ export default Vue.extend( {
         editor() {
             this.value = this.editor.getValue()
         }
+    },
+    activated() {
+        this.value = this.editor.getValue()
     }
 } )
 </script>

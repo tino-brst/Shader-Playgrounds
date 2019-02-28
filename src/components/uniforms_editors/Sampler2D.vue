@@ -63,7 +63,7 @@ export default Vue.extend( {
             this.selectedUnit = this.editor.getValue()
         }
     },
-    mounted() {
+    activated() {
         this.selectedUnit = this.editor.getValue()
     },
     methods: {
