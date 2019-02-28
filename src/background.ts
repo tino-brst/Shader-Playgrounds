@@ -28,12 +28,15 @@ function createWindow() {
     if ( isDevelopment || process.env.IS_TEST ) {
         // Load the url of the dev server if in development mode
         win.loadURL( process.env.WEBPACK_DEV_SERVER_URL as string )
-        if ( ! process.env.IS_TEST ) win.webContents.openDevTools()
+        // if ( ! process.env.IS_TEST ) win.webContents.openDevTools() // 👈🏼
     } else {
         createProtocol( "app" )
         // Load the index.html when not in development
         win.loadURL( "app://./index.html" )
     }
+
+    // devTools always open (when app ready, delete this and uncomment pointed line)
+    win.webContents.openDevTools()
 
     win.on( "closed", () => {
         win = null

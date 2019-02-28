@@ -13,7 +13,7 @@
   "dependencies": {
     "fuzzysort": "1.1.4",
     "gl-matrix": "2.8.1",
-    "glsl-transpiler": "https://github.com/AgustinBrst/glsl-transpiler.git",
+    "glsl-transpiler": "git+https://github.com/AgustinBrst/glsl-transpiler.git",
     "jimp": "0.6.0",
     "vue": "2.6.6",
     "vue-feather-icons": "4.10.0",

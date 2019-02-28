@@ -44,25 +44,19 @@ export class Shader {
     // ✋🏼  Metodos Privados
 
     private parseItems() {
-        // console.time( "parse" )
-
         const transpile = transpiler()
 
         let shaderItems
 
         try {
             transpile( this.source )
-
             shaderItems = transpile.compiler
         } catch ( error ) {
             const message = `%c❱ %cCould not parse GLSL code %c(${ error })`
             const styles = [ "color: crimson; font-weight: bold;", "font-weight: bold;", "color: gray;" ]
-
             console.log( message, ...styles )
         }
 
         this.items = shaderItems
-
-        // console.timeEnd( "parse" )
     }
 }
