@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import fs from "fs-jetpack"
-import { remote } from "electron"
+import { remote, ipcRenderer as ipc, Event } from "electron"
 import Vue from "vue"
 import { EventBus } from "@/event-bus"
 import { mapGetters, mapActions } from "vuex"
@@ -51,14 +51,13 @@ export default Vue.extend( {
         window: remote.getCurrentWindow()
     } ),
     mounted() {
-        // shorcut para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl )
-        // cambiar a "keypress" ⌨️ ❗️
+        // shorcut para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl. Creo que Electron se encarga 🤔 )
+        // cambiar a "keypress" ? ⌨️
         window.addEventListener( "keydown", this.handleActiveShaderChange )
         window.addEventListener( "keydown", this.handleRunKey )
         window.addEventListener( "keydown", this.handleSaveKey )
-        window.addEventListener( "keydown", this.handleOpenKey )
 
-        this.window.show()
+        ipc.once( "open", this.onOpen )
     },
     methods: {
         // 🤔 se podrian juntar todos con un switch ( cmd + case: [ tecla del shortcut ] )
@@ -94,13 +93,9 @@ export default Vue.extend( {
                 } )
             }
         },
-        handleOpenKey( event: KeyboardEvent ) {
-            if ( event.metaKey === true && event.key === OPEN_KEY ) {
-                const desktopPath = app.getPath( "desktop" )
-                const fileName = "test.shdr"
-
-                fs.readAsync( desktopPath + "/" + fileName, "json" ).then( ( file ) => {
-                    console.log( "opened!" )
+        onOpen( event: Event, filePath?: string ) {
+            if ( filePath ) {
+                fs.readAsync( filePath, "json" ).then( ( file ) => {
                     const appState: AppState = file
 
                     this.$store.commit( "updateEditorState", appState.editor )
@@ -110,6 +105,8 @@ export default Vue.extend( {
 
                     EventBus.$emit( "loadState" )
                     EventBus.$emit( "compileAndRun" )
+
+                    this.window.show()
                 } )
             }
         }

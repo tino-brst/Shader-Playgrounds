@@ -1,6 +1,6 @@
 "use strict"
 
-import { app, protocol, BrowserWindow } from "electron"
+import { app, protocol, dialog, BrowserWindow } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
 import url from "url"
 import path from "path"
@@ -16,23 +16,28 @@ app.commandLine.appendSwitch( "--ignore-gpu-blacklist" ) // Chrome by default bl
 
 // Window Management 🖼
 
-let mainWindow : BrowserWindow | null
+let mainWindow : BrowserWindow
 
-function createWindow() {
-    // Create the browser window.
+function createWindow( filePath?: string ) {
     mainWindow = new BrowserWindow( {
         show: false,
         width: 1000,
         height: 600,
         backgroundColor: "#3c3c3c",
-        // titleBarStyle: "hidden",
         webPreferences: { experimentalFeatures: true }
     } )
 
     loadWindowView( mainWindow, "main" )
 
     mainWindow.on( "closed", () => {
+        // @ts-ignore
         mainWindow = null
+    } )
+
+    mainWindow.webContents.on( "did-finish-load", () => {
+        if ( filePath ) {
+            mainWindow.webContents.send( "open", filePath )
+        }
     } )
 }
 
@@ -43,7 +48,11 @@ app.on( "ready", async() => {
         await installVueDevtools()
     }
 
-    createWindow()
+    const filePath = showOpenFileDialog()
+
+    if ( filePath !== undefined ) {
+        createWindow( filePath )
+    }
 } )
 
 app.on( "window-all-closed", () => {
@@ -55,11 +64,7 @@ app.on( "window-all-closed", () => {
 } )
 
 app.on( "activate", () => {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if ( mainWindow === null ) {
-        createWindow()
-    }
+    // mostrar la ventana de bienvenida
 } )
 
 // Utils 🛠
@@ -80,6 +85,20 @@ function loadWindowView( window: BrowserWindow, view: string ) {
     }
 
     window.webContents.openDevTools()
+}
+
+function showOpenFileDialog() {
+    app.focus() // los 'dialogs' por defecto no ponen a la aplicacion en foco y pueden terminan atras de otras ventanas
+
+    const filePaths = dialog.showOpenDialog( {
+        properties: [ "openFile", "createDirectory" ],
+        title: "Open file",
+        filters: [
+            { name: "Shaders Playground", extensions: [ "shdr" ] }
+        ]
+    } )
+
+    return filePaths ? filePaths[ 0 ] : undefined
 }
 
 // Exit cleanly on request from parent process in development mode.
