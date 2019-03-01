@@ -47,7 +47,8 @@ export default Vue.extend( {
         "v-tabs": Tabs
     },
     data: () => ( {
-        activeShader: ShaderType.Vertex
+        activeShader: ShaderType.Vertex,
+        window: remote.getCurrentWindow()
     } ),
     mounted() {
         // shorcut para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl )
@@ -56,6 +57,9 @@ export default Vue.extend( {
         window.addEventListener( "keydown", this.handleRunKey )
         window.addEventListener( "keydown", this.handleSaveKey )
         window.addEventListener( "keydown", this.handleOpenKey )
+
+        this.window.show()
+        this.window.webContents.openDevTools()
     },
     methods: {
         // 🤔 se podrian juntar todos con un switch ( cmd + case: [ tecla del shortcut ] )

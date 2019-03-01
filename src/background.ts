@@ -2,22 +2,24 @@
 
 import { app, protocol, BrowserWindow } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
+
+// #region - CLI Plugin Electron Builder Boilerplate
+
+protocol.registerStandardSchemes( [ "app" ], { secure: true } ) // Standard scheme must be registered before the app is ready
 const isDevelopment = process.env.NODE_ENV !== "production"
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-let win : BrowserWindow | null
+// #endregion
 
-// Chrome by default black lists certain GPUs because of bugs.
-// if your are not able to view webgl try enabling --ignore-gpu-blacklist option
-// But, this will make electron/chromium less stable.
-app.commandLine.appendSwitch( "--ignore-gpu-blacklist" )
+app.commandLine.appendSwitch( "--ignore-gpu-blacklist" ) // Chrome by default black lists certain GPUs because of bugs.
 
-// Standard scheme must be registered before the app is ready
-protocol.registerStandardSchemes( [ "app" ], { secure: true } )
+// Window Management 🖼
+
+let mainWindow : BrowserWindow | null
+
 function createWindow() {
     // Create the browser window.
-    win = new BrowserWindow( {
+    mainWindow = new BrowserWindow( {
+        show: false,
         width: 1000,
         height: 600,
         backgroundColor: "#3c3c3c",
@@ -27,23 +29,28 @@ function createWindow() {
 
     if ( isDevelopment || process.env.IS_TEST ) {
         // Load the url of the dev server if in development mode
-        win.loadURL( process.env.WEBPACK_DEV_SERVER_URL as string )
-        // if ( ! process.env.IS_TEST ) win.webContents.openDevTools() // 👈🏼
+        mainWindow.loadURL( process.env.WEBPACK_DEV_SERVER_URL as string )
     } else {
         createProtocol( "app" )
         // Load the index.html when not in development
-        win.loadURL( "app://./index.html" )
+        mainWindow.loadURL( "app://./index.html" )
     }
 
-    // devTools always open (when app ready, delete this and uncomment pointed line)
-    win.webContents.openDevTools()
-
-    win.on( "closed", () => {
-        win = null
+    mainWindow.on( "closed", () => {
+        mainWindow = null
     } )
 }
 
-// Quit when all windows are closed.
+// App lifecycle 🔄
+
+app.on( "ready", async() => {
+    if ( isDevelopment && ! process.env.IS_TEST ) {
+        await installVueDevtools()
+    }
+
+    createWindow()
+} )
+
 app.on( "window-all-closed", () => {
     // On macOS it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
@@ -55,23 +62,13 @@ app.on( "window-all-closed", () => {
 app.on( "activate", () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if ( win === null ) {
+    if ( mainWindow === null ) {
         createWindow()
     }
 } )
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on( "ready", async() => {
-    if ( isDevelopment && ! process.env.IS_TEST ) {
-        // Install Vue Devtools
-        await installVueDevtools()
-    }
-    createWindow()
-} )
-
 // Exit cleanly on request from parent process in development mode.
+
 if ( isDevelopment ) {
     if ( process.platform === "win32" ) {
         process.on( "message", ( data ) => {
