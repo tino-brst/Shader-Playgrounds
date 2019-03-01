@@ -48,11 +48,7 @@ app.on( "ready", async() => {
         await installVueDevtools()
     }
 
-    const filePath = showOpenFileDialog()
-
-    if ( filePath !== undefined ) {
-        createWindow( filePath )
-    }
+    openFile()
 } )
 
 app.on( "window-all-closed", () => {
@@ -64,7 +60,10 @@ app.on( "window-all-closed", () => {
 } )
 
 app.on( "activate", () => {
-    // mostrar la ventana de bienvenida
+    // 📝 mostrar la ventana de bienvenida si no hay ninguna abierta
+    if ( ! mainWindow ) {
+        openFile()
+    }
 } )
 
 // Utils 🛠
@@ -99,6 +98,14 @@ function showOpenFileDialog() {
     } )
 
     return filePaths ? filePaths[ 0 ] : undefined
+}
+
+function openFile() {
+    const filePath = showOpenFileDialog()
+
+    if ( filePath !== undefined ) {
+        createWindow( filePath )
+    }
 }
 
 // Exit cleanly on request from parent process in development mode.
