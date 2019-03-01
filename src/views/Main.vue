@@ -93,22 +93,20 @@ export default Vue.extend( {
                 } )
             }
         },
-        onOpen( event: Event, filePath?: string ) {
-            if ( filePath ) {
-                fs.readAsync( filePath, "json" ).then( ( file ) => {
-                    const appState: AppState = file
+        onOpen( event: Event, filePath: string ) {
+            this.loadAppStateFromFile( filePath )
+            this.window.show()
+        },
+        loadAppStateFromFile( filePath: string ) {
+            const appState: AppState = fs.read( filePath, "json" )
 
-                    this.$store.commit( "updateEditorState", appState.editor )
-                    this.$store.commit( "updateRendererState", appState.renderer )
+            this.$store.commit( "updateEditorState", appState.editor )
+            this.$store.commit( "updateRendererState", appState.renderer )
 
-                    this.activeShader = this.$store.getters.activeShader
+            this.activeShader = this.$store.getters.activeShader
 
-                    EventBus.$emit( "loadState" )
-                    EventBus.$emit( "compileAndRun" )
-
-                    this.window.show()
-                } )
-            }
+            EventBus.$emit( "loadState" )
+            EventBus.$emit( "compileAndRun" )
         }
     }
 } )
