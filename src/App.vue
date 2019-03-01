@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <div class="title-bar" />
+        <!-- <div class="title-bar" /> -->
         <div class="panels">
             <div class="left-panel">
                 <v-tabs v-model="activeShader" />
