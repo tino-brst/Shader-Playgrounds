@@ -77,23 +77,6 @@ export default Vue.extend( {
                 EventBus.$emit( "compileAndRun" )
             }
         },
-        handleSaveKey( event: KeyboardEvent ) {
-            if ( event.metaKey === true && event.key === SAVE_KEY ) {
-                EventBus.$emit( "commitState" )
-
-                const desktopPath = app.getPath( "desktop" )
-                const fileName = "test.shdr"
-
-                const appState: AppState = {
-                    renderer: this.$store.state.renderer,
-                    editor: this.$store.state.editor
-                }
-
-                fs.writeAsync( desktopPath + "/" + fileName, appState ).then( () => {
-                    console.log( "saved!" )
-                } )
-            }
-        },
         onOpen( event: Event, filePath: string ) {
             this.loadAppStateFromFile( filePath )
             this.window.show()

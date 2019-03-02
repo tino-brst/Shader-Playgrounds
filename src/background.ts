@@ -1,9 +1,10 @@
 "use strict"
 
-import { app, protocol, dialog, BrowserWindow } from "electron"
+import { app, protocol, dialog, Menu, BrowserWindow } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
 import url from "url"
 import path from "path"
+import menu from "./menu"
 
 // #region - CLI Plugin Electron Builder Boilerplate
 
@@ -48,6 +49,8 @@ app.on( "ready", async() => {
         await installVueDevtools()
     }
 
+    Menu.setApplicationMenu( menu )
+
     openFile()
 } )
 
@@ -83,7 +86,7 @@ function loadWindowView( window: BrowserWindow, view: string ) {
         } ) )
     }
 
-    window.webContents.openDevTools()
+    // window.webContents.openDevTools() // devTools open by default
 }
 
 function showOpenFileDialog() {
@@ -106,6 +109,17 @@ function openFile() {
     if ( filePath !== undefined ) {
         createWindow( filePath )
     }
+}
+
+function saveFile( focusedWindow?: BrowserWindow ) {
+    if ( focusedWindow ) { // ⚠️ ¿ no habria que ver que la enfocada sea una de las "main" ?
+        focusedWindow.webContents.send( "save" )
+    }
+}
+
+export {
+    openFile,
+    saveFile
 }
 
 // Exit cleanly on request from parent process in development mode.
