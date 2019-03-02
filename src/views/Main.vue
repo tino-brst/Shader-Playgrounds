@@ -33,12 +33,6 @@ interface AppState {
     editor: EditorState
 }
 
-const VERTEX_SHADER_KEY = "1"
-const FRAGMENT_SHADER_KEY = "2"
-const COMPILE_AND_RUN_KEY = "t"
-const SAVE_KEY = "s"
-const OPEN_KEY = "o"
-
 export default Vue.extend( {
     name: "App",
     components: {
@@ -52,30 +46,18 @@ export default Vue.extend( {
         window: remote.getCurrentWindow()
     } ),
     mounted() {
-        // shorcut para cambio de shader activo ( ⚠️ tener en cuenta la plataforma: cmd / ctrl. Creo que Electron se encarga 🤔 )
-        // cambiar a "keypress" ? ⌨️
-        window.addEventListener( "keydown", this.handleActiveShaderChange )
-        window.addEventListener( "keydown", this.handleRunKey )
-
         ipc.once( "open", this.onOpen )
         ipc.on( "save", this.onSave )
+        ipc.on( "shader", this.setActiveShader )
+        ipc.on( "compileAndRun", this.compileAndRun )
     },
     methods: {
-        // 🤔 se podrian juntar todos con un switch ( cmd + case: [ tecla del shortcut ] )
-        handleActiveShaderChange( event: KeyboardEvent ) {
-            if ( event.metaKey === true ) {
-                if ( event.key === VERTEX_SHADER_KEY ) {
-                    this.activeShader = ShaderType.Vertex
-                } else if ( event.key === FRAGMENT_SHADER_KEY ) {
-                    this.activeShader = ShaderType.Fragment
-                }
-            }
+        compileAndRun( event: Event ) {
+            EventBus.$emit( "commitShadersCode" )
+            EventBus.$emit( "compileAndRun" )
         },
-        handleRunKey( event: KeyboardEvent ) {
-            if ( event.metaKey === true && event.key === COMPILE_AND_RUN_KEY ) {
-                EventBus.$emit( "commitShadersCode" )
-                EventBus.$emit( "compileAndRun" )
-            }
+        setActiveShader( event: Event, shader: ShaderType ) {
+            this.activeShader = shader
         },
         onOpen( event: Event, filePath: string ) {
             this.loadAppStateFromFile( filePath )

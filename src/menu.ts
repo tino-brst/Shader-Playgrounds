@@ -1,5 +1,6 @@
 import { app, Menu, MenuItemConstructorOptions, Accelerator, MenuItem } from "electron"
 import * as background from "./background"
+import { ShaderType } from "./scripts/renderer/_constants"
 
 const ___ = "separator"
 
@@ -71,9 +72,31 @@ const Edit: MenuItemConstructorOptions = {
     ]
 }
 
+const Tools: MenuItemConstructorOptions = {
+    label: "Tools",
+    submenu: [
+        {
+            label: "Compile and Run",
+            accelerator: "CmdOrCtrl+T",
+            click( menuItem, focusedWindow ) { background.compileAndRun( focusedWindow ) }
+        }
+    ]
+}
+
 const View: MenuItemConstructorOptions = {
     label: "View",
     submenu: [
+        {
+            label: "Vertex Shader",
+            accelerator: "CmdOrCtrl+1",
+            click( menuItem, focusedWindow ) { background.activeShader( focusedWindow, ShaderType.Vertex ) }
+        },
+        {
+            label: "Fragment Shader",
+            accelerator: "CmdOrCtrl+2",
+            click( menuItem, focusedWindow ) { background.activeShader( focusedWindow, ShaderType.Fragment ) }
+        },
+        { type: ___ },
         { role: "reload" },
         { role: "forcereload" },
         { role: "toggledevtools" },
@@ -112,7 +135,7 @@ const Help: MenuItemConstructorOptions = {
 
 // Template
 
-const template: MenuItemConstructorOptions[] = [ File, Edit, View, Window, Help ]
+const template: MenuItemConstructorOptions[] = [ File, Edit, Tools, View, Window, Help ]
 
 if ( process.platform === "darwin" ) {
     template.unshift( App )

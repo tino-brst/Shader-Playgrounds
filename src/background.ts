@@ -2,6 +2,7 @@
 
 import { app, protocol, dialog, Menu, BrowserWindow } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
+import { ShaderType } from "./scripts/renderer/_constants"
 import url from "url"
 import path from "path"
 import menu from "./menu"
@@ -111,15 +112,29 @@ function openFile() {
     }
 }
 
-function saveFile( focusedWindow?: BrowserWindow ) {
+function saveFile( focusedWindow: BrowserWindow | undefined ) {
     if ( focusedWindow ) { // ⚠️ ¿ no habria que ver que la enfocada sea una de las "main" ?
         focusedWindow.webContents.send( "save" )
     }
 }
 
+function activeShader( focusedWindow: BrowserWindow | undefined, shader: ShaderType ) {
+    if ( focusedWindow ) {
+        focusedWindow.webContents.send( "shader", shader )
+    }
+}
+
+function compileAndRun( focusedWindow: BrowserWindow | undefined ) {
+    if ( focusedWindow ) {
+        focusedWindow.webContents.send( "compileAndRun" )
+    }
+}
+
 export {
     openFile,
-    saveFile
+    saveFile,
+    activeShader,
+    compileAndRun
 }
 
 // Exit cleanly on request from parent process in development mode.
