@@ -48,6 +48,7 @@ export default Vue.extend( {
     },
     data: () => ( {
         activeShader: ShaderType.Vertex,
+        filePath: "",
         window: remote.getCurrentWindow()
     } ),
     mounted() {
@@ -55,9 +56,9 @@ export default Vue.extend( {
         // cambiar a "keypress" ? ⌨️
         window.addEventListener( "keydown", this.handleActiveShaderChange )
         window.addEventListener( "keydown", this.handleRunKey )
-        window.addEventListener( "keydown", this.handleSaveKey )
 
         ipc.once( "open", this.onOpen )
+        ipc.on( "save", this.onSave )
     },
     methods: {
         // 🤔 se podrian juntar todos con un switch ( cmd + case: [ tecla del shortcut ] )
@@ -97,7 +98,12 @@ export default Vue.extend( {
             this.loadAppStateFromFile( filePath )
             this.window.show()
         },
+        onSave( event: Event ) {
+            this.saveAppStateToFile( this.filePath )
+        },
         loadAppStateFromFile( filePath: string ) {
+            this.filePath = filePath
+
             const appState: AppState = fs.read( filePath, "json" )
 
             this.$store.commit( "updateEditorState", appState.editor )
@@ -107,6 +113,16 @@ export default Vue.extend( {
 
             EventBus.$emit( "loadState" )
             EventBus.$emit( "compileAndRun" )
+        },
+        saveAppStateToFile( filePath: string ) {
+            EventBus.$emit( "commitState" )
+
+            const appState: AppState = {
+                renderer: this.$store.state.renderer,
+                editor: this.$store.state.editor
+            }
+
+            fs.write( filePath, appState )
         }
     }
 } )
