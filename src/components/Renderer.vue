@@ -56,8 +56,7 @@ export default Vue.extend( {
         texturesLoaded: false
     } ),
     computed: {
-        ...mapState( [ "textureUnitToUpdate" ] ),
-        ...mapGetters( [ "vertex", "fragment", "lastSaveRendererState", "rendererClean" ] )
+        ...mapState( [ "rendererState", "rendererClean", "vertex", "fragment", "textureUnitToUpdate" ] )
     },
     watch: {
         textureUnitToUpdate() {
@@ -70,7 +69,7 @@ export default Vue.extend( {
             this.updateErrorsAndWarnings()
 
             if ( this.rendererClean ) {
-                const lastSaveModel = this.lastSaveRendererState.model
+                const lastSaveModel = this.rendererState.model
                 if ( ( lastSaveModel !== undefined ) && ( lastSaveModel !== this.model ) ) {
                     this.$store.commit( "markRendererDirty" )
                 }
@@ -80,7 +79,7 @@ export default Vue.extend( {
             this.renderer.setAnimation( this.animations )
 
             if ( this.rendererClean ) {
-                const lastSaveAnimations = this.lastSaveRendererState.animations
+                const lastSaveAnimations = this.rendererState.animations
                 if ( ( lastSaveAnimations !== undefined ) && ( lastSaveAnimations !== this.animations ) ) {
                     this.$store.commit( "markRendererDirty" )
                 }
@@ -90,7 +89,7 @@ export default Vue.extend( {
             this.renderer.setWireframe( this.wireframe )
 
             if ( this.rendererClean ) {
-                const lastSaveWireframe = this.lastSaveRendererState.wireframe
+                const lastSaveWireframe = this.rendererState.wireframe
                 if ( ( lastSaveWireframe !== undefined ) && ( lastSaveWireframe !== this.wireframe ) ) {
                     this.$store.commit( "markRendererDirty" )
                 }
@@ -146,12 +145,10 @@ export default Vue.extend( {
             this.$store.commit( "updateRendererState", rendererState )
         },
         loadState() {
-            const rendererState = this.$store.state.renderer as RendererState
-
-            this.model = rendererState.model
-            this.animations = rendererState.animations
-            this.wireframe = rendererState.wireframe
-            this.renderer.setUniformsState( rendererState.uniforms )
+            this.model = this.rendererState.model
+            this.animations = this.rendererState.animations
+            this.wireframe = this.rendererState.wireframe
+            this.renderer.setUniformsState( this.rendererState.uniforms )
         }
     }
 } )

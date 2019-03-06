@@ -22,29 +22,37 @@ Vue.use( Vuex )
 
 export default new Vuex.Store( {
     state: {
-        editor: {} as EditorState,
-        renderer: {} as RendererState,
+        // editorState, rendererState: almacenan el estado de la aplicacion levantado de un archivo y se actualizan cada vez que el archivo se guarda
+        editorState: {} as EditorState,
+        rendererState: {} as RendererState,
+        // si existen cambios sin guardar en alguno de los componentes
         editorClean: true,
         rendererClean: true,
+        // codigo que carga el editor para ser leido por el renderer ante compilacion
+        vertex: "",
+        fragment: "",
+        // errores y warnings generados por el renderer ante compilacion, cambios de modelo, etc
         vertexLog: { errors: [], warnings: [] } as ShaderLog,
         fragmentLog: { errors: [], warnings: [] } as ShaderLog,
+        // uniforms en uso detectados por el renderer
         uniformsEditors: [] as UniformEditor[],
+        // info y actualizacion de texturas
         availableTextures: [] as string[],
         texturesAssignedToTextureUnits: [] as string[],
         textureUnitToUpdate: { unit: 0, texture: "" }
     },
     mutations: {
         updateEditorState( state, editorState: EditorState ) {
-            state.editor = editorState
+            state.editorState = editorState
             state.editorClean = true
         },
         updateRendererState( state, rendererState: RendererState ) {
-            state.renderer = rendererState
+            state.rendererState = rendererState
             state.rendererClean = true
         },
         updateShadersCode( state, { vertex, fragment } ) {
-            Vue.set( state.editor, "vertex", vertex )
-            Vue.set( state.editor, "fragment", fragment )
+            state.vertex = vertex
+            state.fragment = fragment
         },
         updateLog( state, newEntries: InspectorLogEntry[] ) {
             const vertexLog: ShaderLog = { errors: [], warnings: [] }
@@ -114,20 +122,8 @@ export default new Vuex.Store( {
         }
     },
     getters: {
-        vertex( state ) {
-            return state.editor.vertex
-        },
-        fragment( state ) {
-            return state.editor.fragment
-        },
         activeShader( state ) {
-            return state.editor.activeShader
-        },
-        lastSaveRendererState( state ) {
-            return state.renderer
-        },
-        rendererClean( state ) {
-            return state.rendererClean
+            return state.editorState.activeShader
         },
         documentHasUnsavedChanges( state ) {
             return ( ! state.editorClean ) || ( ! state.rendererClean )

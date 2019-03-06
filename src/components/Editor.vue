@@ -110,8 +110,7 @@ export default Vue.extend( {
                 return ""
             }
         },
-        ...mapState( [ "vertexLog", "fragmentLog", "uniformsEditors" ] ),
-        ...mapGetters( [ "vertex", "fragment" ] )
+        ...mapState( [ "editorState", "vertexLog", "fragmentLog", "uniformsEditors" ] )
     },
     watch: {
         activeShader( newValue: ShaderType ) {
@@ -301,6 +300,7 @@ export default Vue.extend( {
         commitShadersCode() {
             const vertex = this.vertexShader.getValue()
             const fragment = this.fragmentShader.getValue()
+
             this.$store.commit( "updateShadersCode", { vertex, fragment } )
         },
         commitState() {
@@ -314,10 +314,11 @@ export default Vue.extend( {
             this.enableChangeDetection()
         },
         loadState() {
-            const editorState = this.$store.state.editor as EditorState
+            // @ts-ignore
+            this.vertexShader.setValue( this.editorState.vertex )
+            // @ts-ignore
+            this.fragmentShader.setValue( this.editorState.fragment )
 
-            this.vertexShader.setValue( editorState.vertex )
-            this.fragmentShader.setValue( editorState.fragment )
             this.enableChangeDetection()
         },
         enableChangeDetection() {

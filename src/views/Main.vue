@@ -20,7 +20,7 @@ import path from "path"
 import { remote, ipcRenderer as ipc, Event } from "electron"
 import Vue from "vue"
 import { EventBus } from "@/event-bus"
-import { mapGetters, mapActions } from "vuex"
+import { mapGetters, mapState } from "vuex"
 import Tabs from "@/components/Tabs.vue"
 import Editor from "@/components/Editor.vue"
 import Renderer from "@/components/Renderer.vue"
@@ -52,6 +52,7 @@ export default Vue.extend( {
             // @ts-ignore
             return ( this.fileName + ( this.documentHasUnsavedChanges ? " - Edited" : "" ) )
         },
+        ...mapState( [ "editorState", "rendererState" ] ),
         ...mapGetters( [ "documentHasUnsavedChanges" ] )
     },
     watch: {
@@ -70,7 +71,7 @@ export default Vue.extend( {
         ipc.on( "compileAndRun", this.compileAndRun )
     },
     methods: {
-        compileAndRun( event: Event ) {
+        compileAndRun() {
             EventBus.$emit( "commitShadersCode" )
             EventBus.$emit( "compileAndRun" )
         },
@@ -81,7 +82,7 @@ export default Vue.extend( {
             this.loadAppStateFromFile( filePath )
             this.window.show()
         },
-        onSave( event: Event ) {
+        onSave() {
             this.saveAppStateToFile( this.filePath )
         },
         loadAppStateFromFile( filePath: string ) {
@@ -96,14 +97,17 @@ export default Vue.extend( {
             this.activeShader = this.$store.getters.activeShader
 
             EventBus.$emit( "loadState" )
-            EventBus.$emit( "compileAndRun" )
+
+            this.compileAndRun()
         },
         saveAppStateToFile( filePath: string ) {
             EventBus.$emit( "commitState" )
 
             const appState: AppState = {
-                renderer: this.$store.state.renderer,
-                editor: this.$store.state.editor
+                // @ts-ignore
+                editor: this.editorState,
+                // @ts-ignore
+                renderer: this.rendererState
             }
 
             fs.write( filePath, appState )
