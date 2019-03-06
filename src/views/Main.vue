@@ -16,6 +16,7 @@
 
 <script lang="ts">
 import fs from "fs-jetpack"
+import path from "path"
 import { remote, ipcRenderer as ipc, Event } from "electron"
 import Vue from "vue"
 import { EventBus } from "@/event-bus"
@@ -43,12 +44,23 @@ export default Vue.extend( {
     data: () => ( {
         activeShader: ShaderType.Vertex,
         filePath: "",
+        fileName: "",
         window: remote.getCurrentWindow()
     } ),
-    computed: mapGetters( [ "documentHasUnsavedChanges" ] ),
+    computed: {
+        windowTitle(): string {
+            // @ts-ignore
+            return ( this.fileName + ( this.documentHasUnsavedChanges ? " - Edited" : "" ) )
+        },
+        ...mapGetters( [ "documentHasUnsavedChanges" ] )
+    },
     watch: {
         documentHasUnsavedChanges() {
+            // @ts-ignore
             this.window.setDocumentEdited( this.documentHasUnsavedChanges )
+        },
+        windowTitle() {
+            this.window.setTitle( this.windowTitle )
         }
     },
     mounted() {
@@ -74,6 +86,7 @@ export default Vue.extend( {
         },
         loadAppStateFromFile( filePath: string ) {
             this.filePath = filePath
+            this.fileName = path.basename( filePath )
 
             const appState: AppState = fs.read( filePath, "json" )
 
