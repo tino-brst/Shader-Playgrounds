@@ -24,6 +24,8 @@ export default new Vuex.Store( {
     state: {
         editor: {} as EditorState,
         renderer: {} as RendererState,
+        editorClean: true,
+        rendererClean: true,
         vertexLog: { errors: [], warnings: [] } as ShaderLog,
         fragmentLog: { errors: [], warnings: [] } as ShaderLog,
         uniformsEditors: [] as UniformEditor[],
@@ -34,9 +36,11 @@ export default new Vuex.Store( {
     mutations: {
         updateEditorState( state, editorState: EditorState ) {
             state.editor = editorState
+            state.editorClean = true
         },
         updateRendererState( state, rendererState: RendererState ) {
             state.renderer = rendererState
+            state.rendererClean = true
         },
         updateShadersCode( state, { vertex, fragment } ) {
             Vue.set( state.editor, "vertex", vertex )
@@ -101,6 +105,12 @@ export default new Vuex.Store( {
             } else {
                 state.fragmentLog = { errors, warnings }
             }
+        },
+        markEditorDirty( state ) {
+            state.editorClean = false
+        },
+        markRendererDirty( state ) {
+            state.rendererClean = false
         }
     },
     getters: {
@@ -112,6 +122,15 @@ export default new Vuex.Store( {
         },
         activeShader( state ) {
             return state.editor.activeShader
+        },
+        lastSaveRendererState( state ) {
+            return state.renderer
+        },
+        rendererClean( state ) {
+            return state.rendererClean
+        },
+        documentHasUnsavedChanges( state ) {
+            return ( ! state.editorClean ) || ( ! state.rendererClean )
         }
     }
 } )

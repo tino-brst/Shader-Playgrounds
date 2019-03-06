@@ -57,23 +57,44 @@ export default Vue.extend( {
     } ),
     computed: {
         ...mapState( [ "textureUnitToUpdate" ] ),
-        ...mapGetters( [ "vertex", "fragment" ] )
+        ...mapGetters( [ "vertex", "fragment", "lastSaveRendererState", "rendererClean" ] )
     },
     watch: {
-        textureUnitToUpdate( newValue: { unit: number, texture: string } ) {
-            if ( this.renderer.setTextureForUnit( newValue.texture, newValue.unit ) ) {
-                this.$store.commit( "updateTextureAssignedToTextureUnit", newValue )
+        textureUnitToUpdate() {
+            if ( this.renderer.setTextureForUnit( this.textureUnitToUpdate.texture, this.textureUnitToUpdate.unit ) ) {
+                this.$store.commit( "updateTextureAssignedToTextureUnit", this.textureUnitToUpdate )
             }
         },
-        model( newValue: string ) {
-            this.renderer.setModel( newValue )
+        model() {
+            this.renderer.setModel( this.model )
             this.updateErrorsAndWarnings()
+
+            if ( this.rendererClean ) {
+                const lastSaveModel = this.lastSaveRendererState.model
+                if ( ( lastSaveModel !== undefined ) && ( lastSaveModel !== this.model ) ) {
+                    this.$store.commit( "markRendererDirty" )
+                }
+            }
         },
-        animations( newValue: boolean ) {
-            this.renderer.setAnimation( newValue )
+        animations() {
+            this.renderer.setAnimation( this.animations )
+
+            if ( this.rendererClean ) {
+                const lastSaveAnimations = this.lastSaveRendererState.animations
+                if ( ( lastSaveAnimations !== undefined ) && ( lastSaveAnimations !== this.animations ) ) {
+                    this.$store.commit( "markRendererDirty" )
+                }
+            }
         },
-        wireframe( newValue: boolean ) {
-            this.renderer.setWireframe( newValue )
+        wireframe() {
+            this.renderer.setWireframe( this.wireframe )
+
+            if ( this.rendererClean ) {
+                const lastSaveWireframe = this.lastSaveRendererState.wireframe
+                if ( ( lastSaveWireframe !== undefined ) && ( lastSaveWireframe !== this.wireframe ) ) {
+                    this.$store.commit( "markRendererDirty" )
+                }
+            }
         }
     },
     mounted() {

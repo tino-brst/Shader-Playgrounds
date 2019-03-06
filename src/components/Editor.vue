@@ -65,6 +65,7 @@ export default Vue.extend( {
     },
     data: () => ( {
         editor: {} as Editor,
+        changeDetectionEnabled: false,
         vertexShader: new Shader( ShaderType.Vertex ),
         fragmentShader: new Shader( ShaderType.Fragment ),
         uniformsBasic: new Map() as Map <string, UniformEditor>,
@@ -170,10 +171,6 @@ export default Vue.extend( {
         }
     },
     mounted() {
-        // ❗️ codigo inicial de shaders debugging
-        // this.vertexShader.setValue( sampleVertex )
-        // this.fragmentShader.setValue( sampleFragment )
-
         const editorOptions = {
             value: this.activeShader === ShaderType.Vertex ? this.vertexShader.doc : this.fragmentShader.doc,
             lineNumbers: true,
@@ -314,12 +311,27 @@ export default Vue.extend( {
             }
 
             this.$store.commit( "updateEditorState", editorState )
+            this.enableChangeDetection()
         },
         loadState() {
             const editorState = this.$store.state.editor as EditorState
 
             this.vertexShader.setValue( editorState.vertex )
             this.fragmentShader.setValue( editorState.fragment )
+            this.enableChangeDetection()
+        },
+        enableChangeDetection() {
+            // evito registrar muchas veces el mismo evento
+            if ( ! this.changeDetectionEnabled ) {
+                // ante cualquier cambio en el editor, marco su estado como "dirty" para reflejar cambios sin guardar en el archivo
+                this.editor.on( "change", this.markEditorDirty )
+                this.changeDetectionEnabled = true
+            }
+        },
+        markEditorDirty() {
+            this.$store.commit( "markEditorDirty" )
+            this.editor.off( "change", this.markEditorDirty )
+            this.changeDetectionEnabled = false
         }
     }
 } )

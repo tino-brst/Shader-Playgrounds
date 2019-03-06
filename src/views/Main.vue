@@ -45,6 +45,12 @@ export default Vue.extend( {
         filePath: "",
         window: remote.getCurrentWindow()
     } ),
+    computed: mapGetters( [ "documentHasUnsavedChanges" ] ),
+    watch: {
+        documentHasUnsavedChanges() {
+            this.window.setDocumentEdited( this.documentHasUnsavedChanges )
+        }
+    },
     mounted() {
         ipc.once( "open", this.onOpen )
         ipc.on( "save", this.onSave )
