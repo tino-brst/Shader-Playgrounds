@@ -1,6 +1,6 @@
 <template>
     <div id="main">
-        <!-- <div class="title-bar" /> -->
+        <v-titlebar :file-name="fileName" :edited="documentHasUnsavedChanges" />
         <div class="panels">
             <div class="left-panel">
                 <v-tabs v-model="activeShader" />
@@ -24,6 +24,7 @@ import { mapGetters, mapState } from "vuex"
 import Tabs from "@/components/Tabs.vue"
 import Editor from "@/components/Editor.vue"
 import Renderer from "@/components/Renderer.vue"
+import TitleBar from "@/components/TitleBar.vue"
 import { ShaderType } from "@/scripts/renderer/_constants"
 import { RendererState, EditorState } from "@/store"
 
@@ -37,6 +38,7 @@ interface AppState {
 export default Vue.extend( {
     name: "App",
     components: {
+        "v-titlebar": TitleBar,
         "v-editor": Editor,
         "v-renderer": Renderer,
         "v-tabs": Tabs
@@ -136,14 +138,6 @@ body {
     user-select: none;
     display: flex;
     flex-direction: column;
-}
-
-.title-bar {
-    -webkit-app-region: drag;
-    user-select: none;
-    flex: 0 0 22px;
-    background: rgb(60,60,60);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .panels {
