@@ -24,7 +24,7 @@ function createWindow( filePath?: string ) {
     mainWindow = new BrowserWindow( {
         show: false,
         width: 1000,
-        height: 600,
+        height: 700,
         backgroundColor: "#3c3c3c",
         titleBarStyle: "hidden",
         webPreferences: { experimentalFeatures: true }

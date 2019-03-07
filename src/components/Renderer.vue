@@ -1,5 +1,5 @@
 <template>
-    <div class="renderer">
+    <div class="renderer" :class="{ loading: ! modelsLoaded }">
         <canvas ref="canvas" />
         <div class="toolbar">
             <v-progress-bar :started="loading" :finished="modelsLoaded && texturesLoaded" />
@@ -164,6 +164,12 @@ export default Vue.extend( {
 .renderer canvas {
     height: 100%;
     width: 100%;
+    transition: all 0.5s ease;
+}
+
+.renderer.loading canvas {
+    transform: scale( 0.8 );
+    opacity: 0;
 }
 
 .renderer .toolbar {
