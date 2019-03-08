@@ -1,9 +1,9 @@
 <template>
-    <div class="select">
+    <div class="model-select">
         <label> <slot> set label </slot> </label>
-        <div class="options-container" ref="clickableArea">
+        <div class="models-container" ref="clickableArea">
             <div
-                class="selected"
+                class="button"
                 @mousedown.prevent
                 @click="isActive = ! isActive"
                 :class="{ active: isActive }"
@@ -12,16 +12,19 @@
                 <v-chevron-down-icon v-if="! dropup" class="icon" />
                 <v-chevron-up-icon v-if="dropup" class="icon" />
             </div>
-            <div class="options" :class="{ visible: isActive, dropup }">
+            <div class="models" :class="{ visible: isActive, dropup }">
                 <div
-                    class="option"
-                    v-for="( option, index ) in options"
-                    :key="option"
-                    :class="{ 'selected-option': option === value}"
+                    class="model"
+                    v-for="model in models"
+                    :key="model.name"
+                    :class="{ 'selected': model.name === value }"
                     @mousedown.prevent
-                    @click="updateValue( index )"
+                    @click="updateValue( model.name )"
                 >
-                    {{ option }}
+                    <div class="model-info">
+                        <span> {{ model.name }} </span>
+                        <span v-if="model.attributes.textureCoordinates" class="textures" />
+                    </div>
                     <v-check-icon class="icon" />
                 </div>
             </div>
@@ -31,11 +34,13 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { Model } from "@/scripts/renderer/Renderer"
 const { ChevronDownIcon } = require( "vue-feather-icons" )
 const { ChevronUpIcon } = require( "vue-feather-icons" )
 const { CheckIcon } = require( "vue-feather-icons" )
 
 export default Vue.extend( {
+    name: "ModelSelect",
     components: {
         "v-chevron-down-icon": ChevronDownIcon,
         "v-chevron-up-icon": ChevronUpIcon,
@@ -46,8 +51,8 @@ export default Vue.extend( {
             type: String,
             default: ""
         },
-        options: {
-            type: Array,
+        models: {
+            type: Array as () => Model[],
             default: () => []
         },
         autohide: {
@@ -68,11 +73,11 @@ export default Vue.extend( {
         document.addEventListener( "mousedown", ( event ) => { this.checkOutsideClick( event ) } )
     },
     methods: {
-        updateValue( index: number ) {
+        updateValue( model: string ) {
             if ( this.autohide ) {
                 this.isActive = false
             }
-            this.$emit( "input", this.options[ index ] )
+            this.$emit( "input", model )
         },
         checkOutsideClick( event: MouseEvent ) {
             const clickableArea = this.$refs.clickableArea as Element
@@ -91,7 +96,7 @@ export default Vue.extend( {
 
 accent-color = royalblue
 
-.select {
+.model-select {
 
     width: fit-content
     display: flex
@@ -108,12 +113,12 @@ accent-color = royalblue
 
     }
 
-    .options-container {
+    .models-container {
 
         position: relative
         display: flex
 
-        .selected {
+        .button {
 
             cursor: pointer
             display: flex
@@ -151,7 +156,7 @@ accent-color = royalblue
 
         }
 
-        .options {
+        .models {
 
             z-index: 1
             box-sizing: border-box
@@ -180,7 +185,7 @@ accent-color = royalblue
 
             }
 
-            .option {
+            .model {
 
                 display: flex
                 align-items: center
@@ -189,7 +194,7 @@ accent-color = royalblue
                 white-space: nowrap
                 cursor: pointer
                 color: rgba( 255, 255, 255, 0.4 )
-                padding: 0.2rem 0.5rem 0.2rem 0.5rem
+                padding: 0.3rem 0.5rem 0.3rem 0.5rem
                 transition: color 0.1s
 
                 .icon {
@@ -203,8 +208,34 @@ accent-color = royalblue
 
                 }
 
-                &.selected-option,
-                &.selected-option:hover {
+                .model-info {
+
+                    display: flex;
+                    align-items: center;
+
+                    .textures {
+                        width: 12px;
+                        height: 12px;
+                        margin-left: 8px;
+                        margin-right: 15px;
+                        border-radius: 2px;
+                        background: rgba(255, 255, 255, 0.3);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.1s
+                    }
+
+                    .textures::after  {
+                        font-size: 11px;
+                        font-weight: 500;
+                        content: "T";
+                        color: rgb(30, 30, 30);
+                    }
+                }
+
+                &.selected,
+                &.selected:hover {
 
                     color: white
                     background: accent-color
@@ -215,6 +246,14 @@ accent-color = royalblue
 
                     }
 
+                    .textures {
+                        background: rgba(255, 255, 255, 0.8);
+                    }
+
+                    .textures::after  {
+                        color: royalblue;
+                    }
+
                 }
 
                 &:hover {
@@ -222,14 +261,13 @@ accent-color = royalblue
                     background-color: rgba(255, 255, 255, 0.05)
                     color: white
 
+                    .textures {
+                        background: rgba(255, 255, 255, 0.8);
+                    }
+
                 }
 
             }
-
-            // top, bottom padding
-
-            & .option:first-child { padding-top: 0.3rem }
-            & .option:last-child { padding-bottom: 0.3rem }
 
             // states
 

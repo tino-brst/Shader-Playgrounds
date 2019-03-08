@@ -19,10 +19,10 @@ export class GeometriesManager {
     // 👥  Metodos Publicos
 
     public getAvailableGeometries() {
-        return [ ...this.geometries.keys() ]
+        return this.geometries
     }
 
-    public get( name: string ) {
+    public getGeometry( name: string ) {
         return this.geometries.get( name )
     }
 

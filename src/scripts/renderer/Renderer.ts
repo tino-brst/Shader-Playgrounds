@@ -15,6 +15,15 @@ import { VertexAttributeBuffer } from "./Buffers"
 import defaultFragmentShaderSource from "./defaults/default.frag.glsl"
 import defaultVertexShaderSource from "./defaults/default.vert.glsl"
 
+export interface Model {
+    name: string,
+    attributes: {
+        positions: boolean,
+        normals: boolean,
+        textureCoordinates: boolean
+    }
+}
+
 export class Renderer {
     private canvas: HTMLCanvasElement
     private gl: WebGLRenderingContext
@@ -115,7 +124,7 @@ export class Renderer {
     }
 
     public setModel( name: string ) {
-        const geometry = this.geometriesManager.get( name )
+        const geometry = this.geometriesManager.getGeometry( name )
 
         if ( geometry !== undefined ) {
             this.model.updateBuffersFromGeometry( geometry )
@@ -180,7 +189,21 @@ export class Renderer {
     }
 
     public getAvailableModels() {
-        return this.geometriesManager.getAvailableGeometries()
+        const geometries = this.geometriesManager.getAvailableGeometries()
+        const models: Model[] = []
+
+        for ( let [ name, geometry ] of geometries ) {
+            models.push( {
+                name,
+                attributes: {
+                    positions: geometry.hasPositions(),
+                    normals: geometry.hasNormals(),
+                    textureCoordinates: geometry.hasTextureCoordinates()
+                }
+            } )
+        }
+
+        return models
     }
 
     public getAvailableTextures() {

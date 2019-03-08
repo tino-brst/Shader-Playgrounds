@@ -5,9 +5,9 @@
             <v-progress-bar :started="loading" :finished="modelsLoaded && texturesLoaded" />
             <span class="loading-info" :class="{ visible: loading && ! ( modelsLoaded && texturesLoaded ) } "> loading models & textures </span>
             <div class="toolbar-items">
-                <v-select dropup v-model="model" :options="availableModels">
+                <v-model-select dropup v-model="model" :models="availableModels">
                     model:
-                </v-select>
+                </v-model-select>
                 <div class="toolbar-space-flex" />
                 <v-checkbox v-model="animations">
                     <template slot="icon">
@@ -28,10 +28,10 @@
 <script lang="ts">
 import Vue from "vue"
 import { EventBus } from "@/event-bus"
-import Select from "@/components/Select.vue"
+import ModelSelect from "@/components/ModelSelect.vue"
 import Checkbox from "@/components/Checkbox.vue"
 import ProgressBar from "@/components/ProgressBar.vue"
-import { Renderer } from "@/scripts/renderer/Renderer"
+import { Renderer, Model } from "@/scripts/renderer/Renderer"
 import { mapState, mapGetters } from "vuex"
 import { RendererState } from "@/store"
 const { RefreshCwIcon, BoxIcon } = require( "vue-feather-icons" )
@@ -40,14 +40,14 @@ export default Vue.extend( {
     name: "Renderer",
     components: {
         "v-progress-bar": ProgressBar,
-        "v-select": Select,
+        "v-model-select": ModelSelect,
         "v-checkbox": Checkbox,
         "v-refresh-cw-icon": RefreshCwIcon,
         "v-box-icon": BoxIcon
     },
     data: () => ( {
         renderer: {} as Renderer,
-        availableModels: [] as string[],
+        availableModels: [] as Model[],
         model: "",
         animations: true,
         wireframe: true,
@@ -101,7 +101,7 @@ export default Vue.extend( {
         this.loading = true
 
         this.availableModels = this.renderer.getAvailableModels()
-        this.model = this.availableModels[ 0 ]
+        this.model = this.availableModels[ 0 ].name
         this.animations = true
         this.wireframe = true
 
