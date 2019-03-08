@@ -29,6 +29,7 @@ import { ShaderType } from "@/scripts/renderer/_constants"
 import { RendererState, EditorState } from "@/store"
 
 const app = remote.app
+const dialog = remote.dialog
 
 interface AppState {
     renderer: RendererState,
@@ -69,6 +70,7 @@ export default Vue.extend( {
     mounted() {
         ipc.once( "open", this.onOpen )
         ipc.on( "save", this.onSave )
+        ipc.on( "close", this.onClose )
         ipc.on( "shader", this.setActiveShader )
         ipc.on( "compileAndRun", this.compileAndRun )
     },
@@ -85,7 +87,47 @@ export default Vue.extend( {
             this.window.show()
         },
         onSave() {
-            this.saveAppStateToFile( this.filePath )
+            this.saveAppState()
+        },
+        onClose() {
+            // @ts-ignore
+            if ( this.documentHasUnsavedChanges ) {
+                this.displayUnsavedChangesWarning()
+            } else {
+                this.closeWindow()
+            }
+        },
+        displayUnsavedChangesWarning() {
+            enum options {
+                save,
+                cancel,
+                dontSave
+            }
+            const optionsLabels = [
+                "Save",
+                "Cancel",
+                "Don't Save"
+            ]
+
+            const selectedOption = dialog.showMessageBox( {
+                title: "Unsaved Changes",
+                message: `Do you want to save the changes you made to ${ this.fileName }?`,
+                detail: "Your changes will be lost if you don't save them.",
+                type: "warning",
+                buttons: optionsLabels,
+                defaultId: options.save,
+                cancelId: options.cancel
+            } )
+
+            if ( selectedOption === options.dontSave ) {
+                this.closeWindow()
+            } else if ( selectedOption === options.save ) {
+                this.saveAppState()
+                this.closeWindow()
+            }
+        },
+        closeWindow() {
+            this.window.destroy()
         },
         loadAppStateFromFile( filePath: string ) {
             this.filePath = filePath
@@ -102,7 +144,7 @@ export default Vue.extend( {
 
             this.compileAndRun()
         },
-        saveAppStateToFile( filePath: string ) {
+        saveAppState() {
             EventBus.$emit( "commitState" )
 
             const appState: AppState = {
@@ -112,7 +154,7 @@ export default Vue.extend( {
                 renderer: this.rendererState
             }
 
-            fs.write( filePath, appState )
+            fs.write( this.filePath, appState )
         }
     }
 } )

@@ -25,6 +25,13 @@ function createWindow( filePath?: string ) {
 
     loadWindowView( mainWindow, "main" )
 
+    // Window lifecycle
+
+    mainWindow.on( "close", ( event ) => {
+        event.preventDefault()
+        mainWindow.webContents.send( "close" )
+    } )
+
     mainWindow.on( "closed", () => {
         // @ts-ignore
         mainWindow = null
