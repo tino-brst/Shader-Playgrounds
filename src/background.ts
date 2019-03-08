@@ -3,17 +3,10 @@
 import { app, protocol, dialog, Menu, BrowserWindow } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
 import { ShaderType } from "./scripts/renderer/_constants"
-import url from "url"
-import path from "path"
 import menu from "./menu"
 
-// #region - CLI Plugin Electron Builder Boilerplate
-
-protocol.registerStandardSchemes( [ "app" ], { secure: true } ) // Standard scheme must be registered before the app is ready
 const inDevelopment = process.env.NODE_ENV !== "production"
-
-// #endregion
-
+protocol.registerStandardSchemes( [ "app" ], { secure: true } ) // Standard scheme must be registered before the app is ready
 app.commandLine.appendSwitch( "--ignore-gpu-blacklist" ) // Chrome by default black lists certain GPUs because of bugs.
 
 // Window Management 🖼
@@ -76,19 +69,12 @@ app.on( "activate", () => {
 function loadWindowView( window: BrowserWindow, view: string ) {
     if ( inDevelopment ) {
         // Load the url of the dev server if in development mode
-        window.loadURL( process.env.WEBPACK_DEV_SERVER_URL as string + "/#/" + view )
+        window.loadURL( ( process.env.WEBPACK_DEV_SERVER_URL as string ) + "/#/" + view )
     } else {
         // Load the index.html when not in development
         createProtocol( "app" )
-        window.loadURL( url.format( {
-            protocol: "file",
-            slashes: true,
-            pathname: path.join( __dirname, "index.html/" ),
-            hash: "/" + view
-        } ) )
+        window.loadURL( "app://./index.html#" + view )
     }
-
-    // window.webContents.openDevTools() // devTools open by default
 }
 
 function showOpenFileDialog() {
