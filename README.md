@@ -1,29 +1,16 @@
-# editor
+# Shaders Playground
+
+![editor](docs/screenshot.png)
 
 ## Project setup
-```
-npm install
-```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+Install dependencies:
+`npm install`
 
-### Compiles and minifies for production
-```
-npm run build
-```
+### To start a development server:
 
-### Run your tests
-```
-npm run test
-```
+`npm run electron:serve`
 
-### Lints and fixes files
-```
-npm run lint
-```
+### To build the app:
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+`npm run electron:build`
