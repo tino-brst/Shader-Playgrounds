@@ -37,7 +37,7 @@ interface AppState {
 }
 
 export default Vue.extend( {
-    name: "App",
+    name: "Main",
     components: {
         "v-titlebar": TitleBar,
         "v-editor": Editor,
@@ -161,21 +161,7 @@ export default Vue.extend( {
 </script>
 
 <style>
-html {
-    height: 100%;
-}
-
-body {
-    margin: 0;
-    height: 100%;
-}
-
 #main {
-    -webkit-font-smoothing: antialiased;
-    font-family: IBM Plex Sans;
-    font-size: 13px;
-    font-weight: 500;
-    color: white;
     height: 100%;
     user-select: none;
     display: flex;
