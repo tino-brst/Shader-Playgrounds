@@ -1,9 +1,9 @@
 <template>
-    <div class="renderer" :class="{ loading: ! modelsLoaded }">
-        <canvas ref="canvas" />
+    <div class="renderer">
+        <canvas ref="canvas" :class="{ visible: modelsLoaded && windowReady }" />
         <div class="toolbar">
-            <v-progress-bar :started="loading" :finished="modelsLoaded && texturesLoaded" />
-            <span class="loading-info" :class="{ visible: loading && ! ( modelsLoaded && texturesLoaded ) } "> loading models & textures </span>
+            <v-progress-bar :done="modelsLoaded && texturesLoaded" ref="progressBar" />
+            <span class="loading-info" :class="{ visible: ! ( modelsLoaded && texturesLoaded ) } "> loading models & textures </span>
             <div class="toolbar-items">
                 <v-model-select dropup v-model="model" :models="availableModels">
                     model:
@@ -51,16 +51,24 @@ export default Vue.extend( {
         model: "",
         animations: true,
         wireframe: true,
-        loading: false,
         modelsLoaded: false,
         texturesLoaded: false
     } ),
     computed: {
-        ...mapState( [ "rendererState", "rendererClean", "vertex", "fragment", "textureUnitToUpdate" ] )
+        ...mapState( [
+            "rendererState",
+            "rendererClean",
+            "vertex",
+            "fragment",
+            "textureUnitToUpdate",
+            "windowReady"
+        ] )
     },
     watch: {
         textureUnitToUpdate() {
+            // @ts-ignore
             if ( this.renderer.setTextureForUnit( this.textureUnitToUpdate.texture, this.textureUnitToUpdate.unit ) ) {
+                // @ts-ignore
                 this.$store.commit( "updateTextureAssignedToTextureUnit", this.textureUnitToUpdate )
             }
         },
@@ -68,7 +76,9 @@ export default Vue.extend( {
             this.renderer.setModel( this.model )
             this.updateErrorsAndWarnings()
 
+            // @ts-ignore
             if ( this.rendererClean ) {
+                // @ts-ignore
                 const lastSaveModel = this.rendererState.model
                 if ( ( lastSaveModel !== undefined ) && ( lastSaveModel !== this.model ) ) {
                     this.$store.commit( "markRendererDirty" )
@@ -78,7 +88,9 @@ export default Vue.extend( {
         animations() {
             this.renderer.setAnimation( this.animations )
 
+            // @ts-ignore
             if ( this.rendererClean ) {
+                // @ts-ignore
                 const lastSaveAnimations = this.rendererState.animations
                 if ( ( lastSaveAnimations !== undefined ) && ( lastSaveAnimations !== this.animations ) ) {
                     this.$store.commit( "markRendererDirty" )
@@ -88,7 +100,9 @@ export default Vue.extend( {
         wireframe() {
             this.renderer.setWireframe( this.wireframe )
 
+            // @ts-ignore
             if ( this.rendererClean ) {
+                // @ts-ignore
                 const lastSaveWireframe = this.rendererState.wireframe
                 if ( ( lastSaveWireframe !== undefined ) && ( lastSaveWireframe !== this.wireframe ) ) {
                     this.$store.commit( "markRendererDirty" )
@@ -97,8 +111,10 @@ export default Vue.extend( {
         }
     },
     mounted() {
-        this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement, this.onGeometriesLoaded, this.onTexturesLoaded )
-        this.loading = true
+        this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement, this.onModelsLoaded, this.onTexturesLoaded )
+
+        // @ts-ignore
+        this.$refs.progressBar.start()
 
         this.availableModels = this.renderer.getAvailableModels()
         this.model = this.availableModels[ 0 ].name
@@ -113,6 +129,7 @@ export default Vue.extend( {
     },
     methods: {
         compileAndRun() {
+            // @ts-ignore
             this.renderer.setShaderProgram( this.vertex, this.fragment )
             this.updateErrorsAndWarnings()
             this.updateUniformsEditors()
@@ -123,7 +140,7 @@ export default Vue.extend( {
         updateUniformsEditors() {
             this.$store.commit( "updateUniformsEditors", this.renderer.getUniformsEditors() )
         },
-        onGeometriesLoaded() {
+        onModelsLoaded() {
             this.availableModels = this.renderer.getAvailableModels()
             this.modelsLoaded = true
 
@@ -145,9 +162,13 @@ export default Vue.extend( {
             this.$store.commit( "updateRendererState", rendererState )
         },
         loadState() {
+            // @ts-ignore
             this.model = this.rendererState.model
+            // @ts-ignore
             this.animations = this.rendererState.animations
+            // @ts-ignore
             this.wireframe = this.rendererState.wireframe
+            // @ts-ignore
             this.renderer.setUniformsState( this.rendererState.uniforms )
         }
     }
@@ -164,12 +185,14 @@ export default Vue.extend( {
 .renderer canvas {
     height: 100%;
     width: 100%;
-    transition: all 0.5s ease;
-}
-
-.renderer.loading canvas {
     transform: scale( 0.8 );
     opacity: 0;
+    transition: all 0.8s ease;
+}
+
+.renderer canvas.visible {
+    transform: none;
+    opacity: 1;
 }
 
 .renderer .toolbar {

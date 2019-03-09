@@ -39,7 +39,9 @@ export default new Vuex.Store( {
         // info y actualizacion de texturas
         availableTextures: [] as string[],
         texturesAssignedToTextureUnits: [] as string[],
-        textureUnitToUpdate: { unit: 0, texture: "" }
+        textureUnitToUpdate: { unit: 0, texture: "" },
+        // estado de la ventana para inicio prolijo de algunas animaciones etc
+        windowReady: false
     },
     mutations: {
         updateEditorState( state, editorState: EditorState ) {
@@ -119,6 +121,9 @@ export default new Vuex.Store( {
         },
         markRendererDirty( state ) {
             state.rendererClean = false
+        },
+        setWindowReady( state ) {
+            state.windowReady = true
         }
     },
     getters: {

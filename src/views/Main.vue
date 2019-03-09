@@ -84,7 +84,7 @@ export default Vue.extend( {
         },
         onOpen( event: Event, filePath: string ) {
             this.loadAppStateFromFile( filePath )
-            this.window.show()
+            this.showWindow()
         },
         onSave() {
             this.saveAppState()
@@ -125,6 +125,10 @@ export default Vue.extend( {
                 this.saveAppState()
                 this.closeWindow()
             }
+        },
+        showWindow() {
+            this.window.show()
+            this.$store.commit( "setWindowReady" )
         },
         closeWindow() {
             this.window.destroy()
