@@ -1,7 +1,17 @@
 {
-  "name": "editor",
+  "name": "shaders-playground",
   "version": "0.1.0",
   "private": true,
+  "description": "GLSL Shaders Editor - CS Thesis",
+  "homepage": "https://github.com/AgustinBrst/Shaders-Playground",
+  "author": {
+    "name": "Agustin Burset",
+    "email": "agustin.burset@icloud.com"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/AgustinBrst/Shaders-Playground.git"
+  },
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -18,7 +28,7 @@
     "jimp": "0.6.0",
     "vue": "2.6.8",
     "vue-feather-icons": "4.10.0",
-    "vue-router": "^3.0.2",
+    "vue-router": "3.0.2",
     "vuex": "3.1.0"
   },
   "devDependencies": {
