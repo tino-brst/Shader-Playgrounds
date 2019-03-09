@@ -11,10 +11,10 @@ app.commandLine.appendSwitch( "--ignore-gpu-blacklist" ) // Chrome by default bl
 
 // Window Management 🖼
 
-let mainWindow : BrowserWindow
+const mainWindows: Set <BrowserWindow> = new Set()
 
-function createWindow( filePath?: string ) {
-    mainWindow = new BrowserWindow( {
+function newMainWindow( filePath?: string ) {
+    const mainWindow = new BrowserWindow( {
         show: false,
         width: 1000,
         height: 700,
@@ -33,8 +33,7 @@ function createWindow( filePath?: string ) {
     } )
 
     mainWindow.on( "closed", () => {
-        // @ts-ignore
-        mainWindow = null
+        mainWindows.delete( mainWindow )
     } )
 
     mainWindow.webContents.on( "did-finish-load", () => {
@@ -42,6 +41,8 @@ function createWindow( filePath?: string ) {
             mainWindow.webContents.send( "open", filePath )
         }
     } )
+
+    mainWindows.add( mainWindow )
 }
 
 // App lifecycle 🔄
@@ -66,7 +67,7 @@ app.on( "window-all-closed", () => {
 
 app.on( "activate", () => {
     // 📝 mostrar la ventana de bienvenida si no hay ninguna abierta
-    if ( ! mainWindow ) {
+    if ( mainWindows.size === 0 ) {
         openFile()
     }
 } )
@@ -88,7 +89,7 @@ function showOpenFileDialog() {
     app.focus() // los 'dialogs' por defecto no ponen a la aplicacion en foco y pueden terminan atras de otras ventanas
 
     const filePaths = dialog.showOpenDialog( {
-        properties: [ "openFile", "createDirectory" ],
+        properties: [ "openFile" ],
         title: "Open file",
         filters: [
             { name: "Shaders Playground", extensions: [ "shdr" ] }
@@ -102,7 +103,7 @@ function openFile() {
     const filePath = showOpenFileDialog()
 
     if ( filePath !== undefined ) {
-        createWindow( filePath )
+        newMainWindow( filePath )
     }
 }
 
