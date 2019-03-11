@@ -191,8 +191,6 @@ export default Vue.extend( {
 
 .right-panel {
     height: auto;
-    box-sizing: border-box;
-    background:  rgb(8, 8, 8);
     flex: 0 0 300px;
     position: relative;
 }

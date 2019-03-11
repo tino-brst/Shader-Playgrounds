@@ -31,6 +31,8 @@ export default new Vuex.Store( {
         // codigo que carga el editor para ser leido por el renderer ante compilacion
         vertex: "",
         fragment: "",
+        // estado de ultima compilacion
+        compilationSucceeded: false,
         // errores y warnings generados por el renderer ante compilacion, cambios de modelo, etc
         vertexLog: { errors: [], warnings: [] } as ShaderLog,
         fragmentLog: { errors: [], warnings: [] } as ShaderLog,
@@ -76,6 +78,9 @@ export default new Vuex.Store( {
 
             state.vertexLog = vertexLog
             state.fragmentLog = fragmentLog
+        },
+        updateCompilationState( state, succeeded: boolean ) {
+            state.compilationSucceeded = succeeded
         },
         updateUniformsEditors( state, newEditors: UniformEditor[] ) {
             state.uniformsEditors = newEditors

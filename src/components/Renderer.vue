@@ -1,6 +1,10 @@
 <template>
-    <div class="renderer">
+    <div class="renderer" :class="{ failed: ! compilationSucceeded }">
         <canvas ref="canvas" :class="{ visible: modelsLoaded && windowReady }" />
+        <div class="compilation-info">
+            <h1> Compilation Failed </h1>
+            <h2> check for errors and warnings </h2>
+        </div>
         <div class="toolbar">
             <v-progress-bar :done="modelsLoaded && texturesLoaded" ref="progressBar" />
             <span class="loading-info" :class="{ visible: ! ( modelsLoaded && texturesLoaded ) } "> loading models & textures </span>
@@ -56,6 +60,7 @@ export default Vue.extend( {
     } ),
     computed: {
         ...mapState( [
+            "compilationSucceeded",
             "rendererState",
             "rendererClean",
             "vertex",
@@ -130,7 +135,8 @@ export default Vue.extend( {
     methods: {
         compileAndRun() {
             // @ts-ignore
-            this.renderer.setShaderProgram( this.vertex, this.fragment )
+            const compilationSucceeded = this.renderer.setShaderProgram( this.vertex, this.fragment )
+            this.$store.commit( "updateCompilationState", compilationSucceeded )
             this.updateErrorsAndWarnings()
             this.updateUniformsEditors()
         },
@@ -180,6 +186,37 @@ export default Vue.extend( {
     height: 100%;
     overflow: hidden;
     position: relative;
+    background: rgb(8, 8, 8);
+}
+
+.renderer .compilation-info {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0; left: 0;
+    box-sizing: border-box;
+    padding-bottom: 26px; /* toolbar */
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    opacity: 0;
+    background: rgba(0, 0, 0, 0.4);
+    transition: opacity 0.4s ease;
+}
+.renderer .compilation-info h1 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0;
+    margin-bottom: 12px;
+    opacity: 0.8;
+}
+.renderer .compilation-info h2 {
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0;
+    opacity: 0.5;
 }
 
 .renderer canvas {
@@ -187,12 +224,18 @@ export default Vue.extend( {
     width: 100%;
     transform: scale( 0.8 );
     opacity: 0;
-    transition: all 0.8s ease;
+    transition: transform 0.8s ease, opacity  0.8s ease, filter 0.4s;
 }
-
 .renderer canvas.visible {
     transform: none;
     opacity: 1;
+}
+
+.renderer.failed .compilation-info {
+    opacity: 1;
+}
+.renderer.failed canvas {
+    filter: blur(15px);
 }
 
 .renderer .toolbar {
