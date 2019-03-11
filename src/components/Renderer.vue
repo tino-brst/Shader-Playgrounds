@@ -1,7 +1,7 @@
 <template>
-    <div class="renderer" :class="{ failed: ! compilationSucceeded }">
+    <div class="renderer">
         <canvas ref="canvas" :class="{ visible: modelsLoaded && windowReady }" />
-        <div class="compilation-info">
+        <div class="compilation-info" :class="{ visible: ! compilationSucceeded }">
             <h1> Compilation Failed </h1>
             <h2> check for errors and warnings </h2>
         </div>
@@ -202,8 +202,8 @@ export default Vue.extend( {
     justify-content: center;
     flex-direction: column;
     opacity: 0;
-    background: rgba(0, 0, 0, 0.4);
-    transition: opacity 0.4s ease;
+    background: rgba(0, 0, 0, 0.8);
+    transition: opacity 0.3s ease;
 }
 .renderer .compilation-info h1 {
     font-size: 20px;
@@ -218,24 +218,20 @@ export default Vue.extend( {
     margin: 0;
     opacity: 0.5;
 }
+.renderer .compilation-info.visible {
+    opacity: 1;
+}
 
 .renderer canvas {
     height: 100%;
     width: 100%;
     transform: scale( 0.8 );
     opacity: 0;
-    transition: transform 0.8s ease, opacity  0.8s ease, filter 0.4s;
+    transition: transform 0.8s ease, opacity  0.8s ease;
 }
 .renderer canvas.visible {
     transform: none;
     opacity: 1;
-}
-
-.renderer.failed .compilation-info {
-    opacity: 1;
-}
-.renderer.failed canvas {
-    filter: blur(15px);
 }
 
 .renderer .toolbar {
@@ -245,6 +241,7 @@ export default Vue.extend( {
     right: 0;
     bottom: 0;
     border-top: 1px solid rgb( 20, 20, 20 );
+    background-color: rgb( 30, 30, 30 );
     z-index: 1;
     pointer-events: none;
 }
@@ -256,14 +253,6 @@ export default Vue.extend( {
     height: 1px;
     position: absolute;
     background-color: rgba( 255, 255, 255, 0.08 );
-}
-.renderer .toolbar::before { /* gaussian blur background */
-    content: "";
-    left: 0; top: 0; right: 0; bottom: 0;
-    position: absolute;
-    background-color: rgba( 30, 30, 30, 0.9 );
-    backdrop-filter: saturate(180%) blur(15px);
-    z-index: 0;
 }
 
 .renderer .toolbar-items {
