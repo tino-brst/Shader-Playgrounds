@@ -78,8 +78,7 @@ export default Vue.extend( {
             }
         },
         model() {
-            this.renderer.setModel( this.model )
-            this.updateErrorsAndWarnings()
+            this.updateModel()
 
             // @ts-ignore
             if ( this.rendererClean ) {
@@ -136,22 +135,24 @@ export default Vue.extend( {
         compileAndRun() {
             // @ts-ignore
             const compilationSucceeded = this.renderer.setShaderProgram( this.vertex, this.fragment )
+            const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
+            const uniformsEditors = this.renderer.getUniformsEditors()
+
             this.$store.commit( "updateCompilationState", compilationSucceeded )
-            this.updateErrorsAndWarnings()
-            this.updateUniformsEditors()
+            this.$store.commit( "updateLog", errorsAndWarnings )
+            this.$store.commit( "updateUniformsEditors", uniformsEditors )
         },
-        updateErrorsAndWarnings() {
-            this.$store.commit( "updateLog", this.renderer.getErrorsAndWarnings() )
-        },
-        updateUniformsEditors() {
-            this.$store.commit( "updateUniformsEditors", this.renderer.getUniformsEditors() )
+        updateModel() {
+            this.renderer.setModel( this.model )
+
+            // the model change may generate new warnings (e.g. missing attributes)
+            const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
+            this.$store.commit( "updateLog", errorsAndWarnings )
         },
         onModelsLoaded() {
             this.availableModels = this.renderer.getAvailableModels()
             this.modelsLoaded = true
-
-            this.renderer.setModel( this.model )
-            this.updateErrorsAndWarnings()
+            this.updateModel()
         },
         onTexturesLoaded() {
             this.$store.commit( "updateAvailableTextures", this.renderer.getAvailableTextures() )
