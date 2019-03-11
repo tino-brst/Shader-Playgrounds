@@ -185,7 +185,7 @@
     position: absolute;
     left: 6px;
     width: 15px;
-    height: 13px;
+    height: 14px;
     content: "";
     mask: url("/assets/icons/warning.svg");
     mask-size: cover;

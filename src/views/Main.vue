@@ -5,7 +5,16 @@
             <div class="left-panel">
                 <v-tabs v-model="activeShader" />
                 <v-editor :active-shader="activeShader" />
-                <div class="toolbar" />
+                <div class="status-bar">
+                    <div class="log-counts">
+                        <div class="errors" :class="{ visible: errorsCount }">
+                            {{ errorsCount }}
+                        </div>
+                        <div class="warnings" :class="{ visible: warningsCount }">
+                            {{ warningsCount }}
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="right-panel">
                 <v-renderer />
@@ -55,8 +64,15 @@ export default Vue.extend( {
             // @ts-ignore
             return ( this.fileName + ( this.documentHasUnsavedChanges ? " - Edited" : "" ) )
         },
-        ...mapState( [ "editorState", "rendererState" ] ),
-        ...mapGetters( [ "documentHasUnsavedChanges" ] )
+        ...mapState( [
+            "editorState",
+            "rendererState"
+        ] ),
+        ...mapGetters( [
+            "documentHasUnsavedChanges",
+            "errorsCount",
+            "warningsCount"
+        ] )
     },
     watch: {
         documentHasUnsavedChanges() {
@@ -195,12 +211,56 @@ export default Vue.extend( {
     position: relative;
 }
 
-.left-panel .toolbar {
+.status-bar {
     z-index: 1;
     flex: 0 0 25px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 8px;
+    padding-right: 8px;
     box-sizing: border-box;
     background: rgb(60, 60, 60);
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+}
+
+.status-bar .log-counts {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.status-bar .log-counts .errors,
+.status-bar .log-counts .warnings {
+    opacity: 0.2;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
+}
+.status-bar .log-counts .errors.visible,
+.status-bar .log-counts .warnings.visible {
+    opacity: 0.5;
+}
+
+.status-bar .log-counts .errors::before {
+    display: inline-block;
+    margin-right: 6px;
+    width: 14px;
+    height: 14px;
+    content: "";
+    mask: url("/assets/icons/error.svg");
+    mask-size: cover;
+    background: white;
+}
+.status-bar .log-counts .warnings::before {
+    display: inline-block;
+    margin-right: 5px;
+    width: 15px;
+    height: 14px;
+    content: "";
+    mask: url("/assets/icons/warning.svg");
+    mask-size: cover;
+    background: white;
 }
 </style>

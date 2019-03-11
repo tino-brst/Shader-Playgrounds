@@ -32,7 +32,7 @@ export default new Vuex.Store( {
         vertex: "",
         fragment: "",
         // estado de ultima compilacion
-        compilationSucceeded: false,
+        compilationSucceeded: true,
         // errores y warnings generados por el renderer ante compilacion, cambios de modelo, etc
         vertexLog: { errors: [], warnings: [] } as ShaderLog,
         fragmentLog: { errors: [], warnings: [] } as ShaderLog,
@@ -134,6 +134,12 @@ export default new Vuex.Store( {
     getters: {
         activeShader( state ) {
             return state.editorState.activeShader
+        },
+        errorsCount( state ) {
+            return state.vertexLog.errors.length + state.fragmentLog.errors.length
+        },
+        warningsCount( state ) {
+            return state.vertexLog.warnings.length + state.fragmentLog.warnings.length
         },
         documentHasUnsavedChanges( state ) {
             return ( ! state.editorClean ) || ( ! state.rendererClean )
