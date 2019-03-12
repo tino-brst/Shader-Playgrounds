@@ -192,11 +192,9 @@
     background: orange;
 }
 
-.CodeMirror-marker-tooltip {
-    display: block;
+.CodeMirror-marker-info {
+    border-spacing: 0 0px;
     margin: 0;
-    padding: 2px 10px 4px 8px;
-    list-style: none;
     position: absolute;
     pointer-events: none;
     left: 66px;
@@ -204,42 +202,37 @@
     width: fit-content;
     height: fit-content;
     background: rgb( 50, 50, 50 );
-    color: white;
-    font-family: IBM Plex Sans;
-    font-size: 13px;
-    letter-spacing: 0.05em;
-    line-height: 21px;
     border-radius: 6px;
     box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3), inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
-    /* box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1); */
     box-sizing: border-box;
     border: 1px solid rgb( 30, 30, 30 );
     opacity: 0;
     transform: translateY( -2px );
     transition: all 0.1s;
 }
-.CodeMirror-marker-tooltip.visible {
+.CodeMirror-marker-info.visible {
     opacity: 1;
     transform: none;
 }
-.CodeMirror-marker-tooltip > li {
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-}
 
-.CodeMirror-marker-error .CodeMirror-marker-tooltip > li::before,
-.CodeMirror-marker-warning .CodeMirror-marker-tooltip > li::before {
-    content: "•";
-    font-size: 20px;
-    margin-right: 6px;
-    padding-bottom: 1px;
+.CodeMirror-marker-info span {
+    display: block;
+    width: max-content;
+    max-width: 400px;
+    min-width: 100%;
+    word-wrap: normal;
+    text-align: justify;
+    box-sizing: border-box;
+    padding: 4px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    font-family: IBM Plex Sans;
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    line-height: 20px;
 }
-.CodeMirror-marker-error .CodeMirror-marker-tooltip > li::before {
-    color: rgb(255, 59, 48);
-}
-.CodeMirror-marker-warning .CodeMirror-marker-tooltip > li::before {
-    color: orange;
+.CodeMirror-marker-info span:last-child {
+    border: none;
 }
 
 /* 🎨 Cursor */

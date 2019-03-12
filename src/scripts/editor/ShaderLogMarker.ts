@@ -49,21 +49,25 @@ export default class ShaderLogMarker {
         const marker = document.createElement( "div" )
         marker.className = "CodeMirror-marker-" + type
 
-        const markerTooltip = document.createElement( "ul" )
-        markerTooltip.className = "CodeMirror-marker-tooltip"
-        marker.appendChild( markerTooltip )
+        const markerInfo = document.createElement( "div" )
+        markerInfo.className = "CodeMirror-marker-info"
+        marker.appendChild( markerInfo )
+
+        const fragment = document.createDocumentFragment() // render list to fragment to avoid unnecesary layout changes
 
         for ( let description of descriptions ) {
-            const descriptionListItem = document.createElement( "li" )
-            descriptionListItem.textContent = description
-            markerTooltip.appendChild( descriptionListItem )
+            let markerInfoItem = document.createElement( "span" )
+            markerInfoItem.innerText = description
+            fragment.appendChild( markerInfoItem )
         }
 
+        markerInfo.appendChild( fragment )
+
         marker.addEventListener( "mouseenter", () => {
-            markerTooltip.classList.add( "visible" )
+            markerInfo.classList.add( "visible" )
         } )
         marker.addEventListener( "mouseout", () => {
-            markerTooltip.classList.remove( "visible" )
+            markerInfo.classList.remove( "visible" )
         } )
 
         return marker

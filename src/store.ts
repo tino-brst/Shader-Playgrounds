@@ -62,12 +62,12 @@ export default new Vuex.Store( {
             const vertexLog: ShaderLog = { errors: [], warnings: [] }
             const fragmentLog: ShaderLog = { errors: [], warnings: [] }
 
-            // clasifico entradas del log segun shader y errores/warnings, agrupandolos por nro de linea
+            // clasifico entradas del log segun shader y errores/warnings, y las agrupo por nro de linea
             for ( let entry of newEntries ) {
                 const log = ( entry.shader === ShaderType.Vertex ) ? vertexLog : fragmentLog
                 const entries = ( entry.type === LogEntryType.Error ) ? log.errors : log.warnings
                 const lineNumber = entry.line - 1 // one-based -> zero-based
-                const lineEntries = entries.find( ( [ line ] ) => entry.line === line )
+                const lineEntries = entries.find( ( [ line ] ) => line === lineNumber )
 
                 if ( lineEntries === undefined ) {
                     entries.push( [ lineNumber, [ entry.description ] ] )
@@ -136,10 +136,26 @@ export default new Vuex.Store( {
             return state.editorState.activeShader
         },
         errorsCount( state ) {
-            return state.vertexLog.errors.length + state.fragmentLog.errors.length
+            const vertexErrors = state.vertexLog.errors.reduce( ( previous, current ) => {
+                return previous + current[ 1 ].length
+            }, 0 )
+
+            const fragmentErrors = state.fragmentLog.errors.reduce( ( previous, current ) => {
+                return previous + current[ 1 ].length
+            }, 0 )
+
+            return vertexErrors + fragmentErrors
         },
         warningsCount( state ) {
-            return state.vertexLog.warnings.length + state.fragmentLog.warnings.length
+            const vertexWarnings = state.vertexLog.warnings.reduce( ( previous, current ) => {
+                return previous + current[ 1 ].length
+            }, 0 )
+
+            const fragmentWarnings = state.fragmentLog.warnings.reduce( ( previous, current ) => {
+                return previous + current[ 1 ].length
+            }, 0 )
+
+            return vertexWarnings + fragmentWarnings
         },
         documentHasUnsavedChanges( state ) {
             return ( ! state.editorClean ) || ( ! state.rendererClean )
