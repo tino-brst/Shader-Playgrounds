@@ -641,38 +641,32 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 
 /* 🎨 Uniforms buttons */
 
-.uniform-button,
-.uniform-signal {
+.uniform-button {
     position: relative;
     padding: 2px 0px;
     cursor: pointer;
     user-select: none;
 }
-.uniform-button *,
-.uniform-signal * {
+.uniform-button * {
     pointer-events: none;
 }
-.uniform-button::after,
-.uniform-signal::after {
+.uniform-button::after {
     content: "";
     display: inline-block;
     position: absolute;
     top: 0px;
     bottom: 0px;
-    left: 0px;
-    right: 0px;
+    left: -2px;
+    right: -2px;
     border-radius: 4px;
     transition: background 0.1s;
     z-index: -1;
 }
-.uniform-button:hover::after,
-.uniform-signal::after {
-    background: rgba(100, 148, 237, 0.3);
+.uniform-button:hover::after {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.uniform-signal {
-    cursor: default;
-}
 .uniform-signal::after {
     opacity: 0;
     animation-name: pulse;

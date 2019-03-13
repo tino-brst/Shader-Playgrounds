@@ -68,9 +68,7 @@ export default Vue.extend( {
         changeDetectionEnabled: false,
         vertexShader: new Shader( ShaderType.Vertex ),
         fragmentShader: new Shader( ShaderType.Fragment ),
-        uniformsBasic: new Map() as Map <string, UniformEditor>,
-        uniformsStruct: new Map() as Map <string, Map <string, UniformEditor> >,
-        shaderChangedSinceLastUpdate: false, // ⚠️ ver que codemirror tiene un "clean" para docs que se puede usar
+        noShaderChangesSinceToolsEnabled: false,
         lastUniformSelected: {} as Uniform,
         tooltipTarget: document.createElement( "span" ) as HTMLElement,
         tooltipVisible: false
@@ -113,7 +111,7 @@ export default Vue.extend( {
         ...mapState( [ "editorState", "vertexLog", "fragmentLog", "uniformsEditors" ] )
     },
     watch: {
-        activeShader( newValue: ShaderType ) {
+        activeShader() {
             // cierro code-hints, tooltips, etc en caso de estar activas
             if ( this.editor.state.completionActive ) {
                 this.editor.state.completionActive.close()
@@ -123,10 +121,13 @@ export default Vue.extend( {
             }
 
             // hago cambio de shader
-            const newActiveShader = ( newValue === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
-            this.editor.swapDoc( newActiveShader.doc )
-            if ( ! this.shaderChangedSinceLastUpdate ) {
-                newActiveShader.enableUniformsTools( this.uniformsBasic, this.uniformsStruct, this.editor )
+            const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
+            this.editor.swapDoc( activeShader.doc )
+
+            // after a successfull compilation the uniforms editors should be enabled when switching tabs
+            if ( this.noShaderChangesSinceToolsEnabled ) {
+                // @ts-ignore
+                activeShader.enableUniformsTools( this.uniformsEditors, this.onUniformClick, this.onUniformDoubleClick, this.editor )
             }
         },
         vertexLog( newLog: ShaderLog ) {
@@ -135,36 +136,26 @@ export default Vue.extend( {
         fragmentLog( newLog: ShaderLog ) {
             this.fragmentShader.setLog( newLog )
         },
-        uniformsEditors( newEditors: UniformEditor[] ) {
-            this.shaderChangedSinceLastUpdate = false
-            this.uniformsBasic.clear()
-            this.uniformsStruct.clear()
+        uniformsEditors() {
             const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
 
             // @ts-ignore
             if ( this.uniformsEditors.length > 0 ) {
-                [ this.uniformsBasic, this.uniformsStruct ] = this.classifyUniformsEditors( newEditors )
+                // @ts-ignore
+                activeShader.enableUniformsTools( this.uniformsEditors, this.onUniformClick, this.onUniformDoubleClick, this.editor )
+                this.noShaderChangesSinceToolsEnabled = true
 
-                activeShader.enableUniformsTools( this.uniformsBasic, this.uniformsStruct, this.editor )
-                activeShader.signalUniformsDetected()
-
-                window.addEventListener( "keydown", this.handleToolsKey )
-                window.addEventListener( "keyup", this.handleToolsKey )
                 window.addEventListener( "blur", this.hideTooltip )
 
                 this.editor.on( "change", () => {
-                    this.shaderChangedSinceLastUpdate = true
                     this.vertexShader.disableUniformsTools()
                     this.fragmentShader.disableUniformsTools()
+                    this.noShaderChangesSinceToolsEnabled = false
 
-                    window.removeEventListener( "keydown", this.handleToolsKey )
-                    window.removeEventListener( "keyup", this.handleToolsKey )
                     window.removeEventListener( "blur", this.hideTooltip )
                 } )
             } else {
                 activeShader.disableUniformsTools()
-                window.removeEventListener( "keydown", this.handleToolsKey )
-                window.removeEventListener( "keyup", this.handleToolsKey )
                 window.removeEventListener( "blur", this.hideTooltip )
             }
         }
@@ -221,81 +212,42 @@ export default Vue.extend( {
                 }
             }
         },
-        classifyUniformsEditors( rawUniformsEditor: UniformEditor[] ) {
-            const uniformsEditors: Map <string, UniformEditor> = new Map()
-            const uniformsNames: string[] = []
-
-            for ( let editor of rawUniformsEditor ) {
-                uniformsEditors.set( editor.target, editor )
-                uniformsNames.push( editor.target )
-            }
-
-            // clasifico uniforms como "basicos" y "estructuras" (con sus componentes)
-            const basic   = new Map()
-            const structs = new Map()
-
-            for ( let name of uniformsNames ) {
-                // descompongo nombre del uniform:
-                //  • si es basico: "viewMatrix"     -> [ "viewMatrix" ]
-                //  • si es struct: "light.position" -> [ "light", "position" ]
-                const splitName = name.split( "." )
-                if ( splitName.length === 1 ) {
-                    const identifier = splitName[ 0 ]
-                    const editor = uniformsEditors.get( name ) as UniformEditor
-                    basic.set( identifier, editor )
-                } else {
-                    const structIdentifier = splitName[ 0 ]
-                    const structAttribute = splitName[ 1 ]
-                    const editor = uniformsEditors.get( name ) as UniformEditor
-                    let structAttributes = structs.get( structIdentifier )
-                    if ( structAttributes !== undefined ) {
-                        structAttributes.set( structAttribute, editor )
-                    } else {
-                        structAttributes = new Map()
-                        structAttributes.set( structAttribute, editor )
-                        structs.set( structIdentifier, structAttributes )
-                    }
-                }
-            }
-
-            return [ basic, structs ]
-        },
-        handleToolsKey( event: KeyboardEvent ) {
-            const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
-            if ( event.key === TOOLS_KEY ) {
-                if ( event.type === "keydown" ) {
-                    activeShader.enableUniformsButtons( this.handleUniformClick )
-                } else {
-                    activeShader.disableUniformsButtons()
-                }
-            }
-        },
-        handleUniformClick( target: HTMLElement, editor: UniformEditor, range: Range ) {
-            if ( ( this.lastUniformSelected.range !== range ) || ( this.lastUniformSelected.range === range && ! this.tooltipVisible ) ) {
-                this.lastUniformSelected = { range, editor }
-                this.showTooltip( target )
-            }
-        },
-        handleClicksOutside( event: MouseEvent ) {
+        handleClicksOutsideTooltip( event: MouseEvent ) {
             const clickableArea = ( this.$refs.tooltip as Vue ).$el as Element
             if ( clickableArea && ! clickableArea.contains( event.target as Node ) ) {
                 this.hideTooltip()
             }
         },
-        handleScroll() {
-            this.hideTooltip()
-        },
         showTooltip( target: HTMLElement ) {
             this.tooltipTarget = target
             this.tooltipVisible = true
 
-            document.addEventListener( "mousedown", this.handleClicksOutside )
-            this.editor.on( "scroll", this.handleScroll )
+            document.addEventListener( "mousedown", this.handleClicksOutsideTooltip )
+            this.editor.on( "scroll", this.hideTooltip )
         },
         hideTooltip() {
             this.tooltipVisible = false
-            document.removeEventListener( "mousedown", this.handleClicksOutside )
-            this.editor.off( "scroll", this.handleScroll )
+            document.removeEventListener( "mousedown", this.handleClicksOutsideTooltip )
+            this.editor.off( "scroll", this.hideTooltip )
+        },
+        onUniformClick( target: HTMLElement, editor: UniformEditor, range: Range ) {
+            if ( ( this.lastUniformSelected.range !== range ) || ( this.lastUniformSelected.range === range && ! this.tooltipVisible ) ) {
+                this.lastUniformSelected = { range, editor }
+                this.showTooltip( target )
+            }
+        },
+        onUniformDoubleClick( event: MouseEvent ) {
+            // 🤔 this shouldn't be necessary, but when doing a "slow" double-click the tooltip sometimes shows-up
+            this.hideTooltip()
+
+            // disable all uniforms buttons (as any change on the shaders)
+            const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
+            activeShader.disableUniformsTools()
+
+            // set cursor on clicked position and return focus to the editor
+            const clickedPosition = this.editor.coordsChar( { top: event.clientY, left: event.clientX }, "window" )
+            activeShader.doc.setCursor( clickedPosition )
+            this.editor.focus()
         },
         commitShadersCode() {
             const vertex = this.vertexShader.getValue()

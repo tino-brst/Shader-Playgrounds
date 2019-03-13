@@ -127,6 +127,7 @@ export default Vue.extend( {
     width: 18px;
     height: 18px;
     overflow: hidden;
+    pointer-events: none;
 }
 .tip::after {
     content: "";
