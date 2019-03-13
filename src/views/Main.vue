@@ -14,6 +14,9 @@
                             {{ warningsCount }}
                         </div>
                     </div>
+                    <div class="glsl-version">
+                        GLSL ES 1.0
+                    </div>
                 </div>
             </div>
             <div class="right-panel">
@@ -217,12 +220,18 @@ export default Vue.extend( {
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     padding-left: 8px;
     padding-right: 8px;
     box-sizing: border-box;
     background: rgb(60, 60, 60);
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+}
+
+.status-bar .glsl-version {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .status-bar .log-counts {
