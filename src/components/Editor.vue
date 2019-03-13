@@ -124,6 +124,9 @@ export default Vue.extend( {
             const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
             this.editor.swapDoc( activeShader.doc )
 
+            // force active-line highlighting when swapping docs (CodeMirror bug)
+            activeShader.doc.setCursor( activeShader.doc.getCursor() )
+
             // after a successfull compilation the uniforms editors should be enabled when switching tabs
             if ( this.noShaderChangesSinceToolsEnabled ) {
                 // @ts-ignore
