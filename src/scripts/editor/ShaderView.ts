@@ -1,25 +1,12 @@
 import CodeMirror, { Doc, Editor, Position, TextMarker } from "./codemirror/lib/codemirror"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
+import { ShaderType } from "@/scripts/renderer/_constants"
+import { InspectorLogEntry, LogEntryType } from "@/scripts/renderer/InspectorLogEntry"
 import ShaderLogMarker from "./ShaderLogMarker"
 
 export interface ShaderLog {
     errors: Array <[ number, string[] ]>,
     warnings: Array <[ number, string[] ]>
-}
-
-export interface LogEntry {
-    shader: ShaderType,
-    type: LogEntryType,
-    line: number,
-    description: string
-}
-enum LogEntryType {
-    Error = "error",
-    Warning = "warning"
-}
-export enum ShaderType {
-    Vertex = "vertex",
-    Fragment = "fragment"
 }
 interface UniformRange {
     range: Range,
@@ -30,7 +17,7 @@ interface Range {
     to: Position
 }
 
-export default class Shader {
+export class ShaderView {
     public type: ShaderType
     public doc: Doc
     public log: ShaderLog
@@ -60,8 +47,6 @@ export default class Shader {
         return this.doc.getValue()
     }
 
-    // Log
-
     public setLog( log: ShaderLog ) {
         this.clearLog()
         this.log = log
@@ -73,15 +58,19 @@ export default class Shader {
         }
     }
 
-    // Uniforms
+    public enableUniformsTools( uniformsEditors: UniformEditor[], onUniformClick: ( target: HTMLElement, editor: UniformEditor, range: Range ) => void, onUniformDoubleClick: ( event: MouseEvent ) => void ) {
+        const editor = this.doc.getEditor()
 
-    public enableUniformsTools( uniformsEditors: UniformEditor[], onUniformClick: ( target: HTMLElement, editor: UniformEditor, range: Range ) => void, onUniformDoubleClick: ( event: MouseEvent ) => void, editor: Editor ) {
-        if ( this.toolsEnabled ) { // clean-up previously enabled uniforms buttons
-            this.disableUniformsTools()
+        // enable tools only if the shader document is the current editor document ( i.e. getEditor() returns something )
+        if ( editor ) {
+            // clean-up previously enabled uniforms buttons
+            if ( this.toolsEnabled ) {
+                this.disableUniformsTools()
+            }
+            const uniformsRanges = this.findUniformsRanges( uniformsEditors, editor )
+            this.addUniformsButtons( uniformsRanges, onUniformClick, onUniformDoubleClick )
+            this.toolsEnabled = true
         }
-        const uniformsRanges = this.findUniformsRanges( uniformsEditors, editor )
-        this.addUniformsButtons( uniformsRanges, onUniformClick, onUniformDoubleClick )
-        this.toolsEnabled = true
     }
 
     public disableUniformsTools() {

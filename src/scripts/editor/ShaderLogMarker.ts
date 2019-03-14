@@ -1,15 +1,15 @@
 import { LineHandle } from "./codemirror/lib/codemirror"
 import { LogEntryType } from "@/scripts/renderer/InspectorLogEntry"
+import { ShaderView } from "./ShaderView"
 import store from "@/store"
-import Shader from "./Shader"
 
 export default class ShaderLogMarker {
     private lineNumber: number
     private lineHandle: LineHandle
-    private shader: Shader
+    private shader: ShaderView
     private type: LogEntryType
 
-    constructor( shader: Shader, lineNumber: number, descriptions: string[], type: LogEntryType ) {
+    constructor( shader: ShaderView, lineNumber: number, descriptions: string[], type: LogEntryType ) {
         this.shader = shader
         this.lineNumber = lineNumber
         this.type = type

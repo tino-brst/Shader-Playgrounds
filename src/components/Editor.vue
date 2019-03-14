@@ -15,7 +15,7 @@ import { mapState, mapGetters } from "vuex"
 import Tooltip from "@/components/Tooltip.vue"
 import UniformsEditors from "@/components/uniforms_editors/UniformsEditors.ts"
 import { ShaderType, ShaderVariableType } from "@/scripts/renderer/_constants"
-import Shader, { ShaderLog } from "@/scripts/editor/Shader"
+import { ShaderView, ShaderLog } from "@/scripts/editor/ShaderView"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "@/scripts/editor/codemirror/lib/codemirror"
 import "@/scripts/editor/codemirror/mode/glsl/glsl"
@@ -66,8 +66,9 @@ export default Vue.extend( {
     data: () => ( {
         editor: {} as Editor,
         changeDetectionEnabled: false,
-        vertexShader: new Shader( ShaderType.Vertex ),
-        fragmentShader: new Shader( ShaderType.Fragment ),
+        vertexView: new ShaderView( ShaderType.Vertex ) as ShaderView,
+        fragmentView: new ShaderView( ShaderType.Fragment ) as ShaderView,
+        toolsEnabled: false,
         noShaderChangesSinceToolsEnabled: false,
         lastUniformSelected: {} as Uniform,
         tooltipTarget: document.createElement( "span" ) as HTMLElement,
@@ -108,11 +109,19 @@ export default Vue.extend( {
                 return ""
             }
         },
-        ...mapState( [ "editorState", "vertexLog", "fragmentLog", "uniformsEditors" ] )
+        activeShaderView(): ShaderView {
+            return ( this.activeShader === ShaderType.Vertex ) ? this.vertexView : this.fragmentView
+        },
+        ...mapState( [
+            "editorState",
+            "vertexLog",
+            "fragmentLog",
+            "uniformsEditors"
+        ] )
     },
     watch: {
-        activeShader() {
-            // cierro code-hints, tooltips, etc en caso de estar activas
+        activeShaderView() {
+            // close code-hints, tooltips, etc when switching tabs/views
             if ( this.editor.state.completionActive ) {
                 this.editor.state.completionActive.close()
             }
@@ -120,52 +129,38 @@ export default Vue.extend( {
                 this.hideTooltip()
             }
 
-            // hago cambio de shader
-            const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
-            this.editor.swapDoc( activeShader.doc )
+            // swap current editor document ( vertex <-> fragment )
+            this.editor.swapDoc( this.activeShaderView.doc )
 
             // force active-line highlighting when swapping docs (CodeMirror bug)
-            activeShader.doc.setCursor( activeShader.doc.getCursor() )
+            this.activeShaderView.doc.setCursor( this.activeShaderView.doc.getCursor() )
 
-            // after a successfull compilation the uniforms editors should be enabled when switching tabs
-            if ( this.noShaderChangesSinceToolsEnabled ) {
+            // enable uniforms tools
+            if ( this.noShaderChangesSinceToolsEnabled && this.toolsEnabled ) {
                 // @ts-ignore
-                activeShader.enableUniformsTools( this.uniformsEditors, this.onUniformClick, this.onUniformDoubleClick, this.editor )
+                this.activeShaderView.enableUniformsTools( this.uniformsEditors, this.onUniformClick, this.onUniformDoubleClick )
             }
         },
         vertexLog( newLog: ShaderLog ) {
-            this.vertexShader.setLog( newLog )
+            this.vertexView.setLog( newLog )
+            // this.editor.refresh()
         },
         fragmentLog( newLog: ShaderLog ) {
-            this.fragmentShader.setLog( newLog )
+            this.fragmentView.setLog( newLog )
+            // this.editor.refresh()
         },
         uniformsEditors() {
-            const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
-
             // @ts-ignore
             if ( this.uniformsEditors.length > 0 ) {
-                // @ts-ignore
-                activeShader.enableUniformsTools( this.uniformsEditors, this.onUniformClick, this.onUniformDoubleClick, this.editor )
-                this.noShaderChangesSinceToolsEnabled = true
-
-                window.addEventListener( "blur", this.hideTooltip )
-
-                this.editor.on( "change", () => {
-                    this.vertexShader.disableUniformsTools()
-                    this.fragmentShader.disableUniformsTools()
-                    this.noShaderChangesSinceToolsEnabled = false
-
-                    window.removeEventListener( "blur", this.hideTooltip )
-                } )
+                this.enableUniformsTools()
             } else {
-                activeShader.disableUniformsTools()
-                window.removeEventListener( "blur", this.hideTooltip )
+                this.disableUniformsTools()
             }
         }
     },
     mounted() {
         const editorOptions = {
-            value: this.activeShader === ShaderType.Vertex ? this.vertexShader.doc : this.fragmentShader.doc,
+            value: this.activeShaderView.doc,
             lineNumbers: true,
             indentUnit: 4,
             gutters: [ "CodeMirror-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter" ],  // define el orden de los items en el margen
@@ -233,6 +228,29 @@ export default Vue.extend( {
             document.removeEventListener( "mousedown", this.handleClicksOutsideTooltip )
             this.editor.off( "scroll", this.hideTooltip )
         },
+        enableUniformsTools() {
+            if ( ! this.toolsEnabled ) { // avoids re-registering unnecesary events
+                // @ts-ignore
+                this.activeShaderView.enableUniformsTools( this.uniformsEditors, this.onUniformClick, this.onUniformDoubleClick )
+                this.toolsEnabled = true
+                this.noShaderChangesSinceToolsEnabled = true
+                window.addEventListener( "blur", this.hideTooltip )
+
+                const onEditorChange = () => {
+                    this.noShaderChangesSinceToolsEnabled = false
+                    this.disableUniformsTools()
+                    this.editor.off( "change", onEditorChange ) // listen for the event once ( CodeMirros lacks the feature )
+                }
+
+                this.editor.on( "change", onEditorChange )
+            }
+        },
+        disableUniformsTools() {
+            this.vertexView.disableUniformsTools()
+            this.fragmentView.disableUniformsTools()
+            this.toolsEnabled = false
+            window.removeEventListener( "blur", this.hideTooltip )
+        },
         onUniformClick( target: HTMLElement, editor: UniformEditor, range: Range ) {
             if ( ( this.lastUniformSelected.range !== range ) || ( this.lastUniformSelected.range === range && ! this.tooltipVisible ) ) {
                 this.lastUniformSelected = { range, editor }
@@ -244,24 +262,23 @@ export default Vue.extend( {
             this.hideTooltip()
 
             // disable all uniforms buttons (as any change on the shaders)
-            const activeShader = ( this.activeShader === ShaderType.Vertex ) ? this.vertexShader : this.fragmentShader
-            activeShader.disableUniformsTools()
+            this.disableUniformsTools()
 
-            // set cursor on clicked position and return focus to the editor
+            // set cursor on clicked position and return focus on tooltip to the editor
             const clickedPosition = this.editor.coordsChar( { top: event.clientY, left: event.clientX }, "window" )
-            activeShader.doc.setCursor( clickedPosition )
+            this.activeShaderView.doc.setCursor( clickedPosition )
             this.editor.focus()
         },
         commitShadersCode() {
-            const vertex = this.vertexShader.getValue()
-            const fragment = this.fragmentShader.getValue()
+            const vertex = this.vertexView.getValue()
+            const fragment = this.fragmentView.getValue()
 
             this.$store.commit( "updateShadersCode", { vertex, fragment } )
         },
         commitState() {
             const editorState: EditorState = {
-                vertex: this.vertexShader.getValue(),
-                fragment: this.fragmentShader.getValue(),
+                vertex: this.vertexView.getValue(),
+                fragment: this.fragmentView.getValue(),
                 activeShader: this.activeShader as ShaderType
             }
 
@@ -270,9 +287,9 @@ export default Vue.extend( {
         },
         loadState() {
             // @ts-ignore
-            this.vertexShader.setValue( this.editorState.vertex )
+            this.vertexView.setValue( this.editorState.vertex )
             // @ts-ignore
-            this.fragmentShader.setValue( this.editorState.fragment )
+            this.fragmentView.setValue( this.editorState.fragment )
 
             this.enableChangeDetection()
         },

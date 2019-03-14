@@ -3,7 +3,7 @@ import Vuex from "vuex"
 import { InspectorLogEntry, LogEntryType } from "@/scripts/renderer/InspectorLogEntry"
 import { ShaderType } from "@/scripts/renderer/_constants"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
-import { ShaderLog } from "@/scripts/editor/Shader"
+import { ShaderLog } from "@/scripts/editor/ShaderView"
 import { UniformState } from "./scripts/renderer/UniformsCache"
 
 export interface EditorState {
