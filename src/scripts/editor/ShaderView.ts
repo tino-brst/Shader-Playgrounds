@@ -25,6 +25,7 @@ export class ShaderView {
     private uniformsButtons: HTMLElement[]
     private uniformsButtonsMarkers: TextMarker[]
     private toolsEnabled: boolean
+    private activeUniformButton: null | HTMLElement
 
     constructor( type: ShaderType ) {
         this.type = type
@@ -34,6 +35,7 @@ export class ShaderView {
         this.uniformsButtons = []
         this.uniformsButtonsMarkers = []
         this.toolsEnabled = false
+        this.activeUniformButton = null
     }
 
     // 👥 Metodos Publicos
@@ -76,6 +78,10 @@ export class ShaderView {
     public disableUniformsTools() {
         this.removeUniformsButtons()
         this.toolsEnabled = false
+    }
+
+    public clearSelectedUniform() {
+        this.clearActiveUniformButton()
     }
 
     // ✋🏼 Metodos Privados
@@ -190,6 +196,7 @@ export class ShaderView {
             uniformButton.addEventListener( "click", () => {
                 timer = setTimeout( () => {
                     if ( ! prevent ) {
+                        this.setActiveUniformButton( uniformButton )
                         onUniformClick( uniformButton, uniform.editor, uniform.range )
                     }
                     prevent = false
@@ -214,5 +221,18 @@ export class ShaderView {
 
         this.uniformsButtons = []
         this.uniformsButtonsMarkers = []
+    }
+
+    private setActiveUniformButton( button: HTMLElement ) {
+        this.clearActiveUniformButton()
+        this.activeUniformButton = button
+        this.activeUniformButton.classList.add( "active" )
+    }
+
+    private clearActiveUniformButton() {
+        if ( this.activeUniformButton ) {
+            this.activeUniformButton.classList.remove( "active" )
+            this.activeUniformButton = null
+        }
     }
 }

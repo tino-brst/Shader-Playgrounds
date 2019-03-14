@@ -12,7 +12,7 @@
 <script lang="ts">
 import Vue from "vue"
 
-const TARGET_OFFSET = 6
+const TARGET_OFFSET = 8
 const VIEWPORT_MARGIN = 5
 
 export default Vue.extend( {

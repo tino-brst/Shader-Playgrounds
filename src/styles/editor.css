@@ -249,14 +249,14 @@
 div.CodeMirror span.CodeMirror-matchingbracket {
     position: relative;
     color: white;
-    font-weight: 500;
+    font-weight: 600;
 }
 div.CodeMirror span.CodeMirror-matchingbracket::before {
     content: "";
+    display: inline-block;
     position: absolute;
     width: 100%;
-    height: calc(100% + 4px);
-    top: -2px;
+    top: -2px; bottom: -2px;
     z-index: -1;
     background: rgba(255, 255, 255, 0.15);
     border-radius: 2px;
@@ -643,7 +643,6 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 
 .uniform-button {
     position: relative;
-    padding: 2px 0px;
     cursor: pointer;
     user-select: none;
 }
@@ -654,18 +653,21 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     content: "";
     display: inline-block;
     position: absolute;
-    top: 0px;
-    bottom: 0px;
-    left: -2px;
-    right: -2px;
+    top: -2px; bottom: -2px; left: -1px; right: -1px;
     border-radius: 4px;
-    transition: background 0.1s;
+    border: 1px solid rgba(255, 255, 255, 0);
     z-index: -1;
+    transition: all 0.1s;
 }
 .uniform-button:hover::after {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.uniform-button.active::after {
+    background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
+
 
 .uniform-signal::after {
     opacity: 0;

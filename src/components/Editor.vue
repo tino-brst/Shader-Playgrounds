@@ -126,7 +126,7 @@ export default Vue.extend( {
                 this.editor.state.completionActive.close()
             }
             if ( this.tooltipVisible ) {
-                this.hideTooltip()
+                this.hideUniformTooltip()
             }
 
             // swap current editor document ( vertex <-> fragment )
@@ -210,31 +210,35 @@ export default Vue.extend( {
                 }
             }
         },
-        handleClicksOutsideTooltip( event: MouseEvent ) {
-            const clickableArea = ( this.$refs.tooltip as Vue ).$el as Element
-            if ( clickableArea && ! clickableArea.contains( event.target as Node ) ) {
-                this.hideTooltip()
+        handleClicksOutsideButtonAndTooltip( event: MouseEvent ) {
+            const buttonArea = this.tooltipTarget
+            const tooltipArea = ( this.$refs.tooltip as Vue ).$el as HTMLElement
+            const clickedInsideButtonOrTooltip = tooltipArea.contains( event.target as Node ) || buttonArea.contains( event.target as Node )
+
+            if ( ! clickedInsideButtonOrTooltip ) {
+                this.hideUniformTooltip()
             }
         },
-        showTooltip( target: HTMLElement ) {
+        showUniformTooltip( target: HTMLElement ) {
             this.tooltipTarget = target
             this.tooltipVisible = true
 
-            document.addEventListener( "mousedown", this.handleClicksOutsideTooltip )
-            this.editor.on( "scroll", this.hideTooltip )
+            document.addEventListener( "mousedown", this.handleClicksOutsideButtonAndTooltip )
+            this.editor.on( "scroll", this.hideUniformTooltip )
         },
-        hideTooltip() {
+        hideUniformTooltip() {
+            this.activeShaderView.clearSelectedUniform()
             this.tooltipVisible = false
-            document.removeEventListener( "mousedown", this.handleClicksOutsideTooltip )
-            this.editor.off( "scroll", this.hideTooltip )
+            document.removeEventListener( "mousedown", this.handleClicksOutsideButtonAndTooltip )
+            this.editor.off( "scroll", this.hideUniformTooltip )
         },
         enableUniformsTools() {
-            if ( ! this.toolsEnabled ) { // avoids re-registering unnecesary events
+            if ( ! this.toolsEnabled ) { // avoid re-registering unnecesary events
                 // @ts-ignore
                 this.activeShaderView.enableUniformsTools( this.uniformsEditors, this.onUniformClick, this.onUniformDoubleClick )
                 this.toolsEnabled = true
                 this.noShaderChangesSinceToolsEnabled = true
-                window.addEventListener( "blur", this.hideTooltip )
+                window.addEventListener( "blur", this.hideUniformTooltip )
 
                 const onEditorChange = () => {
                     this.noShaderChangesSinceToolsEnabled = false
@@ -249,17 +253,17 @@ export default Vue.extend( {
             this.vertexView.disableUniformsTools()
             this.fragmentView.disableUniformsTools()
             this.toolsEnabled = false
-            window.removeEventListener( "blur", this.hideTooltip )
+            window.removeEventListener( "blur", this.hideUniformTooltip )
         },
         onUniformClick( target: HTMLElement, editor: UniformEditor, range: Range ) {
             if ( ( this.lastUniformSelected.range !== range ) || ( this.lastUniformSelected.range === range && ! this.tooltipVisible ) ) {
                 this.lastUniformSelected = { range, editor }
-                this.showTooltip( target )
+                this.showUniformTooltip( target )
             }
         },
         onUniformDoubleClick( event: MouseEvent ) {
-            // 🤔 this shouldn't be necessary, but when doing a "slow" double-click the tooltip sometimes shows-up
-            this.hideTooltip()
+            // 🤔 this shouldn't be necessary, but when doing a "slow" double-click the tooltip sometimes still shows-up
+            this.hideUniformTooltip()
 
             // disable all uniforms buttons (as any change on the shaders)
             this.disableUniformsTools()
