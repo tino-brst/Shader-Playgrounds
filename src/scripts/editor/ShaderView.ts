@@ -26,6 +26,7 @@ export class ShaderView {
     private uniformsButtonsMarkers: TextMarker[]
     private toolsEnabled: boolean
     private activeUniformButton: null | HTMLElement
+    private highlightTimeout: null | number
 
     constructor( type: ShaderType ) {
         this.type = type
@@ -36,6 +37,7 @@ export class ShaderView {
         this.uniformsButtonsMarkers = []
         this.toolsEnabled = false
         this.activeUniformButton = null
+        this.highlightTimeout = null
     }
 
     // 👥 Metodos Publicos
@@ -78,6 +80,24 @@ export class ShaderView {
     public disableUniformsTools() {
         this.removeUniformsButtons()
         this.toolsEnabled = false
+    }
+
+    public highlightUniformsFound() {
+        // highlight found uniforms if they arent already being highlighted
+        if ( this.highlightTimeout === null ) {
+            for ( let button of this.uniformsButtons ) {
+                button.classList.add( "highlighted" )
+            }
+
+            const timeout = 700;
+
+            this.highlightTimeout = window.setTimeout( () => {
+                for ( let button of this.uniformsButtons ) {
+                    button.classList.remove( "highlighted" )
+                }
+                this.highlightTimeout = null
+            }, timeout )
+        }
     }
 
     public clearSelectedUniform() {

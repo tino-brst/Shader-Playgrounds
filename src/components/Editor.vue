@@ -153,6 +153,7 @@ export default Vue.extend( {
             // @ts-ignore
             if ( this.uniformsEditors.length > 0 ) {
                 this.enableUniformsTools()
+                this.activeShaderView.highlightUniformsFound()
             } else {
                 this.disableUniformsTools()
             }
