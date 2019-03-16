@@ -28,7 +28,7 @@ export default new Vuex.Store( {
         // si existen cambios sin guardar en alguno de los componentes
         editorClean: true,
         rendererClean: true,
-        // codigo que carga el editor para ser leido por el renderer ante compilacion
+        // codigo del editor a ser leido por el renderer ante compilacion
         vertex: "",
         fragment: "",
         // estado de ultima compilacion

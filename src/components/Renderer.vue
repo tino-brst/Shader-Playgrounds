@@ -236,10 +236,12 @@ export default Vue.extend( {
 
 .renderer .toolbar {
     position: absolute;
-    height: 25px;
+    height: 26px;
     left: 0;
     right: 0;
     bottom: 0;
+    padding-bottom: 1px;
+    box-sizing: border-box;
     border-top: 1px solid rgb( 20, 20, 20 );
     background-color: rgb( 30, 30, 30 );
     z-index: 1;

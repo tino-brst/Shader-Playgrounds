@@ -3,7 +3,12 @@
         <v-titlebar :file-name="fileName" :edited="documentHasUnsavedChanges" />
         <div class="panels">
             <div class="left-panel">
-                <v-tabs v-model="activeShader" />
+                <div class="toolbar">
+                    <v-tabs v-model="activeShader" />
+                    <div class="tools">
+                        <button class="compile-and-run" @click="compileAndRun()" />
+                    </div>
+                </div>
                 <v-editor :active-shader="activeShader" />
                 <div class="status-bar">
                     <div class="log-counts">
@@ -204,14 +209,64 @@ export default Vue.extend( {
     flex-direction: column;
     flex-wrap: nowrap;
     flex: 1 1 auto;
-    background: rgb(60, 60, 60);
-    border-right: 1px solid rgba(255, 255, 255, 0.15);
+    border-right: 1px solid rgb(80, 80, 80);
 }
 
 .right-panel {
     height: auto;
     flex: 0 0 300px;
     position: relative;
+}
+
+.left-panel .toolbar {
+    user-select: none;
+    z-index: 4;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex: 0 0 36px;
+    box-sizing: border-box;
+    border-bottom: 1px solid rgb(80, 80, 80);
+    box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+}
+
+.left-panel .toolbar .tools  {
+    height: 100%;
+    flex: 0 0 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px solid rgb(80, 80, 80)
+}
+
+.left-panel .toolbar .tools button.compile-and-run {
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    appearance: none;
+    box-shadow: none;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    background: none;
+}
+.left-panel .toolbar .tools button.compile-and-run::after {
+    content: "";
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    mask: url("/assets/icons/play.svg");
+    mask-size: cover;
+    background: white;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+.left-panel .toolbar .tools button.compile-and-run:hover::after {
+    opacity: 1;
+}
+.left-panel .toolbar .tools button.compile-and-run:active::after {
+    filter: brightness(0.8);
 }
 
 .status-bar {
@@ -225,8 +280,9 @@ export default Vue.extend( {
     padding-right: 8px;
     box-sizing: border-box;
     background: rgb(60, 60, 60);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-top: 1px solid rgb(80, 80, 80);
     box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+    padding-bottom: 1px;
 }
 
 .status-bar .glsl-version {

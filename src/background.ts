@@ -18,7 +18,7 @@ function newMainWindow( filePath?: string ) {
         show: false,
         width: 1000,
         height: 700,
-        backgroundColor: "#3c3c3c",
+        backgroundColor: "#3c3c3c", // rgb(60, 60, 60)
         titleBarStyle: "hidden",
         webPreferences: { experimentalFeatures: true }
     } )
