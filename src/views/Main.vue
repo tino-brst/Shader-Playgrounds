@@ -230,7 +230,7 @@ export default Vue.extend( {
 }
 
 .status-bar .glsl-version {
-    font-size: 13px;
+    font-size: 12px;
     color: rgba(255, 255, 255, 0.5);
 }
 
@@ -255,8 +255,8 @@ export default Vue.extend( {
 .status-bar .log-counts .errors::before {
     display: inline-block;
     margin-right: 6px;
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
     content: "";
     mask: url("/assets/icons/error.svg");
     mask-size: cover;
@@ -265,11 +265,11 @@ export default Vue.extend( {
 .status-bar .log-counts .warnings::before {
     display: inline-block;
     margin-right: 5px;
-    width: 15px;
-    height: 14px;
+    width: 14px;
+    height: 13px;
     content: "";
     mask: url("/assets/icons/warning.svg");
-    mask-size: cover;
+    mask-size: contain;
     background: white;
 }
 </style>

@@ -1,6 +1,7 @@
 <template>
     <div class="progress-bar" :class="{ started, done }">
         <div class="progress" />
+        <span class="loading-info" :class="{ visible: started && ! done }">{{ info }}</span>
     </div>
 </template>
 
@@ -11,6 +12,10 @@ export default {
         done: {
             type: Boolean,
             default: false
+        },
+        info: {
+            type: String,
+            default: ""
         }
     },
     data: () => ( {
@@ -28,18 +33,26 @@ export default {
 .progress-bar {
     width: 100%;
     height: 3px;
-    position: absolute;
     top: -3px;
-    opacity: 0;
-    transition: opacity 1s;
+    position: absolute;
     z-index: 1;
 }
-.progress-bar.started {
-    opacity: 1;
-}
-.progress-bar.done {
+
+.progress-bar .loading-info {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 8px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(120, 120, 120, 0.9);
+    color: rgba(0, 0, 0, 0.9);
+    z-index: -1;
+    transition: all 1s;
     opacity: 0;
-    transition: opacity .8s;
+}
+.progress-bar .loading-info.visible {
+    transition: all 1s;
+    opacity: 1;
 }
 
 .progress-bar .progress {
@@ -49,15 +62,18 @@ export default {
     left: 0;
     position: absolute;
     background: royalblue;
-    transition: width 5s;
+    opacity: 0;
     overflow: hidden;
+    transition: width 5s, opacity 1s;
 }
 .progress-bar.started .progress {
+    opacity: 1;
     width: 75%;
 }
 .progress-bar.done .progress {
+    opacity: 0;
     width: 100%;
-    transition: width .8s;
+    transition: width .8s, opacity 1s;
 }
 
 .progress-bar .progress::after {
@@ -85,6 +101,5 @@ export default {
     100% {
         left: 100%;
     }
-
 }
 </style>

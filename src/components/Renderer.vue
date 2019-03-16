@@ -6,8 +6,7 @@
             <h2> check for errors and warnings </h2>
         </div>
         <div class="toolbar">
-            <v-progress-bar :done="modelsLoaded && texturesLoaded" ref="progressBar" />
-            <span class="loading-info" :class="{ visible: ! ( modelsLoaded && texturesLoaded ) } "> loading models & textures </span>
+            <v-progress-bar :done="modelsLoaded && texturesLoaded" info="loading models & textures" ref="progressBar" />
             <div class="toolbar-items">
                 <v-model-select dropup v-model="model" :models="availableModels">
                     model:
@@ -275,21 +274,5 @@ export default Vue.extend( {
 }
 .renderer .toolbar-items .toolbar-space-flex {
     flex-grow: 1;
-}
-
-.renderer .toolbar .loading-info {
-    position: absolute;
-    top: -32px;
-    left: 8px;
-    padding: 2px 6px;
-    border-radius: 3px;
-    background: rgba(120, 120, 120, 0.8);
-    color: rgba(0, 0, 0, 0.9);
-    z-index: -1;
-    transition: all 0.5s;
-    opacity: 0;
-}
-.renderer .toolbar .loading-info.visible {
-    opacity: 1;
 }
 </style>
