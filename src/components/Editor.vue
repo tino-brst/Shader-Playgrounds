@@ -68,6 +68,7 @@ export default Vue.extend( {
         changeDetectionEnabled: false,
         vertexView: new ShaderView( ShaderType.Vertex ) as ShaderView,
         fragmentView: new ShaderView( ShaderType.Fragment ) as ShaderView,
+        supportedUniformsTypes: new Set( Object.keys( UniformsEditors ) ),
         toolsEnabled: false,
         noShaderChangesSinceToolsEnabled: false,
         lastUniformSelected: {} as Uniform,
@@ -112,6 +113,10 @@ export default Vue.extend( {
         activeShaderView(): ShaderView {
             return ( this.activeShader === ShaderType.Vertex ) ? this.vertexView : this.fragmentView
         },
+        supportedUniformsEditors(): UniformEditor[] {
+            // @ts-ignore
+            return this.uniformsEditors.filter( editor => this.supportedUniformsTypes.has( editor.type ) )
+        },
         ...mapState( [
             "editorState",
             "vertexLog",
@@ -138,20 +143,22 @@ export default Vue.extend( {
             // enable uniforms tools
             if ( this.noShaderChangesSinceToolsEnabled && this.toolsEnabled ) {
                 // @ts-ignore
-                this.activeShaderView.enableUniformsTools( this.uniformsEditors, this.onUniformClick, this.onUniformDoubleClick )
+                this.activeShaderView.enableUniformsTools( this.supportedUniformsEditors, this.onUniformClick, this.onUniformDoubleClick )
             }
         },
-        vertexLog( newLog: ShaderLog ) {
-            this.vertexView.setLog( newLog )
-            // this.editor.refresh()
-        },
-        fragmentLog( newLog: ShaderLog ) {
-            this.fragmentView.setLog( newLog )
-            // this.editor.refresh()
-        },
-        uniformsEditors() {
+        vertexLog() {
             // @ts-ignore
-            if ( this.uniformsEditors.length > 0 ) {
+            this.vertexView.setLog( this.vertexLog )
+            // this.editor.refresh()
+        },
+        fragmentLog() {
+            // @ts-ignore
+            this.fragmentView.setLog( this.fragmentLog )
+            // this.editor.refresh()
+        },
+        supportedUniformsEditors() {
+            // @ts-ignore
+            if ( this.supportedUniformsEditors.length > 0 ) {
                 this.enableUniformsTools()
                 this.activeShaderView.highlightUniformsFound()
             } else {
@@ -236,7 +243,7 @@ export default Vue.extend( {
         enableUniformsTools() {
             if ( ! this.toolsEnabled ) { // avoid re-registering unnecesary events
                 // @ts-ignore
-                this.activeShaderView.enableUniformsTools( this.uniformsEditors, this.onUniformClick, this.onUniformDoubleClick )
+                this.activeShaderView.enableUniformsTools( this.supportedUniformsEditors, this.onUniformClick, this.onUniformDoubleClick )
                 this.toolsEnabled = true
                 this.noShaderChangesSinceToolsEnabled = true
                 window.addEventListener( "blur", this.hideUniformTooltip )

@@ -58,11 +58,11 @@ export default Vue.extend( {
     display: flex;
     align-items: center;
     margin: 8px 10px;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .uniform-editor-others .identifier {
-    font-family: IBM Plex Sans;
+    font-family: IBM Plex Mono;
     color: white;
 }
 .uniform-editor-others .punctuation {

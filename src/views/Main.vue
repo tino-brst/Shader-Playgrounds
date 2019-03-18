@@ -6,7 +6,7 @@
                 <div class="toolbar">
                     <v-tabs v-model="activeShader" />
                     <div class="tools">
-                        <button class="compile-and-run" @click="compileAndRun()" />
+                        <button class="compile-and-run" @mousedown.prevent @click="compileAndRun()" />
                     </div>
                 </div>
                 <v-editor :active-shader="activeShader" />
