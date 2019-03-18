@@ -151,12 +151,20 @@ export default Vue.extend( {
         vertexLog() {
             // @ts-ignore
             this.vertexView.setLog( this.vertexLog )
-            // this.editor.refresh()
+
+            // force editor to show new log markers (CodeMirror bug)
+            if ( this.activeShaderView === this.vertexView ) {
+                this.editor.refresh()
+            }
         },
         fragmentLog() {
             // @ts-ignore
             this.fragmentView.setLog( this.fragmentLog )
-            // this.editor.refresh()
+
+            // force editor to show new log markers (CodeMirror bug)
+            if ( this.activeShaderView === this.fragmentView ) {
+                this.editor.refresh()
+            }
         },
         supportedUniformsEditors() {
             // @ts-ignore
