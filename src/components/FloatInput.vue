@@ -4,7 +4,7 @@
             <input
                 type="text"
                 ref="input"
-                :value="value.toFixed( decimals )"
+                :value="roundedValue"
                 @focus="enterEditingMode"
                 @blur="saveEdit"
                 @keypress.enter="$event.target.blur()"
@@ -26,6 +26,7 @@
 
 <script lang="ts">
 import Vue from "vue"
+import roundTo from "round-to"
 const { ChevronDownIcon } = require( "vue-feather-icons" )
 const { ChevronUpIcon } = require( "vue-feather-icons" )
 
@@ -53,13 +54,18 @@ export default Vue.extend( {
         },
         decimals: {
             type: Number,
-            default: 1
+            default: 2
         }
     },
     data() {
         return {
             editing: false,
             dragging: false
+        }
+    },
+    computed: {
+        roundedValue(): number {
+            return roundTo( this.value, this.decimals )
         }
     },
     methods: {
@@ -101,14 +107,12 @@ export default Vue.extend( {
         dragMove( event: MouseEvent ) {
             if ( ! this.dragging ) {
                 this.dragging = true
-                this.$parent.$emit( "change-window-cursor", "ns-resize" )
             }
             const step = ( event.shiftKey ) ? this.step * this.stepMultiplier : this.step
             this.updateValue( this.value - step * event.movementY * 0.1 )
         },
         dragEnd( event: MouseEvent ) {
             this.dragging = false
-            this.$parent.$emit( "restore-window-cursor" )
             event.preventDefault()
             window.removeEventListener( "mousemove", this.dragMove )
             window.removeEventListener( "mouseup", this.dragEnd )
@@ -121,7 +125,7 @@ export default Vue.extend( {
             this.updateValue( this.value - step * event.movementY * 0.1 )
         },
         updateValue( newValue: number ) {
-            this.$emit( "input", newValue )
+            this.$emit( "input", roundTo( newValue, this.decimals ) )
         }
     }
 } )

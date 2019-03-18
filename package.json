@@ -9,8 +9,8 @@
     "email": "agustin.burset@icloud.com"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/AgustinBrst/Shaders-Playground.git"
+    "type": "git",
+    "url": "https://github.com/AgustinBrst/Shaders-Playground.git"
   },
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -26,6 +26,7 @@
     "gl-matrix": "3.0.0",
     "glsl-transpiler": "git+https://github.com/AgustinBrst/glsl-transpiler.git",
     "jimp": "0.6.0",
+    "round-to": "3.0.0",
     "vue": "2.6.8",
     "vue-feather-icons": "4.10.0",
     "vue-router": "3.0.2",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@types/gl-matrix": "2.4.5",
+    "@types/round-to": "3.0.0",
     "@vue/cli-plugin-eslint": "3.5.0",
     "@vue/cli-plugin-typescript": "3.5.0",
     "@vue/cli-service": "3.5.0",

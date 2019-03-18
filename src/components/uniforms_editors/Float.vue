@@ -29,11 +29,16 @@ export default Vue.extend( {
             this.editor.setValue( this.value )
         },
         editor() {
-            this.value = this.editor.getValue()
+            this.loadValue()
         }
     },
     activated() {
-        this.value = this.editor.getValue()
+        this.loadValue()
+    },
+    methods: {
+        loadValue() {
+            this.value = this.editor.getValue()
+        }
     }
 } )
 </script>
