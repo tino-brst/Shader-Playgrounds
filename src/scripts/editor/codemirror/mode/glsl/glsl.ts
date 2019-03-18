@@ -85,7 +85,8 @@ CodeMirror.defineSimpleMode( "glsl", {
         { regex: /.*/, token: "comment" }
     ],
     meta: {
-        fold: [ "brace" ]
+        fold: [ "brace" ],
+        lineComment: "//"
     }
 } )
 

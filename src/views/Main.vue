@@ -224,7 +224,7 @@ export default Vue.extend( {
     display: flex;
     flex-direction: row;
     align-items: center;
-    flex: 0 0 36px;
+    flex: 0 0 34px;
     box-sizing: border-box;
     border-bottom: 1px solid rgb(80, 80, 80);
     box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);

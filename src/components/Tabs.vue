@@ -96,7 +96,7 @@ export default Vue.extend( {
     position: absolute;
     letter-spacing: 1px;
     font-weight: 600;
-    right: 8px;
+    right: 10px;
     transition: opacity 0.1s;
 }
 .tab:hover .shortcut {

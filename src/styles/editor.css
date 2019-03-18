@@ -632,7 +632,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 .cm-s-default .cm-operator { color: rgb(150, 150, 150) }
 .cm-s-default .cm-operator.cm-assign { color: rgb(255, 255, 255) }
 .cm-s-default .cm-bracket { color: rgb(150, 150, 150); }
-.cm-s-default .cm-comment { color: rgb(108, 121, 134); font-style: italic; font-weight: 400; }
+.cm-s-default .cm-comment { color: rgb(108, 121, 134); font-style: italic; font-weight: 450; }
 
 .CodeMirror-composing { border-bottom: 2px solid; }
 

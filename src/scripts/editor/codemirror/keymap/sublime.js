@@ -586,7 +586,7 @@
     "Cmd-M": "goToBracket",
     "Cmd-Ctrl-Up": "swapLineUp",
     "Cmd-Ctrl-Down": "swapLineDown",
-    "Cmd-/": "toggleCommentIndented",
+    "Cmd-Shift-7": "toggleCommentIndented",
     "Cmd-J": "joinLines",
     "Shift-Cmd-D": "duplicateLine",
     "F9": "sortLines",

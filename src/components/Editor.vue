@@ -30,6 +30,8 @@ import "@/scripts/editor/codemirror/addon/fold/brace-fold"
 import "@/scripts/editor/codemirror/addon/fold/comment-fold"
 import "@/scripts/editor/codemirror/addon/hint/show-hint"
 import "@/scripts/editor/codemirror/addon/hint/glsl-hint"
+import "@/scripts/editor/codemirror/addon/comment/comment"
+import "@/scripts/editor/codemirror/keymap/sublime"
 
 import sampleVertex from "@/sample_shaders/textures.vert.glsl"
 import sampleFragment from "@/sample_shaders/textures.frag.glsl"
@@ -173,6 +175,7 @@ export default Vue.extend( {
             indentUnit: 4,
             gutters: [ "CodeMirror-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter" ],  // define el orden de los items en el margen
             extraKeys: { "Ctrl-Q": "toggleFold", "Ctrl-Space": "autocomplete" },
+            keyMap: "sublime",
             styleActiveLine: true,
             matchBrackets: true,
             autoCloseBrackets: { pairs: "()[]{}''\"\"", explode: "[]{}()" },
