@@ -153,7 +153,9 @@ export default Vue.extend( {
             this.vertexView.setLog( this.vertexLog )
 
             // force editor to show new log markers (CodeMirror bug)
-            if ( this.activeShaderView === this.vertexView ) {
+            // @ts-ignore
+            const logIsNotEmpty = this.vertexLog.errors.length || this.vertexLog.warnings.length
+            if ( this.activeShaderView === this.vertexView && logIsNotEmpty ) {
                 this.editor.refresh()
             }
         },
@@ -162,7 +164,9 @@ export default Vue.extend( {
             this.fragmentView.setLog( this.fragmentLog )
 
             // force editor to show new log markers (CodeMirror bug)
-            if ( this.activeShaderView === this.fragmentView ) {
+            // @ts-ignore
+            const logIsNotEmpty = this.fragmentLog.errors.length || this.fragmentLog.warnings.length
+            if ( this.activeShaderView === this.fragmentView && logIsNotEmpty ) {
                 this.editor.refresh()
             }
         },
