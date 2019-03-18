@@ -223,63 +223,62 @@ export class Renderer {
     }
 
     private animate( now: number ) {
+
+        requestAnimationFrame( now => this.animate( now ) )
+
+        // milisegundos -> segundos
+        const timeSinceLastFrame = Math.max( 0, ( now - this.state.lastDrawTime ) * 0.001 )
+
         if ( this.state.animationsEnabled ) {
             // cambios por unidad de tiempo
-
-            const timeDelta = Math.max( 0, ( now - this.state.lastDrawTime ) / 1000 )  // milisegundos -> segundos
-            const rotationSpeed = - 360 / 30                                     // 360º en 30 segundos ("-" : en sentido horarios)
-            const rotationDelta = ( rotationSpeed * timeDelta ) % 360
+            const rotationSpeed = - 360 / 30  // 360º en 30 segundos ("-" : en sentido horarios)
+            const rotationDelta = ( rotationSpeed * timeSinceLastFrame ) % 360
 
             // traslaciones, escalado, etc
-
             mat4.rotateY( this.model.modelMatrix, this.model.modelMatrix, glMatrix.toRadian( rotationDelta ) ) // ⚠️ agregar rotate a clase grafic object
         }
 
-        // renderizado
+        if ( this.program.usable ) {
+            // renderizado
+            this.render( this.model )
 
-        this.render( this.model )
+            // registro tiempo de dibujado y solicito proximo frame
+            this.state.lastDrawTime = performance.now()
+        }
     }
 
     private render( model: BuffersGeometry ) {
-        if ( this.program.usable ) {
-            // limpiamos el canvas
+        // limpiamos el canvas
 
-            this.state.clearBuffers()
+        this.state.clearBuffers()
 
-            // actualizamos matrices
+        // actualizamos matrices
 
-            this.updateMatrices( model, this.camera )
+        this.updateMatrices( model, this.camera )
 
-            // seteamos uniforms por defecto
+        // seteamos uniforms por defecto
 
-            this.updateUniformValuesFromCache( this.program.activeUniforms, this.uniformsCache )
+        this.updateUniformValuesFromCache( this.program.activeUniforms, this.uniformsCache )
 
-            // reconeccion de nuevos buffers de atributos ante cambios en la geometria o programa
+        // reconeccion de nuevos buffers de atributos ante cambios en la geometria o programa
 
-            if ( this.state.attributeBuffersNeedUpdate ) {
-                this.updateVertexAttributes( this.program.activeVertexAttributes, model.vertexAttributesBuffers )
+        if ( this.state.attributeBuffersNeedUpdate ) {
+            this.updateVertexAttributes( this.program.activeVertexAttributes, model.vertexAttributesBuffers )
 
-                this.state.attributeBuffersNeedUpdate = false
-            }
-
-            // reconeccion de buffer de indices ante cambio en modo de dibujado
-
-            if ( this.state.drawBufferNeedsUpdate ) {
-                this.updateDrawBuffer( model )
-
-                this.state.drawBufferNeedsUpdate = false
-            }
-
-            // dibujamos
-
-            this.state.drawBuffer.draw( this.state.drawMode )
-
-            // registro tiempo de dibujado y solicito proximo frame
-
-            this.state.lastDrawTime = performance.now()
-
-            requestAnimationFrame( now => this.animate( now ) )
+            this.state.attributeBuffersNeedUpdate = false
         }
+
+        // reconeccion de buffer de indices ante cambio en modo de dibujado
+
+        if ( this.state.drawBufferNeedsUpdate ) {
+            this.updateDrawBuffer( model )
+
+            this.state.drawBufferNeedsUpdate = false
+        }
+
+        // dibujamos
+
+        this.state.drawBuffer.draw( this.state.drawMode )
     }
 
     private updateMatrices( model: BuffersGeometry, camera: Camera ) {
@@ -370,14 +369,14 @@ export class Renderer {
     }
 
     private updateSize() {
-        const width = this.canvas.clientWidth
-        const height = this.canvas.clientHeight
+        const displayWidth = Math.floor( this.canvas.clientWidth * window.devicePixelRatio )
+        const displayHeight = Math.floor( this.canvas.clientHeight * window.devicePixelRatio )
 
-        this.canvas.width = width
-        this.canvas.height = height
+        this.canvas.width = displayWidth
+        this.canvas.height = displayHeight
 
-        this.camera.setAspect( width / height )
-        this.state.setViewport( width, height )
+        this.camera.setAspect( displayWidth / displayHeight )
+        this.state.setViewport( displayWidth, displayHeight )
     }
 
     private initUniformsCache( defaultUniforms: Array < [ string, ShaderVariableType, any ] > ) {
