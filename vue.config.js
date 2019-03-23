@@ -28,10 +28,7 @@ module.exports = {
             builderOptions: {
                 "appId": "com.agustin-burset.shaders-playground",
                 "copyright": "Copyright © 2019 Agustin Burset",
-                "productName": "Shaders Playground",
-                "mac": {
-                    "target": [ "dir" ]
-                }
+                "productName": "Shaders Playground"
             }
         }
     }

@@ -5,7 +5,7 @@ import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-buil
 import { ShaderType } from "./scripts/renderer/_constants"
 import menu from "./menu"
 
-const inDevelopment = process.env.NODE_ENV !== "production"
+const isDevelopment = process.env.NODE_ENV !== "production"
 protocol.registerStandardSchemes( [ "app" ], { secure: true } ) // Standard scheme must be registered before the app is ready
 app.commandLine.appendSwitch( "--ignore-gpu-blacklist" ) // Chrome by default black lists certain GPUs because of bugs.
 
@@ -23,7 +23,7 @@ function newMainWindow( filePath?: string ) {
         webPreferences: { experimentalFeatures: true }
     } )
 
-    loadWindowView( mainWindow, "main" )
+    loadWindowContents( mainWindow )
 
     // Window lifecycle
 
@@ -48,7 +48,7 @@ function newMainWindow( filePath?: string ) {
 // App lifecycle 🔄
 
 app.on( "ready", async() => {
-    if ( inDevelopment && ! process.env.IS_TEST ) {
+    if ( isDevelopment && ! process.env.IS_TEST ) {
         await installVueDevtools()
     }
 
@@ -74,14 +74,14 @@ app.on( "activate", () => {
 
 // Utils 🛠
 
-function loadWindowView( window: BrowserWindow, view: string ) {
-    if ( inDevelopment ) {
+function loadWindowContents( window: BrowserWindow ) {
+    if ( process.env.WEBPACK_DEV_SERVER_URL ) {
         // Load the url of the dev server if in development mode
-        window.loadURL( ( process.env.WEBPACK_DEV_SERVER_URL as string ) + "/#/" + view )
+        window.loadURL( process.env.WEBPACK_DEV_SERVER_URL )
     } else {
         // Load the index.html when not in development
         createProtocol( "app" )
-        window.loadURL( "app://./index.html#" + view )
+        window.loadURL( "app://./index.html" )
     }
 }
 
@@ -134,7 +134,7 @@ export {
 
 // Exit cleanly on request from parent process in development mode.
 
-if ( inDevelopment ) {
+if ( isDevelopment ) {
     if ( process.platform === "win32" ) {
         process.on( "message", ( data ) => {
             if ( data === "graceful-exit" ) {
