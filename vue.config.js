@@ -1,5 +1,13 @@
 module.exports = {
     lintOnSave: false,
+    pages: {
+        index: {
+            entry: 'src/pages/playground.ts',
+            template: 'public/playground.html',
+            filename: 'playground.html',
+            title: 'Playground',
+        }
+    },
     chainWebpack: config => {
         // GLSL Loader
         config.module

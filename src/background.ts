@@ -77,11 +77,11 @@ app.on( "activate", () => {
 function loadWindowContents( window: BrowserWindow ) {
     if ( process.env.WEBPACK_DEV_SERVER_URL ) {
         // Load the url of the dev server if in development mode
-        window.loadURL( process.env.WEBPACK_DEV_SERVER_URL )
+        window.loadURL( process.env.WEBPACK_DEV_SERVER_URL + "playground.html" )
     } else {
         // Load the index.html when not in development
         createProtocol( "app" )
-        window.loadURL( "app://./index.html" )
+        window.loadURL( "app://./playground.html" )
     }
 }
 

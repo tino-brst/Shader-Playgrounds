@@ -1,5 +1,5 @@
 <template>
-    <div id="app">
+    <div id="playground">
         <v-titlebar :file-name="fileName" :edited="documentHasUnsavedChanges" />
         <div class="panels">
             <div class="left-panel">
@@ -54,7 +54,7 @@ interface AppState {
 }
 
 export default Vue.extend( {
-    name: "App",
+    name: "Playground",
     components: {
         "v-titlebar": TitleBar,
         "v-editor": Editor,
@@ -189,7 +189,7 @@ export default Vue.extend( {
 </script>
 
 <style>
-@import "styles/fonts.css";
+@import "../styles/fonts.css";
 
 html {
     height: 100%;
@@ -218,7 +218,7 @@ body::after {
     z-index: 100;
 }
 
-#app {
+#playground {
     height: 100%;
     user-select: none;
     display: flex;
