@@ -1,5 +1,6 @@
 "use strict"
 
+import { FILE_EXTENSION } from "./constants"
 import { app, protocol, dialog, Menu, BrowserWindow } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
 import { ShaderType } from "./scripts/renderer/_constants"
@@ -11,10 +12,10 @@ app.commandLine.appendSwitch( "--ignore-gpu-blacklist" ) // Chrome by default bl
 
 // Window Management 🖼
 
-const mainWindows: Set <BrowserWindow> = new Set()
+const playgroundWindows: Set <BrowserWindow> = new Set()
 
-function newMainWindow( filePath?: string ) {
-    const mainWindow = new BrowserWindow( {
+function newPlaygroundWindow( filePath?: string ) {
+    const window = new BrowserWindow( {
         show: false,
         width: 1000,
         height: 700,
@@ -23,26 +24,28 @@ function newMainWindow( filePath?: string ) {
         webPreferences: { experimentalFeatures: true }
     } )
 
-    loadWindowContents( mainWindow )
+    loadWindowContents( window, "playground" )
 
     // Window lifecycle
 
-    mainWindow.on( "close", ( event ) => {
+    window.on( "close", ( event ) => {
         event.preventDefault()
-        mainWindow.webContents.send( "close" )
+        window.webContents.send( "close" )
     } )
 
-    mainWindow.on( "closed", () => {
-        mainWindows.delete( mainWindow )
+    window.on( "closed", () => {
+        playgroundWindows.delete( window )
     } )
 
-    mainWindow.webContents.on( "did-finish-load", () => {
+    window.webContents.on( "did-finish-load", () => {
         if ( filePath ) {
-            mainWindow.webContents.send( "open", filePath )
+            window.webContents.send( "open", filePath )
+        } else {
+            window.webContents.send( "new" )
         }
     } )
 
-    mainWindows.add( mainWindow )
+    playgroundWindows.add( window )
 }
 
 // App lifecycle 🔄
@@ -67,21 +70,21 @@ app.on( "window-all-closed", () => {
 
 app.on( "activate", () => {
     // 📝 mostrar la ventana de bienvenida si no hay ninguna abierta
-    if ( mainWindows.size === 0 ) {
+    if ( playgroundWindows.size === 0 ) {
         openFile()
     }
 } )
 
 // Utils 🛠
 
-function loadWindowContents( window: BrowserWindow ) {
+function loadWindowContents( window: BrowserWindow, type: "playground" | "welcome" ) {
     if ( process.env.WEBPACK_DEV_SERVER_URL ) {
         // Load the url of the dev server if in development mode
-        window.loadURL( process.env.WEBPACK_DEV_SERVER_URL + "playground.html" )
+        window.loadURL( process.env.WEBPACK_DEV_SERVER_URL + type + ".html" )
     } else {
         // Load the index.html when not in development
         createProtocol( "app" )
-        window.loadURL( "app://./playground.html" )
+        window.loadURL( "app://./${type}.html" )
     }
 }
 
@@ -92,7 +95,7 @@ function showOpenFileDialog() {
         properties: [ "openFile" ],
         title: "Open file",
         filters: [
-            { name: "Shaders Playground", extensions: [ "shdr" ] }
+            { name: "Shaders Playground", extensions: [ FILE_EXTENSION ] }
         ]
     } )
 
@@ -103,12 +106,16 @@ function openFile() {
     const filePath = showOpenFileDialog()
 
     if ( filePath !== undefined ) {
-        newMainWindow( filePath )
+        newPlaygroundWindow( filePath )
     }
 }
 
+function newFile() {
+    newPlaygroundWindow()
+}
+
 function saveFile( focusedWindow: BrowserWindow | undefined ) {
-    if ( focusedWindow ) { // ⚠️ ¿ no habria que ver que la enfocada sea una de las "main" ?
+    if ( focusedWindow ) { // ⚠️ ¿ no habria que ver que la enfocada sea una de las "playground" ?
         focusedWindow.webContents.send( "save" )
     }
 }
@@ -127,6 +134,7 @@ function compileAndRun( focusedWindow: BrowserWindow | undefined ) {
 
 export {
     openFile,
+    newFile,
     saveFile,
     activeShader,
     compileAndRun

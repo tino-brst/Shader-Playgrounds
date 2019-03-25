@@ -44,6 +44,7 @@ import Renderer from "@/components/Renderer.vue"
 import TitleBar from "@/components/TitleBar.vue"
 import { ShaderType } from "@/scripts/renderer/_constants"
 import { RendererState, EditorState } from "@/store"
+import { FILE_EXTENSION, NEW_FILE_NAME } from "@/constants"
 
 const app = remote.app
 const dialog = remote.dialog
@@ -64,13 +65,18 @@ export default Vue.extend( {
     data: () => ( {
         activeShader: ShaderType.Vertex,
         filePath: "",
-        fileName: "",
         window: remote.getCurrentWindow()
     } ),
     computed: {
         windowTitle(): string {
             // @ts-ignore
             return ( this.fileName + ( this.documentHasUnsavedChanges ? " - Edited" : "" ) )
+        },
+        newFile(): boolean {
+            return ! this.filePath
+        },
+        fileName(): string {
+            return this.filePath ? path.basename( this.filePath, "." + FILE_EXTENSION ) : NEW_FILE_NAME
         },
         ...mapState( [
             "editorState",
@@ -93,6 +99,7 @@ export default Vue.extend( {
     },
     mounted() {
         ipc.once( "open", this.onOpen )
+        ipc.on( "new", this.onNew )
         ipc.on( "save", this.onSave )
         ipc.on( "close", this.onClose )
         ipc.on( "shader", this.setActiveShader )
@@ -107,21 +114,34 @@ export default Vue.extend( {
             this.activeShader = shader
         },
         onOpen( event: Event, filePath: string ) {
-            this.loadAppStateFromFile( filePath )
+            this.filePath = filePath
+            this.loadAppStateFromFile()
+            this.showWindow()
+        },
+        onNew() {
             this.showWindow()
         },
         onSave() {
-            this.saveAppState()
+            if ( ! this.newFile ) {
+                this.saveAppStateToFile()
+            } else {
+                const filePath  = this.showSaveDialog()
+
+                if ( filePath ) {
+                    this.filePath = filePath
+                    this.saveAppStateToFile()
+                }
+            }
         },
         onClose() {
             // @ts-ignore
             if ( this.documentHasUnsavedChanges ) {
-                this.displayUnsavedChangesWarning()
+                this.showUnsavedChangesWarning()
             } else {
                 this.closeWindow()
             }
         },
-        displayUnsavedChangesWarning() {
+        showUnsavedChangesWarning() {
             enum options {
                 save,
                 cancel,
@@ -135,7 +155,7 @@ export default Vue.extend( {
 
             const selectedOption = dialog.showMessageBox( {
                 title: "Unsaved Changes",
-                message: `Do you want to save the changes you made to ${ this.fileName }?`,
+                message: `Do you want to save the changes you made to ${ path.basename( this.filePath ) }?`,
                 detail: "Your changes will be lost if you don't save them.",
                 type: "warning",
                 buttons: optionsLabels,
@@ -146,9 +166,19 @@ export default Vue.extend( {
             if ( selectedOption === options.dontSave ) {
                 this.closeWindow()
             } else if ( selectedOption === options.save ) {
-                this.saveAppState()
+                this.saveAppStateToFile()
                 this.closeWindow()
             }
+        },
+        showSaveDialog() {
+            const filePath = dialog.showSaveDialog( {
+                defaultPath: this.fileName,
+                filters: [
+                    { name: "Shaders Playground Files", extensions: [ FILE_EXTENSION ] }
+                ]
+            } )
+
+            return filePath
         },
         showWindow() {
             this.window.show()
@@ -157,11 +187,8 @@ export default Vue.extend( {
         closeWindow() {
             this.window.destroy()
         },
-        loadAppStateFromFile( filePath: string ) {
-            this.filePath = filePath
-            this.fileName = path.basename( filePath )
-
-            const appState: AppState = fs.read( filePath, "json" )
+        loadAppStateFromFile() {
+            const appState: AppState = fs.read( this.filePath, "json" )
 
             this.$store.commit( "updateEditorState", appState.editor )
             this.$store.commit( "updateRendererState", appState.renderer )
@@ -172,7 +199,7 @@ export default Vue.extend( {
 
             this.compileAndRun()
         },
-        saveAppState() {
+        saveAppStateToFile() {
             EventBus.$emit( "commitState" )
 
             const appState: AppState = {

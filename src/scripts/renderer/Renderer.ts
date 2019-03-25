@@ -94,10 +94,9 @@ export class Renderer {
 
         this.updateSize()
 
-        // modelo y shaders por defecto
+        // modelo por defecto
 
         this.setModel( "cube" )
-        this.setShaderProgram( defaultVertexShaderSource, defaultFragmentShaderSource )
     }
 
     // 👥  Metodos Publicos

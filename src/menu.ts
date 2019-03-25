@@ -27,7 +27,7 @@ const File: MenuItemConstructorOptions = {
         {
             label: "New",
             accelerator: "CmdOrCtrl+N",
-            // click() { background... }
+            click() { background.newFile() }
         },
         {
             label: "Open...",
