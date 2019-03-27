@@ -182,7 +182,7 @@ export default Vue.extend( {
         },
         showWindow() {
             this.window.show()
-            this.$store.commit( "setWindowReady" )
+            this.$store.commit( "WINDOW_READY" )
         },
         closeWindow() {
             this.window.destroy()
@@ -190,8 +190,8 @@ export default Vue.extend( {
         loadAppStateFromFile() {
             const appState: AppState = fs.read( this.filePath, "json" )
 
-            this.$store.commit( "updateEditorState", appState.editor )
-            this.$store.commit( "updateRendererState", appState.renderer )
+            this.$store.commit( "SET_EDITOR_STATE", appState.editor )
+            this.$store.commit( "SET_RENDERER_STATE", appState.renderer )
 
             this.activeShader = this.$store.getters.activeShader
 

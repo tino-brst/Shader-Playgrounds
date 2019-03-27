@@ -68,7 +68,7 @@ export default Vue.extend( {
     },
     methods: {
         updateTextureUnit( unit: number, texture: string ) {
-            this.$store.commit( "setTextureUnitForUpdate", { unit, texture } )
+            this.$store.commit( "SET_TEXTURE_UNIT_TO_UPDATE", { unit, texture } )
         },
         selectUnit( unit: number ) {
             const previousTexture = this.texturesAssignedToTextureUnits[ this.selectedUnit ]

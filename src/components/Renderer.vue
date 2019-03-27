@@ -73,7 +73,7 @@ export default Vue.extend( {
             // @ts-ignore
             if ( this.renderer.setTextureForUnit( this.textureUnitToUpdate.texture, this.textureUnitToUpdate.unit ) ) {
                 // @ts-ignore
-                this.$store.commit( "updateTextureAssignedToTextureUnit", this.textureUnitToUpdate )
+                this.$store.commit( "SET_TEXTURE_ASSIGNED_TO_TEXTURE_UNIT", this.textureUnitToUpdate )
             }
         },
         model() {
@@ -84,7 +84,7 @@ export default Vue.extend( {
                 // @ts-ignore
                 const lastSaveModel = this.rendererState.model
                 if ( ( lastSaveModel !== undefined ) && ( lastSaveModel !== this.model ) ) {
-                    this.$store.commit( "markRendererDirty" )
+                    this.$store.commit( "MARK_RENDERER_DIRTY" )
                 }
             }
         },
@@ -96,7 +96,7 @@ export default Vue.extend( {
                 // @ts-ignore
                 const lastSaveAnimations = this.rendererState.animations
                 if ( ( lastSaveAnimations !== undefined ) && ( lastSaveAnimations !== this.animations ) ) {
-                    this.$store.commit( "markRendererDirty" )
+                    this.$store.commit( "MARK_RENDERER_DIRTY" )
                 }
             }
         },
@@ -108,7 +108,7 @@ export default Vue.extend( {
                 // @ts-ignore
                 const lastSaveWireframe = this.rendererState.wireframe
                 if ( ( lastSaveWireframe !== undefined ) && ( lastSaveWireframe !== this.wireframe ) ) {
-                    this.$store.commit( "markRendererDirty" )
+                    this.$store.commit( "MARK_RENDERER_DIRTY" )
                 }
             }
         }
@@ -124,7 +124,7 @@ export default Vue.extend( {
         this.animations = true
         this.wireframe = true
 
-        this.$store.commit( "updateTexturesAssignedToTextureUnits", this.renderer.getTexturesAssignedToTextureUnits() )
+        this.$store.commit( "SET_TEXTURES_ASSIGNED_TO_TEXTURE_UNITS", this.renderer.getTexturesAssignedToTextureUnits() )
 
         EventBus.$on( "compileAndRun", this.compileAndRun )
         EventBus.$on( "commitState", this.commitState )
@@ -137,16 +137,16 @@ export default Vue.extend( {
             const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
             const uniformsEditors = this.renderer.getUniformsEditors()
 
-            this.$store.commit( "updateCompilationState", compilationSucceeded )
-            this.$store.commit( "updateLog", errorsAndWarnings )
-            this.$store.commit( "updateUniformsEditors", uniformsEditors )
+            this.$store.commit( "SET_COMPILATION_SUCCEEDED", compilationSucceeded )
+            this.$store.commit( "SET_LOGS", errorsAndWarnings )
+            this.$store.commit( "SET_UNIFORMS_EDITORS", uniformsEditors )
         },
         updateModel() {
             this.renderer.setModel( this.model )
 
             // the model change may generate new warnings (e.g. missing attributes)
             const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
-            this.$store.commit( "updateLog", errorsAndWarnings )
+            this.$store.commit( "SET_LOGS", errorsAndWarnings )
         },
         onModelsLoaded() {
             this.availableModels = this.renderer.getAvailableModels()
@@ -154,7 +154,7 @@ export default Vue.extend( {
             this.updateModel()
         },
         onTexturesLoaded() {
-            this.$store.commit( "updateAvailableTextures", this.renderer.getAvailableTextures() )
+            this.$store.commit( "SET_AVAILABLE_TEXTURES", this.renderer.getAvailableTextures() )
             this.texturesLoaded = true
         },
         commitState() {
@@ -165,7 +165,7 @@ export default Vue.extend( {
                 uniforms: this.renderer.getUniformsState()
             }
 
-            this.$store.commit( "updateRendererState", rendererState )
+            this.$store.commit( "SET_RENDERER_STATE", rendererState )
         },
         loadState() {
             // @ts-ignore

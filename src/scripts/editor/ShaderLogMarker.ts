@@ -40,7 +40,7 @@ export default class ShaderLogMarker {
     private removeFromLog = () => { // Teje maneje con definicion de funcion como "arrow function" para mantener el contexto del this cuando se la llama y tenga un nombre para desregistrar el evento
         const shader = this.shader.type
         const line = this.lineNumber
-        store.commit( "clearLineLog", { shader, line } )
+        store.commit( "CLEAR_LOG_LINE", { shader, line } )
         // @ts-ignore
         this.lineHandle.off( "change", this.removeFromLog )
     }

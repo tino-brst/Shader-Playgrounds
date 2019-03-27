@@ -300,7 +300,7 @@ export default Vue.extend( {
             const vertex = this.vertexView.getValue()
             const fragment = this.fragmentView.getValue()
 
-            this.$store.commit( "updateShadersCode", { vertex, fragment } )
+            this.$store.commit( "SET_SHADERS_CODE", { vertex, fragment } )
         },
         commitState() {
             const editorState: EditorState = {
@@ -309,7 +309,7 @@ export default Vue.extend( {
                 activeShader: this.activeShader as ShaderType
             }
 
-            this.$store.commit( "updateEditorState", editorState )
+            this.$store.commit( "SET_EDITOR_STATE", editorState )
             this.enableChangeDetection()
         },
         loadState() {
@@ -324,13 +324,13 @@ export default Vue.extend( {
             // evito registrar muchas veces el mismo evento
             if ( ! this.changeDetectionEnabled ) {
                 // ante cualquier cambio en el editor, marco su estado como "dirty" para reflejar cambios sin guardar en el archivo
-                this.editor.on( "change", this.markEditorDirty )
+                this.editor.on( "change", this.MARK_EDITOR_DIRTY )
                 this.changeDetectionEnabled = true
             }
         },
-        markEditorDirty() {
-            this.$store.commit( "markEditorDirty" )
-            this.editor.off( "change", this.markEditorDirty )
+        MARK_EDITOR_DIRTY() {
+            this.$store.commit( "MARK_EDITOR_DIRTY" )
+            this.editor.off( "change", this.MARK_EDITOR_DIRTY )
             this.changeDetectionEnabled = false
         }
     }

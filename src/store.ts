@@ -70,19 +70,19 @@ const state: State = {
 }
 
 const mutations = {
-    updateEditorState: ( state: State, editorState: EditorState ) => {
+    SET_EDITOR_STATE: ( state: State, editorState: EditorState ) => {
         state.editorState = editorState
         state.editorClean = true
     },
-    updateRendererState: ( state: State, rendererState: RendererState ) => {
+    SET_RENDERER_STATE: ( state: State, rendererState: RendererState ) => {
         state.rendererState = rendererState
         state.rendererClean = true
     },
-    updateShadersCode: ( state: State, { vertex, fragment }: { vertex: string, fragment: string } ) => {
+    SET_SHADERS_CODE: ( state: State, { vertex, fragment }: { vertex: string, fragment: string } ) => {
         state.vertex = vertex
         state.fragment = fragment
     },
-    updateLog: ( state: State, newEntries: InspectorLogEntry[] ) => {
+    SET_LOGS: ( state: State, newEntries: InspectorLogEntry[] ) => {
         const vertexLog: ShaderLog = { errors: [], warnings: [] }
         const fragmentLog: ShaderLog = { errors: [], warnings: [] }
 
@@ -103,25 +103,25 @@ const mutations = {
         state.vertexLog = vertexLog
         state.fragmentLog = fragmentLog
     },
-    updateCompilationState: ( state: State, succeeded: boolean ) => {
+    SET_COMPILATION_SUCCEEDED: ( state: State, succeeded: boolean ) => {
         state.compilationSucceeded = succeeded
     },
-    updateUniformsEditors: ( state: State, newEditors: UniformEditor[] ) => {
+    SET_UNIFORMS_EDITORS: ( state: State, newEditors: UniformEditor[] ) => {
         state.uniformsEditors = newEditors
     },
-    updateAvailableTextures: ( state: State, newTextures: string[] ) => {
+    SET_AVAILABLE_TEXTURES: ( state: State, newTextures: string[] ) => {
         state.availableTextures = newTextures
     },
-    updateTexturesAssignedToTextureUnits: ( state: State, newTextures: string[] ) => {
+    SET_TEXTURES_ASSIGNED_TO_TEXTURE_UNITS: ( state: State, newTextures: string[] ) => {
         state.texturesAssignedToTextureUnits = newTextures
     },
-    updateTextureAssignedToTextureUnit: ( state: State, newValue: { unit: number, texture: string } ) => {
+    SET_TEXTURE_ASSIGNED_TO_TEXTURE_UNIT: ( state: State, newValue: { unit: number, texture: string } ) => {
         Vue.set( state.texturesAssignedToTextureUnits, newValue.unit, newValue.texture )
     },
-    setTextureUnitForUpdate: ( state: State, newValue: { unit: number, texture: string } ) => {
+    SET_TEXTURE_UNIT_TO_UPDATE: ( state: State, newValue: { unit: number, texture: string } ) => {
         state.textureUnitToUpdate = newValue
     },
-    clearLineLog: ( state: State, { shader, line }: { shader: ShaderType, line: number } ) => {
+    CLEAR_LOG_LINE: ( state: State, { shader, line }: { shader: ShaderType, line: number } ) => {
         const log      = ( shader === ShaderType.Vertex ) ? state.vertexLog : state.fragmentLog
         const errors   = log.errors
         const warnings = log.warnings
@@ -145,13 +145,13 @@ const mutations = {
             state.fragmentLog = { errors, warnings }
         }
     },
-    markEditorDirty: ( state: State ) => {
+    MARK_EDITOR_DIRTY: ( state: State ) => {
         state.editorClean = false
     },
-    markRendererDirty: ( state: State ) => {
+    MARK_RENDERER_DIRTY: ( state: State ) => {
         state.rendererClean = false
     },
-    setWindowReady: ( state: State ) => {
+    WINDOW_READY: ( state: State ) => {
         state.windowReady = true
     }
 }
