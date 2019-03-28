@@ -159,6 +159,7 @@ export default Vue.extend( {
             }
 
             this.$store.commit( "SET_RENDERER_STATE", rendererState )
+            this.$store.commit( "SET_UNIFORMS", this.renderer.getUniformsState() )
         },
         loadState() {
             // @ts-ignore

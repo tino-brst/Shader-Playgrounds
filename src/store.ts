@@ -52,7 +52,15 @@ export interface State {
     model: string,
     animations: boolean,
     wireframe: boolean,
-    activeShader: ShaderType
+    activeShader: ShaderType,
+    uniforms: UniformState[]
+}
+
+export interface StateSaveInfo {
+    vertexSource: string,
+    fragmentSource: string,
+    model: string,
+    uniforms: UniformState[]
 }
 
 Vue.use( Vuex )
@@ -75,7 +83,8 @@ const state: State = {
     model: "",
     animations: true,
     wireframe: false,
-    activeShader: ShaderType.Vertex
+    activeShader: ShaderType.Vertex,
+    uniforms: []
 }
 
 const mutations = {
@@ -172,6 +181,9 @@ const mutations = {
     },
     SET_ACTIVE_SHADER: ( state: State, value: ShaderType ) => {
         state.activeShader = value
+    },
+    SET_UNIFORMS: ( state: State, value: UniformState[] ) => {
+        state.uniforms = value
     }
 }
 
@@ -203,6 +215,16 @@ const getters = {
     },
     documentHasUnsavedChanges: ( state: State ) => {
         return ! state.editorClean
+    },
+    saveInfo: ( state: State ) => {
+        const saveInfo: StateSaveInfo = {
+            vertexSource: state.vertexSource,
+            fragmentSource: state.fragmentSource,
+            model: state.model,
+            uniforms: state.uniforms
+        }
+
+        return saveInfo
     }
 }
 
