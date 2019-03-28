@@ -36,7 +36,6 @@ import Checkbox from "@/components/Checkbox.vue"
 import ProgressBar from "@/components/ProgressBar.vue"
 import { Renderer, Model } from "@/scripts/renderer/Renderer"
 import { mapState, mapGetters } from "vuex"
-import { RendererState } from "@/store"
 const { RefreshCwIcon, BoxIcon } = require( "vue-feather-icons" )
 
 export default Vue.extend( {
@@ -81,9 +80,9 @@ export default Vue.extend( {
         },
         ...mapState( [
             "compilationSucceeded",
-            "rendererState",
             "vertexSource",
             "fragmentSource",
+            "uniforms",
             "textureUnitToUpdate",
             "windowReady"
         ] )
@@ -151,25 +150,11 @@ export default Vue.extend( {
             this.texturesLoaded = true
         },
         commitState() {
-            const rendererState: RendererState = {
-                model: this.model,
-                animations: this.animations,
-                wireframe: this.wireframe,
-                uniforms: this.renderer.getUniformsState()
-            }
-
-            this.$store.commit( "SET_RENDERER_STATE", rendererState )
             this.$store.commit( "SET_UNIFORMS", this.renderer.getUniformsState() )
         },
         loadState() {
             // @ts-ignore
-            this.model = this.rendererState.model
-            // @ts-ignore
-            this.animations = this.rendererState.animations
-            // @ts-ignore
-            this.wireframe = this.rendererState.wireframe
-            // @ts-ignore
-            this.renderer.setUniformsState( this.rendererState.uniforms )
+            this.renderer.setUniformsState( this.uniforms )
         }
     }
 } )

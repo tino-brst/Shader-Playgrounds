@@ -43,16 +43,11 @@ import Editor from "@/components/Editor.vue"
 import Renderer from "@/components/Renderer.vue"
 import TitleBar from "@/components/TitleBar.vue"
 import { ShaderType } from "@/scripts/renderer/_constants"
-import { RendererState, EditorState } from "@/store"
+import { StateSaveInfo } from "@/store"
 import { FILE_EXTENSION, NEW_FILE_NAME } from "@/constants"
 
 const app = remote.app
 const dialog = remote.dialog
-
-interface AppState {
-    renderer: RendererState,
-    editor: EditorState
-}
 
 export default Vue.extend( {
     name: "Playground",
@@ -77,14 +72,11 @@ export default Vue.extend( {
         fileName(): string {
             return this.filePath ? path.basename( this.filePath, "." + FILE_EXTENSION ) : NEW_FILE_NAME
         },
-        ...mapState( [
-            "editorState",
-            "rendererState"
-        ] ),
         ...mapGetters( [
             "documentHasUnsavedChanges",
             "errorsCount",
-            "warningsCount"
+            "warningsCount",
+            "saveInfo"
         ] )
     },
     watch: {
@@ -187,10 +179,9 @@ export default Vue.extend( {
             this.window.destroy()
         },
         loadAppStateFromFile() {
-            const appState: AppState = fs.read( this.filePath, "json" )
+            const savedState: StateSaveInfo = fs.read( this.filePath, "json" )
 
-            this.$store.commit( "SET_EDITOR_STATE", appState.editor )
-            this.$store.commit( "SET_RENDERER_STATE", appState.renderer )
+            this.$store.dispatch( "restoreState", savedState )
 
             EventBus.$emit( "loadState" )
 
@@ -199,14 +190,8 @@ export default Vue.extend( {
         saveAppStateToFile() {
             EventBus.$emit( "commitState" )
 
-            const appState: AppState = {
-                // @ts-ignore
-                editor: this.editorState,
-                // @ts-ignore
-                renderer: this.rendererState
-            }
-
-            fs.write( this.filePath, appState )
+            // @ts-ignore
+            fs.write( this.filePath, this.saveInfo )
         }
     }
 } )

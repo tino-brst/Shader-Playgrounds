@@ -35,7 +35,6 @@ import "@/scripts/editor/codemirror/keymap/sublime"
 
 import sampleVertex from "@/sample_shaders/textures.vert.glsl"
 import sampleFragment from "@/sample_shaders/textures.frag.glsl"
-import { EditorState } from "@/store"
 
 const TOOLS_KEY = "Alt"
 
@@ -115,7 +114,8 @@ export default Vue.extend( {
         },
         ...mapState( [
             "activeShader",
-            "editorState",
+            "vertexSource",
+            "fragmentSource",
             "vertexLog",
             "fragmentLog",
             "uniformsEditors"
@@ -296,26 +296,20 @@ export default Vue.extend( {
             this.$store.commit( "SET_FRAGMENT_SOURCE", this.fragmentView.getValue() )
         },
         commitState() { // 📝 -> "saveState"
-            const editorState: EditorState = {
-                vertex: this.vertexView.getValue(),
-                fragment: this.fragmentView.getValue(),
-                // @ts-ignore
-                activeShader: this.activeShader as ShaderType
-            }
-
             this.vertexView.markClean()
             this.fragmentView.markClean()
 
-            this.$store.commit( "SET_EDITOR_STATE", editorState )
+            this.$store.commit( "SET_VERTEX_SOURCE", this.vertexView.getValue() )
+            this.$store.commit( "SET_FRAGMENT_SOURCE", this.fragmentView.getValue() )
             this.$store.commit( "SET_EDITOR_CLEAN", this.isClean() )
         },
         loadState() {
             // @ts-ignore
-            this.vertexView.setValue( this.editorState.vertex )
+            this.vertexView.setValue( this.vertexSource )
             this.vertexView.clearHistory()
             this.vertexView.markClean()
             // @ts-ignore
-            this.fragmentView.setValue( this.editorState.fragment )
+            this.fragmentView.setValue( this.fragmentSource )
             this.fragmentView.clearHistory()
             this.fragmentView.markClean()
 

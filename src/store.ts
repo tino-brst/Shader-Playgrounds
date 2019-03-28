@@ -1,28 +1,12 @@
 import Vue from "vue"
-import Vuex from "vuex"
+import Vuex, { ActionContext } from "vuex"
 import { InspectorLogEntry, LogEntryType } from "@/scripts/renderer/InspectorLogEntry"
 import { ShaderType } from "@/scripts/renderer/_constants"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import { ShaderLog } from "@/scripts/editor/ShaderView"
 import { UniformState } from "./scripts/renderer/UniformsCache"
 
-export interface EditorState {
-    vertex: string,
-    fragment: string,
-    activeShader: ShaderType
-}
-export interface RendererState {
-    model: string,
-    animations: boolean,
-    wireframe: boolean,
-    uniforms: UniformState[]
-}
-
 export interface State {
-    // editorState, rendererState: almacenan el estado de la aplicacion levantado de un archivo y se actualizan cada vez que el archivo se guarda
-    editorState: EditorState,
-    rendererState: RendererState,
-
     // si existen cambios sin guardar en alguno de los componentes
     editorClean: boolean,
 
@@ -66,8 +50,6 @@ export interface StateSaveInfo {
 Vue.use( Vuex )
 
 const state: State = {
-    editorState: {} as EditorState,
-    rendererState: {} as RendererState,
     editorClean: true,
     vertexSource: "",
     fragmentSource: "",
@@ -88,12 +70,6 @@ const state: State = {
 }
 
 const mutations = {
-    SET_EDITOR_STATE: ( state: State, editorState: EditorState ) => {
-        state.editorState = editorState
-    },
-    SET_RENDERER_STATE: ( state: State, rendererState: RendererState ) => {
-        state.rendererState = rendererState
-    },
     SET_VERTEX_SOURCE: ( state: State, value: string ) => {
         state.vertexSource = value
     },
@@ -188,9 +164,6 @@ const mutations = {
 }
 
 const getters = {
-    activeShader: ( state: State ) => {
-        return state.editorState.activeShader
-    },
     errorsCount: ( state: State ) => {
         const vertexErrors = state.vertexLog.errors.reduce( ( previous, current ) => {
             return previous + current[ 1 ].length
@@ -228,9 +201,19 @@ const getters = {
     }
 }
 
+const actions = {
+    restoreState: ( context: ActionContext< State, State >, state: StateSaveInfo ) => {
+        context.commit( "SET_VERTEX_SOURCE", state.vertexSource )
+        context.commit( "SET_FRAGMENT_SOURCE", state.fragmentSource )
+        context.commit( "SET_MODEL", state.model )
+        context.commit( "SET_UNIFORMS", state.uniforms )
+    }
+}
+
 export default new Vuex.Store( {
     strict: process.env.NODE_ENV !== 'production',
     state,
     mutations,
-    getters
+    getters,
+    actions
 } )
