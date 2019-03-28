@@ -25,7 +25,6 @@ export interface State {
 
     // si existen cambios sin guardar en alguno de los componentes
     editorClean: boolean,
-    rendererClean: boolean,
 
     // codigo del editor a ser leido por el renderer ante compilacion
     vertexSource: string,
@@ -48,6 +47,11 @@ export interface State {
 
     // estado de la ventana para inicio prolijo de algunas animaciones etc
     windowReady: boolean
+
+    // 🚧 renderer state
+    model: string,
+    animations: boolean,
+    wireframe: boolean
 }
 
 Vue.use( Vuex )
@@ -56,7 +60,6 @@ const state: State = {
     editorState: {} as EditorState,
     rendererState: {} as RendererState,
     editorClean: true,
-    rendererClean: true,
     vertexSource: "",
     fragmentSource: "",
     compilationSucceeded: true,
@@ -66,7 +69,11 @@ const state: State = {
     availableTextures: [] as string[],
     texturesAssignedToTextureUnits: [] as string[],
     textureUnitToUpdate: { unit: 0, texture: "" },
-    windowReady: false
+    windowReady: false,
+    // 🚧
+    model: "",
+    animations: true,
+    wireframe: false
 }
 
 const mutations = {
@@ -75,7 +82,6 @@ const mutations = {
     },
     SET_RENDERER_STATE: ( state: State, rendererState: RendererState ) => {
         state.rendererState = rendererState
-        state.rendererClean = true
     },
     SET_VERTEX_SOURCE: ( state: State, value: string ) => {
         state.vertexSource = value
@@ -149,11 +155,18 @@ const mutations = {
     SET_EDITOR_CLEAN: ( state: State, value: boolean ) => {
         state.editorClean = value
     },
-    MARK_RENDERER_DIRTY: ( state: State ) => {
-        state.rendererClean = false
-    },
     WINDOW_READY: ( state: State ) => {
         state.windowReady = true
+    },
+    // 🚧
+    SET_ANIMATIONS: ( state: State, value: boolean ) => {
+        state.animations = value
+    },
+    SET_MODEL: ( state: State, value: string ) => {
+        state.model = value
+    },
+    SET_WIREFRAME: ( state: State, value: boolean ) => {
+        state.wireframe = value
     }
 }
 
@@ -184,7 +197,7 @@ const getters = {
         return vertexWarnings + fragmentWarnings
     },
     documentHasUnsavedChanges: ( state: State ) => {
-        return ( ! state.editorClean ) || ( ! state.rendererClean )
+        return ! state.editorClean
     }
 }
 

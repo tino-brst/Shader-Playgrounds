@@ -51,13 +51,34 @@ export default Vue.extend( {
     data: () => ( {
         renderer: {} as Renderer,
         availableModels: [] as Model[],
-        model: "",
-        animations: true,
-        wireframe: true,
         modelsLoaded: false,
         texturesLoaded: false
     } ),
     computed: {
+        model: {
+            get(): string {
+                return this.$store.state.model
+            },
+            set( value: string ) {
+                this.$store.commit( "SET_MODEL", value )
+            }
+        },
+        animations: {
+            get(): boolean {
+                return this.$store.state.animations
+            },
+            set( value: boolean ) {
+                this.$store.commit( "SET_ANIMATIONS", value )
+            }
+        },
+        wireframe: {
+            get(): boolean {
+                return this.$store.state.wireframe
+            },
+            set( value: boolean ) {
+                this.$store.commit( "SET_WIREFRAME", value )
+            }
+        },
         ...mapState( [
             "compilationSucceeded",
             "rendererState",
@@ -78,39 +99,12 @@ export default Vue.extend( {
         },
         model() {
             this.updateModel()
-
-            // @ts-ignore
-            if ( this.rendererClean ) {
-                // @ts-ignore
-                const lastSaveModel = this.rendererState.model
-                if ( ( lastSaveModel !== undefined ) && ( lastSaveModel !== this.model ) ) {
-                    this.$store.commit( "MARK_RENDERER_DIRTY" )
-                }
-            }
         },
         animations() {
             this.renderer.setAnimation( this.animations )
-
-            // @ts-ignore
-            if ( this.rendererClean ) {
-                // @ts-ignore
-                const lastSaveAnimations = this.rendererState.animations
-                if ( ( lastSaveAnimations !== undefined ) && ( lastSaveAnimations !== this.animations ) ) {
-                    this.$store.commit( "MARK_RENDERER_DIRTY" )
-                }
-            }
         },
         wireframe() {
             this.renderer.setWireframe( this.wireframe )
-
-            // @ts-ignore
-            if ( this.rendererClean ) {
-                // @ts-ignore
-                const lastSaveWireframe = this.rendererState.wireframe
-                if ( ( lastSaveWireframe !== undefined ) && ( lastSaveWireframe !== this.wireframe ) ) {
-                    this.$store.commit( "MARK_RENDERER_DIRTY" )
-                }
-            }
         }
     },
     mounted() {
@@ -121,8 +115,8 @@ export default Vue.extend( {
 
         this.availableModels = this.renderer.getAvailableModels()
         this.model = this.availableModels[ 0 ].name
-        this.animations = true
-        this.wireframe = true
+        this.renderer.setAnimation( this.animations )
+        this.renderer.setWireframe( this.wireframe )
 
         this.$store.commit( "SET_TEXTURES_ASSIGNED_TO_TEXTURE_UNITS", this.renderer.getTexturesAssignedToTextureUnits() )
 
