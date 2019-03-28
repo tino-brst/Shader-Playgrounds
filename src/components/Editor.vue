@@ -296,10 +296,8 @@ export default Vue.extend( {
             this.editor.focus()
         },
         commitShadersCode() {
-            const vertex = this.vertexView.getValue()
-            const fragment = this.fragmentView.getValue()
-
-            this.$store.commit( "SET_SHADERS_CODE", { vertex, fragment } )
+            this.$store.commit( "SET_VERTEX_SOURCE", this.vertexView.getValue() )
+            this.$store.commit( "SET_FRAGMENT_SOURCE", this.fragmentView.getValue() )
         },
         commitState() { // 📝 -> "saveState"
             const editorState: EditorState = {

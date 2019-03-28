@@ -62,8 +62,8 @@ export default Vue.extend( {
             "compilationSucceeded",
             "rendererState",
             "rendererClean",
-            "vertex",
-            "fragment",
+            "vertexSource",
+            "fragmentSource",
             "textureUnitToUpdate",
             "windowReady"
         ] )
@@ -133,7 +133,7 @@ export default Vue.extend( {
     methods: {
         compileAndRun() {
             // @ts-ignore
-            const compilationSucceeded = this.renderer.setShaderProgram( this.vertex, this.fragment )
+            const compilationSucceeded = this.renderer.setShaderProgram( this.vertexSource, this.fragmentSource )
             const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
             const uniformsEditors = this.renderer.getUniformsEditors()
 

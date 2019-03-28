@@ -28,8 +28,8 @@ export interface State {
     rendererClean: boolean,
 
     // codigo del editor a ser leido por el renderer ante compilacion
-    vertex: string,
-    fragment: string,
+    vertexSource: string,
+    fragmentSource: string,
 
     // estado de ultima compilacion
     compilationSucceeded: boolean,
@@ -57,8 +57,8 @@ const state: State = {
     rendererState: {} as RendererState,
     editorClean: true,
     rendererClean: true,
-    vertex: "",
-    fragment: "",
+    vertexSource: "",
+    fragmentSource: "",
     compilationSucceeded: true,
     vertexLog: { errors: [], warnings: [] } as ShaderLog,
     fragmentLog: { errors: [], warnings: [] } as ShaderLog,
@@ -77,9 +77,11 @@ const mutations = {
         state.rendererState = rendererState
         state.rendererClean = true
     },
-    SET_SHADERS_CODE: ( state: State, { vertex, fragment }: { vertex: string, fragment: string } ) => {
-        state.vertex = vertex
-        state.fragment = fragment
+    SET_VERTEX_SOURCE: ( state: State, value: string ) => {
+        state.vertexSource = value
+    },
+    SET_FRAGMENT_SOURCE: ( state: State, value: string ) => {
+        state.fragmentSource = value
     },
     SET_LOGS: ( state: State, newEntries: InspectorLogEntry[] ) => {
         const vertexLog: ShaderLog = { errors: [], warnings: [] }
