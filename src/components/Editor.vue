@@ -67,7 +67,6 @@ export default Vue.extend( {
     },
     data: () => ( {
         editor: {} as Editor,
-        changeDetectionEnabled: false,
         vertexView: new ShaderView( ShaderType.Vertex ) as ShaderView,
         fragmentView: new ShaderView( ShaderType.Fragment ) as ShaderView,
         supportedUniformsTypes: new Set( Object.keys( UniformsEditors ) ),
@@ -302,36 +301,35 @@ export default Vue.extend( {
 
             this.$store.commit( "SET_SHADERS_CODE", { vertex, fragment } )
         },
-        commitState() {
+        commitState() { // 📝 -> "saveState"
             const editorState: EditorState = {
                 vertex: this.vertexView.getValue(),
                 fragment: this.fragmentView.getValue(),
                 activeShader: this.activeShader as ShaderType
             }
 
+            this.vertexView.markClean()
+            this.fragmentView.markClean()
+
             this.$store.commit( "SET_EDITOR_STATE", editorState )
-            this.enableChangeDetection()
+            this.$store.commit( "SET_EDITOR_CLEAN", this.isClean() )
         },
         loadState() {
             // @ts-ignore
             this.vertexView.setValue( this.editorState.vertex )
+            this.vertexView.clearHistory()
+            this.vertexView.markClean()
             // @ts-ignore
             this.fragmentView.setValue( this.editorState.fragment )
+            this.fragmentView.clearHistory()
+            this.fragmentView.markClean()
 
-            this.enableChangeDetection()
+            this.editor.on( "changes", () => {
+                this.$store.commit( "SET_EDITOR_CLEAN", this.isClean() )
+            } )
         },
-        enableChangeDetection() {
-            // evito registrar muchas veces el mismo evento
-            if ( ! this.changeDetectionEnabled ) {
-                // ante cualquier cambio en el editor, marco su estado como "dirty" para reflejar cambios sin guardar en el archivo
-                this.editor.on( "change", this.MARK_EDITOR_DIRTY )
-                this.changeDetectionEnabled = true
-            }
-        },
-        MARK_EDITOR_DIRTY() {
-            this.$store.commit( "MARK_EDITOR_DIRTY" )
-            this.editor.off( "change", this.MARK_EDITOR_DIRTY )
-            this.changeDetectionEnabled = false
+        isClean() {
+            return this.vertexView.isClean() && this.fragmentView.isClean()
         }
     }
 } )

@@ -27,6 +27,7 @@ export class ShaderView {
     private toolsEnabled: boolean
     private activeUniformButton: null | HTMLElement
     private highlightTimeout: null | number
+    private changeGeneration: number
 
     constructor( type: ShaderType ) {
         this.type = type
@@ -38,17 +39,29 @@ export class ShaderView {
         this.toolsEnabled = false
         this.activeUniformButton = null
         this.highlightTimeout = null
+        this.changeGeneration = this.doc.changeGeneration()
     }
 
     // 👥 Metodos Publicos
 
     public setValue( value: string = "" ) {
         this.doc.setValue( value )
-        this.doc.clearHistory()
     }
 
     public getValue() {
         return this.doc.getValue()
+    }
+
+    public clearHistory() {
+        this.doc.clearHistory()
+    }
+
+    public markClean() {
+        this.changeGeneration = this.doc.changeGeneration()
+    }
+
+    public isClean() {
+        return this.doc.isClean( this.changeGeneration )
     }
 
     public setLog( log: ShaderLog ) {

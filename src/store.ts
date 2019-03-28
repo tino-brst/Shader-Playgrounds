@@ -72,7 +72,6 @@ const state: State = {
 const mutations = {
     SET_EDITOR_STATE: ( state: State, editorState: EditorState ) => {
         state.editorState = editorState
-        state.editorClean = true
     },
     SET_RENDERER_STATE: ( state: State, rendererState: RendererState ) => {
         state.rendererState = rendererState
@@ -145,8 +144,8 @@ const mutations = {
             state.fragmentLog = { errors, warnings }
         }
     },
-    MARK_EDITOR_DIRTY: ( state: State ) => {
-        state.editorClean = false
+    SET_EDITOR_CLEAN: ( state: State, value: boolean ) => {
+        state.editorClean = value
     },
     MARK_RENDERER_DIRTY: ( state: State ) => {
         state.rendererClean = false
@@ -188,6 +187,7 @@ const getters = {
 }
 
 export default new Vuex.Store( {
+    strict: process.env.NODE_ENV !== 'production',
     state,
     mutations,
     getters
