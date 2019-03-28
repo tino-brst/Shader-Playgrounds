@@ -176,7 +176,7 @@ export default Vue.extend( {
     overflow-y: auto;
     overflow-x: hidden;
     display: flex;
-    justify-content: start;
+    justify-content: flex-start;
     flex-wrap: wrap;
     box-sizing: border-box;
     padding: 8px;
