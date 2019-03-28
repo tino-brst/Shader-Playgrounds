@@ -48,10 +48,11 @@ export interface State {
     // estado de la ventana para inicio prolijo de algunas animaciones etc
     windowReady: boolean
 
-    // 🚧 renderer state
+    // 🚧
     model: string,
     animations: boolean,
-    wireframe: boolean
+    wireframe: boolean,
+    activeShader: ShaderType
 }
 
 Vue.use( Vuex )
@@ -73,7 +74,8 @@ const state: State = {
     // 🚧
     model: "",
     animations: true,
-    wireframe: false
+    wireframe: false,
+    activeShader: ShaderType.Vertex
 }
 
 const mutations = {
@@ -167,6 +169,9 @@ const mutations = {
     },
     SET_WIREFRAME: ( state: State, value: boolean ) => {
         state.wireframe = value
+    },
+    SET_ACTIVE_SHADER: ( state: State, value: ShaderType ) => {
+        state.activeShader = value
     }
 }
 

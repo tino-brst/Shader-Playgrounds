@@ -59,12 +59,6 @@ export default Vue.extend( {
         "v-uniform-editor-sampler2D": UniformsEditors.sampler2D,
         "v-uniform-editor-others": UniformsEditors.others
     },
-    props: {
-        activeShader: {
-            type: String,
-            default: ShaderType.Vertex
-        }
-    },
     data: () => ( {
         editor: {} as Editor,
         vertexView: new ShaderView( ShaderType.Vertex ) as ShaderView,
@@ -112,6 +106,7 @@ export default Vue.extend( {
             }
         },
         activeShaderView(): ShaderView {
+            // @ts-ignore
             return ( this.activeShader === ShaderType.Vertex ) ? this.vertexView : this.fragmentView
         },
         supportedUniformsEditors(): UniformEditor[] {
@@ -119,6 +114,7 @@ export default Vue.extend( {
             return this.uniformsEditors.filter( editor => this.supportedUniformsTypes.has( editor.type ) )
         },
         ...mapState( [
+            "activeShader",
             "editorState",
             "vertexLog",
             "fragmentLog",
@@ -303,6 +299,7 @@ export default Vue.extend( {
             const editorState: EditorState = {
                 vertex: this.vertexView.getValue(),
                 fragment: this.fragmentView.getValue(),
+                // @ts-ignore
                 activeShader: this.activeShader as ShaderType
             }
 

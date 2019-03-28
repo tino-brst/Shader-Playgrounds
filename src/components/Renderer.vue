@@ -82,7 +82,6 @@ export default Vue.extend( {
         ...mapState( [
             "compilationSucceeded",
             "rendererState",
-            "rendererClean",
             "vertexSource",
             "fragmentSource",
             "textureUnitToUpdate",

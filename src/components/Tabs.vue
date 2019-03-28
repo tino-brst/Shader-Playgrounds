@@ -2,7 +2,7 @@
     <div class="tabs">
         <div
             class="tab"
-            :class="{ selected: value === 'vertex', errors: vertexLog.errors.length, warnings: vertexLog.warnings.length }"
+            :class="{ selected: activeShader === 'vertex', errors: vertexLog.errors.length, warnings: vertexLog.warnings.length }"
             @mousedown.prevent
             @click="updateValue('vertex')"
         >
@@ -17,7 +17,7 @@
 
         <div
             class="tab"
-            :class="{ selected: value === 'fragment', errors: fragmentLog.errors.length, warnings: fragmentLog.warnings.length }"
+            :class="{ selected: activeShader === 'fragment', errors: fragmentLog.errors.length, warnings: fragmentLog.warnings.length }"
             @mousedown.prevent
             @click="updateValue('fragment')"
         >
@@ -33,21 +33,18 @@
 <script lang="ts">
 import Vue from "vue"
 import { mapState } from "vuex"
+import { ShaderType } from "@/scripts/renderer/_constants"
 
 export default Vue.extend( {
     name: "Tabs",
-    props: {
-        value: {
-            type: String,
-            default: ""
-        }
-    },
-    computed: mapState( [ "vertexLog", "fragmentLog" ] ),
+    computed: mapState( [
+        "activeShader",
+        "vertexLog",
+        "fragmentLog"
+    ] ),
     methods: {
-        updateValue( value: string ) {
-            if ( value !== this.value ) {
-                this.$emit( "input", value )
-            }
+        updateValue( value: ShaderType ) {
+            this.$store.commit( "SET_ACTIVE_SHADER", value )
         }
     }
 } )

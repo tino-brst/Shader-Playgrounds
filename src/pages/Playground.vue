@@ -4,12 +4,12 @@
         <div class="panels">
             <div class="left-panel">
                 <div class="toolbar">
-                    <v-tabs v-model="activeShader" />
+                    <v-tabs/>
                     <div class="tools">
                         <button class="compile-and-run" @mousedown.prevent @click="compileAndRun()" />
                     </div>
                 </div>
-                <v-editor :active-shader="activeShader" />
+                <v-editor/>
                 <div class="status-bar">
                     <div class="log-counts">
                         <div class="errors" :class="{ visible: errorsCount }">
@@ -63,7 +63,6 @@ export default Vue.extend( {
         "v-tabs": Tabs
     },
     data: () => ( {
-        activeShader: ShaderType.Vertex,
         filePath: "",
         window: remote.getCurrentWindow()
     } ),
@@ -110,8 +109,8 @@ export default Vue.extend( {
             EventBus.$emit( "commitShadersCode" )
             EventBus.$emit( "compileAndRun" )
         },
-        setActiveShader( event: Event, shader: ShaderType ) {
-            this.activeShader = shader
+        setActiveShader( event: Event, value: ShaderType ) {
+            this.$store.commit( "SET_ACTIVE_SHADER", value )
         },
         onOpen( event: Event, filePath: string ) {
             this.filePath = filePath
@@ -192,8 +191,6 @@ export default Vue.extend( {
 
             this.$store.commit( "SET_EDITOR_STATE", appState.editor )
             this.$store.commit( "SET_RENDERER_STATE", appState.renderer )
-
-            this.activeShader = this.$store.getters.activeShader
 
             EventBus.$emit( "loadState" )
 
