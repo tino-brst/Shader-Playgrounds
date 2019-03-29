@@ -84,7 +84,7 @@ function loadWindowContents( window: BrowserWindow, type: "playground" | "welcom
     } else {
         // Load the index.html when not in development
         createProtocol( "app" )
-        window.loadURL( "app://./${type}.html" )
+        window.loadURL( `app://./${type}.html` )
     }
 }
 
