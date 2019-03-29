@@ -197,8 +197,8 @@ export default Vue.extend( {
         this.editor.on( "keydown", this.handleShowHints )
         this.editor.focus()
 
-        EventBus.$on( "commitShadersCode", this.commitShadersCode )
-        EventBus.$on( "commitState", this.commitState )
+        EventBus.$on( "saveShadersCode", this.saveShadersCode )
+        EventBus.$on( "saveState", this.saveState )
         EventBus.$on( "loadState", this.loadState )
     },
     methods: {
@@ -291,17 +291,17 @@ export default Vue.extend( {
             this.activeShaderView.doc.setCursor( clickedPosition )
             this.editor.focus()
         },
-        commitShadersCode() {
+        saveShadersCode() {
             this.$store.commit( "SET_VERTEX_SOURCE", this.vertexView.getValue() )
             this.$store.commit( "SET_FRAGMENT_SOURCE", this.fragmentView.getValue() )
         },
-        commitState() { // 📝 -> "saveState"
+        saveState() {
             this.vertexView.markClean()
             this.fragmentView.markClean()
 
             this.$store.commit( "SET_VERTEX_SOURCE", this.vertexView.getValue() )
             this.$store.commit( "SET_FRAGMENT_SOURCE", this.fragmentView.getValue() )
-            this.$store.commit( "SET_EDITOR_CLEAN", this.isClean() )
+            this.$store.commit( "SET_EDITOR_CLEAN", true )
         },
         loadState() {
             // @ts-ignore

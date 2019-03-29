@@ -149,7 +149,7 @@ export class Renderer {
     }
 
     public setAnimation( enabled: boolean ) {
-        this.state.animationsEnabled = enabled
+        this.state.animationEnabled = enabled
     }
 
     public setUniformsState( uniforms: UniformState[] ) {
@@ -228,7 +228,7 @@ export class Renderer {
         // milisegundos -> segundos
         const timeSinceLastFrame = Math.max( 0, ( now - this.state.lastDrawTime ) * 0.001 )
 
-        if ( this.state.animationsEnabled ) {
+        if ( this.state.animationEnabled ) {
             // cambios por unidad de tiempo
             const rotationSpeed = - 360 / 30  // 360º en 30 segundos ("-" : en sentido horarios)
             const rotationDelta = ( rotationSpeed * timeSinceLastFrame ) % 360

@@ -4,12 +4,12 @@
         <div class="panels">
             <div class="left-panel">
                 <div class="toolbar">
-                    <v-tabs/>
+                    <v-tabs />
                     <div class="tools">
                         <button class="compile-and-run" @mousedown.prevent @click="compileAndRun()" />
                     </div>
                 </div>
-                <v-editor/>
+                <v-editor />
                 <div class="status-bar">
                     <div class="log-counts">
                         <div class="errors" :class="{ visible: errorsCount }">
@@ -98,7 +98,7 @@ export default Vue.extend( {
     },
     methods: {
         compileAndRun() {
-            EventBus.$emit( "commitShadersCode" )
+            EventBus.$emit( "saveShadersCode" )
             EventBus.$emit( "compileAndRun" )
         },
         setActiveShader( event: Event, value: ShaderType ) {
@@ -106,7 +106,7 @@ export default Vue.extend( {
         },
         onOpen( event: Event, filePath: string ) {
             this.filePath = filePath
-            this.loadAppStateFromFile()
+            this.loadStateFromFile()
             this.showWindow()
         },
         onNew() {
@@ -114,13 +114,13 @@ export default Vue.extend( {
         },
         onSave() {
             if ( ! this.newFile ) {
-                this.saveAppStateToFile()
+                this.saveStateToFile()
             } else {
                 const filePath  = this.showSaveDialog()
 
                 if ( filePath ) {
                     this.filePath = filePath
-                    this.saveAppStateToFile()
+                    this.saveStateToFile()
                 }
             }
         },
@@ -157,7 +157,7 @@ export default Vue.extend( {
             if ( selectedOption === options.dontSave ) {
                 this.closeWindow()
             } else if ( selectedOption === options.save ) {
-                this.saveAppStateToFile()
+                this.saveStateToFile()
                 this.closeWindow()
             }
         },
@@ -173,12 +173,12 @@ export default Vue.extend( {
         },
         showWindow() {
             this.window.show()
-            this.$store.commit( "WINDOW_READY" )
+            this.$store.commit( "SET_WINDOW_READY", true )
         },
         closeWindow() {
             this.window.destroy()
         },
-        loadAppStateFromFile() {
+        loadStateFromFile() {
             const savedState: StateSaveInfo = fs.read( this.filePath, "json" )
 
             this.$store.dispatch( "restoreState", savedState )
@@ -187,8 +187,8 @@ export default Vue.extend( {
 
             this.compileAndRun()
         },
-        saveAppStateToFile() {
-            EventBus.$emit( "commitState" )
+        saveStateToFile() {
+            EventBus.$emit( "saveState" )
 
             // @ts-ignore
             fs.write( this.filePath, this.saveInfo )

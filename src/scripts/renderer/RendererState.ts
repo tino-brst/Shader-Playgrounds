@@ -5,7 +5,7 @@ export class RendererState {
     public lastDrawTime!: number
     public drawBuffer!: IndexBuffer
     public drawMode: DrawMode
-    public animationsEnabled: boolean
+    public animationEnabled: boolean
     public drawBufferNeedsUpdate: boolean
     public attributeBuffersNeedUpdate: boolean
     private currentlyEnabledVertexAttributes: Set < number >
@@ -19,7 +19,7 @@ export class RendererState {
         this.drawMode = DrawMode.Lines
         this.drawBufferNeedsUpdate = true
         this.attributeBuffersNeedUpdate = true
-        this.animationsEnabled = true
+        this.animationEnabled = true
 
         this.gl.clearColor( 0, 0, 0, 0 ) // <- fondo transparente, se maneja el color de fondo desde el css del canvas
         this.gl.pixelStorei( this.gl.UNPACK_FLIP_Y_WEBGL, 1 )

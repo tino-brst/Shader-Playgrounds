@@ -12,7 +12,7 @@
                     model:
                 </v-model-select>
                 <div class="toolbar-space-flex" />
-                <v-checkbox v-model="animations">
+                <v-checkbox v-model="animation">
                     <template slot="icon">
                         <v-refresh-cw-icon />
                     </template>
@@ -62,12 +62,12 @@ export default Vue.extend( {
                 this.$store.commit( "SET_MODEL", value )
             }
         },
-        animations: {
+        animation: {
             get(): boolean {
-                return this.$store.state.animations
+                return this.$store.state.animation
             },
             set( value: boolean ) {
-                this.$store.commit( "SET_ANIMATIONS", value )
+                this.$store.commit( "SET_ANIMATION", value )
             }
         },
         wireframe: {
@@ -98,8 +98,8 @@ export default Vue.extend( {
         model() {
             this.updateModel()
         },
-        animations() {
-            this.renderer.setAnimation( this.animations )
+        animation() {
+            this.renderer.setAnimation( this.animation )
         },
         wireframe() {
             this.renderer.setWireframe( this.wireframe )
@@ -113,13 +113,13 @@ export default Vue.extend( {
 
         this.availableModels = this.renderer.getAvailableModels()
         this.model = this.availableModels[ 0 ].name
-        this.renderer.setAnimation( this.animations )
+        this.renderer.setAnimation( this.animation )
         this.renderer.setWireframe( this.wireframe )
 
         this.$store.commit( "SET_TEXTURES_ASSIGNED_TO_TEXTURE_UNITS", this.renderer.getTexturesAssignedToTextureUnits() )
 
         EventBus.$on( "compileAndRun", this.compileAndRun )
-        EventBus.$on( "commitState", this.commitState )
+        EventBus.$on( "saveState", this.saveState )
         EventBus.$on( "loadState", this.loadState )
     },
     methods: {
@@ -133,13 +133,6 @@ export default Vue.extend( {
             this.$store.commit( "SET_LOGS", errorsAndWarnings )
             this.$store.commit( "SET_UNIFORMS_EDITORS", uniformsEditors )
         },
-        updateModel() {
-            this.renderer.setModel( this.model )
-
-            // the model change may generate new warnings (e.g. missing attributes)
-            const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
-            this.$store.commit( "SET_LOGS", errorsAndWarnings )
-        },
         onModelsLoaded() {
             this.availableModels = this.renderer.getAvailableModels()
             this.modelsLoaded = true
@@ -149,7 +142,14 @@ export default Vue.extend( {
             this.$store.commit( "SET_AVAILABLE_TEXTURES", this.renderer.getAvailableTextures() )
             this.texturesLoaded = true
         },
-        commitState() {
+        updateModel() {
+            this.renderer.setModel( this.model )
+
+            // the model change may generate new warnings (e.g. missing attributes)
+            const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
+            this.$store.commit( "SET_LOGS", errorsAndWarnings )
+        },
+        saveState() {
             this.$store.commit( "SET_UNIFORMS", this.renderer.getUniformsState() )
         },
         loadState() {
