@@ -195,6 +195,7 @@ export default Vue.extend( {
 
         this.editor = CodeMirror( this.$refs.editor as HTMLElement, editorOptions )
         this.editor.on( "keydown", this.handleShowHints )
+        this.editor.on( "changes", this.updateCleanState )
         this.editor.focus()
 
         EventBus.$on( "saveShadersCode", this.saveShadersCode )
@@ -296,29 +297,36 @@ export default Vue.extend( {
             this.$store.commit( "SET_FRAGMENT_SOURCE", this.fragmentView.getValue() )
         },
         saveState() {
-            this.vertexView.markClean()
-            this.fragmentView.markClean()
-
-            this.$store.commit( "SET_VERTEX_SOURCE", this.vertexView.getValue() )
-            this.$store.commit( "SET_FRAGMENT_SOURCE", this.fragmentView.getValue() )
-            this.$store.commit( "SET_EDITOR_CLEAN", true )
+            this.saveShadersCode()
+            this.markClean()
         },
         loadState() {
+            // momentarily turn change detection off (to avoid marking the editor as dirty while loading the shaders content)
+            this.editor.off( "changes", this.updateCleanState )
+
             // @ts-ignore
             this.vertexView.setValue( this.vertexSource )
             this.vertexView.clearHistory()
-            this.vertexView.markClean()
             // @ts-ignore
             this.fragmentView.setValue( this.fragmentSource )
             this.fragmentView.clearHistory()
+
+            // change detection back on
+            this.editor.on( "changes", this.updateCleanState )
+
+            this.markClean()
+        },
+        markClean() {
+            this.vertexView.markClean()
             this.fragmentView.markClean()
 
-            this.editor.on( "changes", () => {
-                this.$store.commit( "SET_EDITOR_CLEAN", this.isClean() )
-            } )
+            this.$store.commit( "SET_EDITOR_CLEAN", true )
         },
         isClean() {
             return this.vertexView.isClean() && this.fragmentView.isClean()
+        },
+        updateCleanState() {
+            this.$store.commit( "SET_EDITOR_CLEAN", this.isClean() )
         }
     }
 } )

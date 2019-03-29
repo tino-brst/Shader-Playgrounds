@@ -62,15 +62,15 @@ export default Vue.extend( {
         window: remote.getCurrentWindow()
     } ),
     computed: {
-        windowTitle(): string {
-            // @ts-ignore
-            return ( this.fileName + ( this.documentHasUnsavedChanges ? " - Edited" : "" ) )
-        },
         newFile(): boolean {
             return ! this.filePath
         },
         fileName(): string {
             return this.filePath ? path.basename( this.filePath, "." + FILE_EXTENSION ) : NEW_FILE_NAME
+        },
+        windowTitle(): string {
+            // @ts-ignore
+            return ( this.fileName + ( this.documentHasUnsavedChanges ? " - Edited" : "" ) )
         },
         ...mapGetters( [
             "documentHasUnsavedChanges",
@@ -90,7 +90,7 @@ export default Vue.extend( {
     },
     mounted() {
         ipc.once( "open", this.onOpen )
-        ipc.on( "new", this.onNew )
+        ipc.once( "new", this.onNew )
         ipc.on( "save", this.onSave )
         ipc.on( "close", this.onClose )
         ipc.on( "shader", this.setActiveShader )
@@ -106,23 +106,14 @@ export default Vue.extend( {
         },
         onOpen( event: Event, filePath: string ) {
             this.filePath = filePath
-            this.loadStateFromFile()
+            this.loadFile()
             this.showWindow()
         },
         onNew() {
             this.showWindow()
         },
         onSave() {
-            if ( ! this.newFile ) {
-                this.saveStateToFile()
-            } else {
-                const filePath  = this.showSaveDialog()
-
-                if ( filePath ) {
-                    this.filePath = filePath
-                    this.saveStateToFile()
-                }
-            }
+            this.saveFile()
         },
         onClose() {
             // @ts-ignore
@@ -146,7 +137,7 @@ export default Vue.extend( {
 
             const selectedOption = dialog.showMessageBox( {
                 title: "Unsaved Changes",
-                message: `Do you want to save the changes you made to ${ path.basename( this.filePath ) }?`,
+                message: `Do you want to save the changes you made to ${ this.filePath ? path.basename( this.filePath ) : NEW_FILE_NAME }?`,
                 detail: "Your changes will be lost if you don't save them.",
                 type: "warning",
                 buttons: optionsLabels,
@@ -157,7 +148,7 @@ export default Vue.extend( {
             if ( selectedOption === options.dontSave ) {
                 this.closeWindow()
             } else if ( selectedOption === options.save ) {
-                this.saveStateToFile()
+                this.saveFile()
                 this.closeWindow()
             }
         },
@@ -178,7 +169,7 @@ export default Vue.extend( {
         closeWindow() {
             this.window.destroy()
         },
-        loadStateFromFile() {
+        loadFile() {
             const savedState: StateSaveInfo = fs.read( this.filePath, "json" )
 
             this.$store.dispatch( "restoreState", savedState )
@@ -187,11 +178,21 @@ export default Vue.extend( {
 
             this.compileAndRun()
         },
-        saveStateToFile() {
-            EventBus.$emit( "saveState" )
+        saveFile() {
+            if ( this.newFile ) {
+                const filePath  = this.showSaveDialog()
 
-            // @ts-ignore
-            fs.write( this.filePath, this.saveInfo )
+                if ( filePath ) {
+                    this.filePath = filePath
+                    EventBus.$emit( "saveState" )
+                    // @ts-ignore
+                    fs.write( this.filePath, this.saveInfo )
+                }
+            } else {
+                EventBus.$emit( "saveState" )
+                // @ts-ignore
+                fs.write( this.filePath, this.saveInfo )
+            }
         }
     }
 } )
