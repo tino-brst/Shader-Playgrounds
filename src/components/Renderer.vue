@@ -199,7 +199,7 @@ export default Vue.extend( {
     align-items: center;
     justify-content: center;
     opacity: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.9);
     transition: opacity 0.3s ease;
 }
 .renderer .compilation-info.visible {

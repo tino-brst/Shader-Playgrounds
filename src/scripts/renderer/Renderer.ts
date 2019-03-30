@@ -218,12 +218,10 @@ export class Renderer {
     private loop() {
         this.state.lastDrawTime = performance.now()
 
-        requestAnimationFrame( now => this.animate( now ) )
+        requestAnimationFrame( now => this.render( now ) )
     }
 
-    private animate( now: number ) {
-
-        requestAnimationFrame( now => this.animate( now ) )
+    private render( now: number ) {
 
         // milisegundos -> segundos
         const timeSinceLastFrame = Math.max( 0, ( now - this.state.lastDrawTime ) * 0.001 )
@@ -239,14 +237,15 @@ export class Renderer {
 
         if ( this.program.usable ) {
             // renderizado
-            this.render( this.model )
+            this.drawModel( this.model )
 
             // registro tiempo de dibujado y solicito proximo frame
             this.state.lastDrawTime = performance.now()
+            requestAnimationFrame( now => this.render( now ) )
         }
     }
 
-    private render( model: BuffersGeometry ) {
+    private drawModel( model: BuffersGeometry ) {
         // limpiamos el canvas
 
         this.state.clearBuffers()
