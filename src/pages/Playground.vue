@@ -123,7 +123,7 @@ export default Vue.extend( {
             if ( this.documentHasUnsavedChanges ) {
                 this.showUnsavedChangesWarning()
             } else {
-                this.closeWindow()
+                this.closeWindow( true )
             }
         },
         showUnsavedChangesWarning() {
@@ -138,7 +138,7 @@ export default Vue.extend( {
                 "Don't Save"
             ]
 
-            const selectedOption = dialog.showMessageBox( {
+            dialog.showMessageBox( this.window, {
                 title: "Unsaved Changes",
                 message: `Do you want to save the changes you made to ${ this.filePath ? path.basename( this.filePath ) : NEW_FILE_NAME }?`,
                 detail: "Your changes will be lost if you don't save them.",
@@ -146,17 +146,19 @@ export default Vue.extend( {
                 buttons: optionsLabels,
                 defaultId: options.save,
                 cancelId: options.cancel
+            }, ( selectedOption ) => {
+                if ( selectedOption === options.dontSave ) {
+                    this.closeWindow( true )
+                } else if ( selectedOption === options.save ) {
+                    this.saveFile()
+                    this.closeWindow( true )
+                } else {
+                    this.closeWindow( false )
+                }
             } )
-
-            if ( selectedOption === options.dontSave ) {
-                this.closeWindow()
-            } else if ( selectedOption === options.save ) {
-                this.saveFile()
-                this.closeWindow()
-            }
         },
         showSaveDialog() {
-            const filePath = dialog.showSaveDialog( {
+            const filePath = dialog.showSaveDialog( this.window, {
                 defaultPath: this.fileName,
                 filters: [
                     { name: "Shaders Playground Files", extensions: [ FILE_EXTENSION ] }
@@ -169,8 +171,8 @@ export default Vue.extend( {
             this.window.show()
             this.$store.commit( "SET_WINDOW_READY", true )
         },
-        closeWindow() {
-            this.window.destroy()
+        closeWindow( proceed: boolean ) {
+            ipc.send( "close-window", proceed )
         },
         loadFile() {
             const savedState: StateSaveInfo = fs.read( this.filePath, "json" )

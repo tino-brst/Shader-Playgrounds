@@ -1,7 +1,7 @@
 "use strict"
 
 import { FILE_EXTENSION } from "./constants"
-import { app, protocol, dialog, Menu, BrowserWindow } from "electron"
+import { app, protocol, dialog, Menu, BrowserWindow, ipcMain as ipc } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
 import { ShaderType } from "./scripts/renderer/_constants"
 import menu from "./menu"
@@ -33,10 +33,6 @@ function newPlaygroundWindow( filePath?: string ) {
         window.webContents.send( "close" )
     } )
 
-    window.on( "closed", () => {
-        playgroundWindows.delete( window )
-    } )
-
     window.webContents.on( "did-finish-load", () => {
         if ( filePath ) {
             window.webContents.send( "open", filePath )
@@ -48,7 +44,29 @@ function newPlaygroundWindow( filePath?: string ) {
     playgroundWindows.add( window )
 }
 
+ipc.on( "close-window", ( event: any, proceed: boolean ) => {
+    console.log( "closing!" )
+
+    const window = BrowserWindow.fromWebContents( event.sender )
+
+    if ( proceed ) {
+        playgroundWindows.delete( window )
+        window.destroy()
+
+        // if the window closing was due to a "quit" command and
+        // this was the last window, quit the app.
+        if ( appQuitting && playgroundWindows.size === 0 ) {
+            app.quit()
+        }
+    } else {
+        // cancel app quitting (if in process)
+        appQuitting = false
+    }
+} )
+
 // App lifecycle 🔄
+
+let appQuitting = false
 
 app.on( "ready", async() => {
     if ( isDevelopment && ! process.env.IS_TEST ) {
@@ -73,6 +91,11 @@ app.on( "activate", () => {
     if ( playgroundWindows.size === 0 ) {
         openFile()
     }
+} )
+
+app.on( "before-quit", () => {
+    // register start of quitting process
+    appQuitting = true
 } )
 
 // Utils 🛠
