@@ -1,9 +1,25 @@
 <template>
     <div class="renderer">
         <canvas ref="canvas" :class="{ visible: modelsLoaded && windowReady }" />
-        <div class="compilation-info" :class="{ visible: ! compilationSucceeded }">
-            <h1> Compilation Failed </h1>
-            <h2> check for errors and warnings </h2>
+        <div v-if="windowReady" class="compilation-info" :class="{ visible: ! compilationSucceeded || ! compiledAtLeastOnce }">
+            <transition name="fade">
+                <div
+                    class="never-compiled"
+                    v-if="! compiledAtLeastOnce"
+                    key="neverCompiled"
+                >
+                    <h1> Compile and Run </h1>
+                    <h2> to see your shaders in action </h2>
+                </div>
+                <div
+                    class="compilation-failed"
+                    v-if="! compilationSucceeded"
+                    key="compilationFailed"
+                >
+                    <h1> Compilation Failed </h1>
+                    <h2> check for errors and warnings </h2>
+                </div>
+            </transition>
         </div>
         <div class="toolbar">
             <v-progress-bar :done="modelsLoaded && texturesLoaded" info="loading models & textures" ref="progressBar" />
@@ -51,7 +67,8 @@ export default Vue.extend( {
         renderer: {} as Renderer,
         availableModels: [] as Model[],
         modelsLoaded: false,
-        texturesLoaded: false
+        texturesLoaded: false,
+        compiledAtLeastOnce: false
     } ),
     computed: {
         model: {
@@ -132,6 +149,8 @@ export default Vue.extend( {
             this.$store.commit( "SET_COMPILATION_SUCCEEDED", compilationSucceeded )
             this.$store.commit( "SET_LOGS", errorsAndWarnings )
             this.$store.commit( "SET_UNIFORMS_EDITORS", uniformsEditors )
+
+            this.compiledAtLeastOnce = true
         },
         onModelsLoaded() {
             this.availableModels = this.renderer.getAvailableModels()
@@ -179,10 +198,19 @@ export default Vue.extend( {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
     opacity: 0;
     background: rgba(0, 0, 0, 0.8);
     transition: opacity 0.3s ease;
+}
+.renderer .compilation-info.visible {
+    opacity: 1;
+}
+.renderer .compilation-info > div {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }
 .renderer .compilation-info h1 {
     font-size: 20px;
@@ -197,8 +225,15 @@ export default Vue.extend( {
     margin: 0;
     opacity: 0.5;
 }
-.renderer .compilation-info.visible {
-    opacity: 1;
+
+.fade-enter-active {
+    transition: opacity 0.5s;
+}
+.fade-leave-active {
+    transition: opacity 0.3s;
+}
+.fade-enter, .fade-leave-to {
+    opacity: 0;
 }
 
 .renderer canvas {
