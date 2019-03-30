@@ -90,10 +90,6 @@ export class Renderer {
 
         this.uniformsEditors = new Map()
 
-        // tamaño inicial del viewport / aspect de la camara / etc
-
-        this.updateSize()
-
         // modelo por defecto
 
         this.setModel( "cube" )
@@ -222,6 +218,8 @@ export class Renderer {
     }
 
     private render( now: number ) {
+        // in case of canvas display size changes
+        this.updateViewSize()
 
         // milisegundos -> segundos
         const timeSinceLastFrame = Math.max( 0, ( now - this.state.lastDrawTime ) * 0.001 )
@@ -366,15 +364,19 @@ export class Renderer {
         }
     }
 
-    private updateSize() {
+    private updateViewSize() {
+        // current canvas display size
         const displayWidth = Math.floor( this.canvas.clientWidth * window.devicePixelRatio )
         const displayHeight = Math.floor( this.canvas.clientHeight * window.devicePixelRatio )
 
-        this.canvas.width = displayWidth
-        this.canvas.height = displayHeight
+        // update canvas drawing-buffer size and viewport if canvas display size changed
+        if ( this.canvas.width !== displayWidth || this.canvas.height !== displayHeight ) {
+            this.canvas.width = displayWidth
+            this.canvas.height = displayHeight
 
-        this.camera.setAspect( displayWidth / displayHeight )
-        this.state.setViewport( displayWidth, displayHeight )
+            this.camera.setAspect( displayWidth / displayHeight )
+            this.state.setViewport( displayWidth, displayHeight )
+        }
     }
 
     private initUniformsCache( defaultUniforms: Array < [ string, ShaderVariableType, any ] > ) {
