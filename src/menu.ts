@@ -40,7 +40,7 @@ const File: MenuItemConstructorOptions = {
                 { type: ___ },
                 {
                     label: "Clear Recents",
-                    // click() { background... }
+                    click() { background.clearRecents() }
                 }
             ]
         },

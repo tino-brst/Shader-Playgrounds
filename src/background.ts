@@ -120,6 +120,10 @@ function saveFile( focusedWindow: BrowserWindow | undefined ) {
     }
 }
 
+function clearRecents() {
+    app.clearRecentDocuments()
+}
+
 function activeShader( focusedWindow: BrowserWindow | undefined, shader: ShaderType ) {
     if ( focusedWindow ) {
         focusedWindow.webContents.send( "shader", shader )
@@ -137,7 +141,8 @@ export {
     newFile,
     saveFile,
     activeShader,
-    compileAndRun
+    compileAndRun,
+    clearRecents
 }
 
 // Exit cleanly on request from parent process in development mode.

@@ -70,7 +70,7 @@ export default Vue.extend( {
         },
         windowTitle(): string {
             // @ts-ignore
-            return ( this.fileName + ( this.documentHasUnsavedChanges ? " - Edited" : "" ) )
+            return ( this.fileName + ( this.documentHasUnsavedChanges ? " - edited" : "" ) )
         },
         ...mapGetters( [
             "documentHasUnsavedChanges",
@@ -95,6 +95,8 @@ export default Vue.extend( {
         ipc.on( "close", this.onClose )
         ipc.on( "shader", this.setActiveShader )
         ipc.on( "compileAndRun", this.compileAndRun )
+
+        this.window.setTitle( this.windowTitle )
     },
     methods: {
         compileAndRun() {
@@ -107,6 +109,7 @@ export default Vue.extend( {
         onOpen( event: Event, filePath: string ) {
             this.filePath = filePath
             this.loadFile()
+            this.registerWorkingFile()
             this.showWindow()
         },
         onNew() {
@@ -180,18 +183,30 @@ export default Vue.extend( {
         },
         saveFile() {
             if ( this.newFile ) {
-                const filePath  = this.showSaveDialog()
+                // ask for a location to save it
+                const newFilePath = this.showSaveDialog()
 
-                if ( filePath ) {
-                    this.filePath = filePath
+                if ( newFilePath ) {
+                    // update the store and save it
                     EventBus.$emit( "saveState" )
                     // @ts-ignore
-                    fs.write( this.filePath, this.saveInfo )
+                    fs.write( newFilePath, this.saveInfo )
+
+                    // update filePath and register the file to recents, etc
+                    this.filePath = newFilePath
+                    this.registerWorkingFile()
                 }
             } else {
+                // working on an existing file, just save it
                 EventBus.$emit( "saveState" )
                 // @ts-ignore
                 fs.write( this.filePath, this.saveInfo )
+            }
+        },
+        registerWorkingFile() {
+            if ( this.filePath ) {
+                this.window.setRepresentedFilename( this.filePath )
+                app.addRecentDocument( this.filePath )
             }
         }
     }
