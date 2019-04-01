@@ -109,7 +109,6 @@ export default Vue.extend( {
         onOpen( event: Event, filePath: string ) {
             this.filePath = filePath
             this.loadFile()
-            this.registerWorkingFile()
             this.showWindow()
         },
         onNew() {
@@ -150,8 +149,8 @@ export default Vue.extend( {
                 if ( selectedOption === options.dontSave ) {
                     this.closeWindow( true )
                 } else if ( selectedOption === options.save ) {
-                    this.saveFile()
-                    this.closeWindow( true )
+                    // if the file save is cancelled, stop window from closing
+                    this.closeWindow( this.saveFile() )
                 } else {
                     this.closeWindow( false )
                 }
@@ -178,12 +177,14 @@ export default Vue.extend( {
             const savedState: StateSaveInfo = fs.read( this.filePath, "json" )
 
             this.$store.dispatch( "restoreState", savedState )
-
             EventBus.$emit( "loadState" )
-
             this.compileAndRun()
+
+            this.registerWorkingFile()
         },
-        saveFile() {
+        saveFile(): boolean {
+            let fileSaved = true
+
             if ( this.newFile ) {
                 // ask for a location to save it
                 const newFilePath = this.showSaveDialog()
@@ -197,6 +198,8 @@ export default Vue.extend( {
                     // update filePath and register the file to recents, etc
                     this.filePath = newFilePath
                     this.registerWorkingFile()
+                } else {
+                    fileSaved = false
                 }
             } else {
                 // working on an existing file, just save it
@@ -204,6 +207,8 @@ export default Vue.extend( {
                 // @ts-ignore
                 fs.write( this.filePath, this.saveInfo )
             }
+
+            return fileSaved
         },
         registerWorkingFile() {
             if ( this.filePath ) {
