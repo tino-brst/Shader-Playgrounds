@@ -15,7 +15,7 @@ import { mapState, mapGetters } from "vuex"
 import Tooltip from "@/components/Tooltip.vue"
 import UniformsEditors from "@/components/uniforms_editors/UniformsEditors.ts"
 import { ShaderType, ShaderVariableType } from "@/scripts/renderer/_constants"
-import { ShaderView, ShaderLog } from "@/scripts/editor/ShaderView"
+import { ShaderView, ShaderLog, UniformRange, Range } from "@/scripts/editor/ShaderView"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "@/scripts/editor/codemirror/lib/codemirror"
 import "@/scripts/editor/codemirror/mode/glsl/glsl"
@@ -33,19 +33,7 @@ import "@/scripts/editor/codemirror/addon/hint/glsl-hint"
 import "@/scripts/editor/codemirror/addon/comment/comment"
 import "@/scripts/editor/codemirror/keymap/sublime"
 
-import sampleVertex from "@/sample_shaders/textures.vert.glsl"
-import sampleFragment from "@/sample_shaders/textures.frag.glsl"
 
-const TOOLS_KEY = "Alt"
-
-interface Uniform {
-    range: Range,
-    editor: UniformEditor
-}
-interface Range {
-    from: Position
-    to: Position
-}
 
 export default Vue.extend( {
     name: "Editor",
@@ -65,7 +53,7 @@ export default Vue.extend( {
         supportedUniformsTypes: new Set( Object.keys( UniformsEditors ) ),
         toolsEnabled: false,
         noShaderChangesSinceToolsEnabled: false,
-        lastUniformSelected: {} as Uniform,
+        lastUniformSelected: {} as UniformRange,
         tooltipTarget: document.createElement( "span" ) as HTMLElement,
         tooltipVisible: false
     } ),
@@ -176,7 +164,7 @@ export default Vue.extend( {
         }
     },
     mounted() {
-        const editorOptions = {
+        const editorConfiguration: CodeMirror.EditorConfiguration = {
             value: this.activeShaderView.doc,
             lineNumbers: true,
             indentUnit: 4,
@@ -193,7 +181,7 @@ export default Vue.extend( {
             hintOptions: { completeSingle: false, alignWithWord: true }
         }
 
-        this.editor = CodeMirror( this.$refs.editor as HTMLElement, editorOptions )
+        this.editor = CodeMirror( this.$refs.editor as HTMLElement, editorConfiguration )
         this.editor.on( "keydown", this.handleShowHints )
         this.editor.on( "changes", this.updateCleanState )
         this.editor.focus()

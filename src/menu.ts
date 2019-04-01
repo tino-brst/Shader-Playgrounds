@@ -1,17 +1,23 @@
-import { app, Menu, MenuItemConstructorOptions, Accelerator, MenuItem } from "electron"
+import { app, Menu, MenuItemConstructorOptions, BrowserWindow, shell } from "electron"
 import * as background from "./background"
 import { ShaderType } from "./scripts/renderer/_constants"
 
 const ___ = "separator"
 
+function sendAction( action: string, payload?: any ) {
+    const focusedWindow = BrowserWindow.getFocusedWindow()
+
+    if ( focusedWindow ) {
+        focusedWindow.webContents.send( action, payload )
+    }
+}
+
 // Menu items
 
-const App: MenuItemConstructorOptions = {
+const appSubmenu: MenuItemConstructorOptions = {
     label: app.getName(),
     submenu: [
         { role: "about" },
-        { type: ___ },
-        { role: "services", submenu: [] },
         { type: ___ },
         { role: "hide" },
         { role: "hideothers" },
@@ -21,7 +27,7 @@ const App: MenuItemConstructorOptions = {
     ]
 }
 
-const File: MenuItemConstructorOptions = {
+const fileSubmenu: MenuItemConstructorOptions = {
     label: "File",
     submenu: [
         {
@@ -35,13 +41,10 @@ const File: MenuItemConstructorOptions = {
             click() { background.openFile() }
         },
         {
-            label: "Open Recent...",
+            role: "recentDocuments",
             submenu: [
                 { type: ___ },
-                {
-                    label: "Clear Recents",
-                    click() { background.clearRecents() }
-                }
+                { role: "clearRecentDocuments" }
             ]
         },
         { type: ___ },
@@ -52,12 +55,12 @@ const File: MenuItemConstructorOptions = {
         {
             label: "Save",
             accelerator: "CmdOrCtrl+S",
-            click( menuItem, focusedWindow ) { background.saveFile( focusedWindow ) }
+            click: () => { sendAction( "save" ) }
         }
     ]
 }
 
-const Edit: MenuItemConstructorOptions = {
+const editSubmenu: MenuItemConstructorOptions = {
     label: "Edit",
     submenu: [
         { role: "undo" },
@@ -66,35 +69,34 @@ const Edit: MenuItemConstructorOptions = {
         { role: "cut" },
         { role: "copy" },
         { role: "paste" },
-        { role: "pasteandmatchstyle" },
-        { role: "delete" },
+        { type: ___ },
         { role: "selectall" }
     ]
 }
 
-const Tools: MenuItemConstructorOptions = {
+const toolsSubmenu: MenuItemConstructorOptions = {
     label: "Tools",
     submenu: [
         {
             label: "Compile and Run",
             accelerator: "CmdOrCtrl+T",
-            click( menuItem, focusedWindow ) { background.compileAndRun( focusedWindow ) }
+            click: () => { sendAction( "compile-and-run" ) }
         }
     ]
 }
 
-const View: MenuItemConstructorOptions = {
+const viewSubmenu: MenuItemConstructorOptions = {
     label: "View",
     submenu: [
         {
             label: "Vertex Shader",
             accelerator: "CmdOrCtrl+1",
-            click( menuItem, focusedWindow ) { background.activeShader( focusedWindow, ShaderType.Vertex ) }
+            click: () => { sendAction( "set-active-shader", ShaderType.Vertex ) }
         },
         {
             label: "Fragment Shader",
             accelerator: "CmdOrCtrl+2",
-            click( menuItem, focusedWindow ) { background.activeShader( focusedWindow, ShaderType.Fragment ) }
+            click: () => { sendAction( "set-active-shader", ShaderType.Fragment ) }
         },
         { type: ___ },
         { role: "reload" },
@@ -109,7 +111,7 @@ const View: MenuItemConstructorOptions = {
     ]
 }
 
-const Window: MenuItemConstructorOptions = {
+const windowSubmenu: MenuItemConstructorOptions = {
     role: "window",
     submenu: ( process.platform === "darwin" ) ? [
         { role: "minimize" },
@@ -123,22 +125,29 @@ const Window: MenuItemConstructorOptions = {
     ]
 }
 
-const Help: MenuItemConstructorOptions = {
+const helpSubmenu: MenuItemConstructorOptions = {
     role: "help",
     submenu: [
         {
-            label: "Learn More",
-            // click() { background... }
+            label: "Source Code",
+            click: () => { shell.openExternal( "https://github.com/AgustinBrst/Shaders-Playground" ) }
         }
     ]
 }
 
 // Template
 
-const template: MenuItemConstructorOptions[] = [ File, Edit, Tools, View, Window, Help ]
+const template: MenuItemConstructorOptions[] = [
+    fileSubmenu,
+    editSubmenu,
+    toolsSubmenu,
+    viewSubmenu,
+    windowSubmenu,
+    helpSubmenu
+]
 
 if ( process.platform === "darwin" ) {
-    template.unshift( App )
+    template.unshift( appSubmenu )
 }
 
 export default Menu.buildFromTemplate( template )

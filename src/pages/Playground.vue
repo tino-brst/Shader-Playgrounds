@@ -46,8 +46,7 @@ import { ShaderType } from "@/scripts/renderer/_constants"
 import { StateSaveInfo } from "@/store"
 import { FILE_EXTENSION, NEW_FILE_NAME } from "@/constants"
 
-const app = remote.app
-const dialog = remote.dialog
+const { app, dialog } = remote
 
 export default Vue.extend( {
     name: "Playground",
@@ -93,8 +92,8 @@ export default Vue.extend( {
         ipc.once( "new", this.onNew )
         ipc.on( "save", this.onSave )
         ipc.on( "close", this.onClose )
-        ipc.on( "shader", this.setActiveShader )
-        ipc.on( "compileAndRun", this.compileAndRun )
+        ipc.on( "set-active-shader", this.setActiveShader )
+        ipc.on( "compile-and-run", this.compileAndRun )
 
         this.window.setTitle( this.windowTitle )
     },

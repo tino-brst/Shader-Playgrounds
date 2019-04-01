@@ -8,11 +8,11 @@ export interface ShaderLog {
     errors: Array <[ number, string[] ]>,
     warnings: Array <[ number, string[] ]>
 }
-interface UniformRange {
+export interface UniformRange {
     range: Range,
     editor: UniformEditor
 }
-interface Range {
+export interface Range {
     from: Position
     to: Position
 }

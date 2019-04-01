@@ -153,35 +153,9 @@ function newFile() {
     newPlaygroundWindow()
 }
 
-function saveFile( focusedWindow: BrowserWindow | undefined ) {
-    if ( focusedWindow ) { // ⚠️ ¿ no habria que ver que la enfocada sea una de las "playground" ?
-        focusedWindow.webContents.send( "save" )
-    }
-}
-
-function clearRecents() {
-    app.clearRecentDocuments()
-}
-
-function activeShader( focusedWindow: BrowserWindow | undefined, shader: ShaderType ) {
-    if ( focusedWindow ) {
-        focusedWindow.webContents.send( "shader", shader )
-    }
-}
-
-function compileAndRun( focusedWindow: BrowserWindow | undefined ) {
-    if ( focusedWindow ) {
-        focusedWindow.webContents.send( "compileAndRun" )
-    }
-}
-
 export {
     openFile,
-    newFile,
-    saveFile,
-    activeShader,
-    compileAndRun,
-    clearRecents
+    newFile
 }
 
 // Exit cleanly on request from parent process in development mode.
