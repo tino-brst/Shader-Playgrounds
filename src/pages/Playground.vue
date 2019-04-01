@@ -172,7 +172,7 @@ export default Vue.extend( {
             this.$store.commit( "SET_WINDOW_READY", true )
         },
         closeWindow( proceed: boolean ) {
-            ipc.send( "close-window", proceed )
+            ipc.send( "close-window", proceed, this.filePath )
         },
         loadFile() {
             const savedState: StateSaveInfo = fs.read( this.filePath, "json" )
@@ -209,6 +209,7 @@ export default Vue.extend( {
             if ( this.filePath ) {
                 this.window.setRepresentedFilename( this.filePath )
                 app.addRecentDocument( this.filePath )
+                ipc.send( "opened-file", this.filePath )
             }
         }
     }

@@ -13,6 +13,7 @@ app.commandLine.appendSwitch( "--ignore-gpu-blacklist" ) // Chrome by default bl
 // Window Management 🖼
 
 const playgroundWindows: Set <BrowserWindow> = new Set()
+const openFiles: Map <string, BrowserWindow> = new Map()
 
 function newPlaygroundWindow( filePath?: string ) {
     const window = new BrowserWindow( {
@@ -44,17 +45,19 @@ function newPlaygroundWindow( filePath?: string ) {
     playgroundWindows.add( window )
 }
 
-ipc.on( "close-window", ( event: any, proceed: boolean ) => {
-    console.log( "closing!" )
-
+ipc.on( "close-window", ( event: any, proceed: boolean, openFile: string ) => {
     const window = BrowserWindow.fromWebContents( event.sender )
 
     if ( proceed ) {
         playgroundWindows.delete( window )
         window.destroy()
 
-        // if the window closing was due to a "quit" command and
-        // this was the last window, quit the app.
+        // if the window was working on a file, clear it from the currently open files
+        if ( openFile ) {
+            openFiles.delete( openFile )
+        }
+
+        // if the window closing was due to a "quit" command and this one was the last window, quit the app.
         if ( appQuitting && playgroundWindows.size === 0 ) {
             app.quit()
         }
@@ -62,6 +65,13 @@ ipc.on( "close-window", ( event: any, proceed: boolean ) => {
         // cancel app quitting (if in process)
         appQuitting = false
     }
+} )
+
+ipc.on( "opened-file", ( event: any, filePath: string ) => {
+    const window = BrowserWindow.fromWebContents( event.sender )
+
+    // keep track of which window is working on the file
+    openFiles.set( filePath, window )
 } )
 
 // App lifecycle 🔄
@@ -129,7 +139,13 @@ function openFile() {
     const filePath = showOpenFileDialog()
 
     if ( filePath !== undefined ) {
-        newPlaygroundWindow( filePath )
+        const windowWorkingOnFile = openFiles.get( filePath )
+
+        if ( windowWorkingOnFile ) {
+            windowWorkingOnFile.focus()
+        } else {
+            newPlaygroundWindow( filePath )
+        }
     }
 }
 
