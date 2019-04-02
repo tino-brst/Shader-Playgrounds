@@ -4,7 +4,7 @@ import { FILE_EXTENSION } from "./constants"
 import { app, protocol, dialog, Menu, BrowserWindow, ipcMain as ipc } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
 import { ShaderType } from "./scripts/renderer/_constants"
-import menu from "./menu"
+import { setWelcomeMenu, setPlaygroundMenu } from "./menu"
 
 const isDevelopment = process.env.NODE_ENV !== "production"
 protocol.registerStandardSchemes( [ "app" ], { secure: true } ) // Standard scheme must be registered before the app is ready
@@ -32,6 +32,10 @@ function newPlaygroundWindow( filePath?: string ) {
     window.on( "close", ( event ) => {
         event.preventDefault()
         window.webContents.send( "close" )
+    } )
+
+    window.on( "focus", () => {
+        setPlaygroundMenu()
     } )
 
     window.webContents.on( "did-finish-load", () => {
@@ -83,8 +87,7 @@ app.on( "ready", async() => {
         await installVueDevtools()
     }
 
-    Menu.setApplicationMenu( menu )
-
+    setWelcomeMenu()
     openFile()
 } )
 
