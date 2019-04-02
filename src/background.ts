@@ -121,32 +121,32 @@ function loadWindowContents( window: BrowserWindow, type: "playground" | "welcom
     }
 }
 
-function showOpenFileDialog() {
+function showOpenFileDialog( callback: ( filePath?: string ) => void ) {
     app.focus() // los 'dialogs' por defecto no ponen a la aplicacion en foco y pueden terminan atras de otras ventanas
 
-    const filePaths = dialog.showOpenDialog( {
+    dialog.showOpenDialog( {
         properties: [ "openFile" ],
         title: "Open file",
         filters: [
             { name: "Shaders Playground", extensions: [ FILE_EXTENSION ] }
         ]
+    }, ( filePaths ) => {
+        callback( filePaths ? filePaths[ 0 ] : undefined )
     } )
-
-    return filePaths ? filePaths[ 0 ] : undefined
 }
 
 function openFile() {
-    const filePath = showOpenFileDialog()
+    showOpenFileDialog( ( filePath ) => {
+        if ( filePath !== undefined ) {
+            const windowWorkingOnFile = openFiles.get( filePath )
 
-    if ( filePath !== undefined ) {
-        const windowWorkingOnFile = openFiles.get( filePath )
-
-        if ( windowWorkingOnFile ) {
-            windowWorkingOnFile.focus()
-        } else {
-            newPlaygroundWindow( filePath )
+            if ( windowWorkingOnFile ) {
+                windowWorkingOnFile.focus()
+            } else {
+                newPlaygroundWindow( filePath )
+            }
         }
-    }
+    } )
 }
 
 function newFile() {
