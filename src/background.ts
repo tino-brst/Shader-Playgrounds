@@ -12,8 +12,31 @@ app.commandLine.appendSwitch( "--ignore-gpu-blacklist" ) // Chrome by default bl
 
 // Window Management 🖼
 
+let welcomeWindow: BrowserWindow
 const playgroundWindows: Set <BrowserWindow> = new Set()
 const openFiles: Map <string, BrowserWindow> = new Map()
+
+function newWelcomeWindow() {
+    const window = new BrowserWindow( {
+        title: "Welcome",
+        show: false,
+        width: 400,
+        height: 300,
+        resizable: false,
+        minimizable: false,
+        maximizable: false,
+        fullscreenable: false,
+        backgroundColor: "#3c3c3c"
+    } )
+
+    window.on( "focus", () => {
+        setWelcomeMenu()
+    } )
+
+    window.show()
+
+    return window
+}
 
 function newPlaygroundWindow( filePath?: string ) {
     const window = new BrowserWindow( {
@@ -46,7 +69,7 @@ function newPlaygroundWindow( filePath?: string ) {
         }
     } )
 
-    playgroundWindows.add( window )
+    return window
 }
 
 ipc.on( "close-window", ( event: any, proceed: boolean, openFile: string ) => {
@@ -87,8 +110,7 @@ app.on( "ready", async() => {
         await installVueDevtools()
     }
 
-    setWelcomeMenu()
-    openFile()
+    welcomeWindow = newWelcomeWindow()
 } )
 
 app.on( "window-all-closed", () => {
@@ -146,14 +168,16 @@ function openFile() {
             if ( windowWorkingOnFile ) {
                 windowWorkingOnFile.focus()
             } else {
-                newPlaygroundWindow( filePath )
+                const newPlayground = newPlaygroundWindow( filePath )
+                playgroundWindows.add( newPlayground )
             }
         }
     } )
 }
 
 function newFile() {
-    newPlaygroundWindow()
+    const newPlayground = newPlaygroundWindow()
+    playgroundWindows.add( newPlayground )
 }
 
 export {

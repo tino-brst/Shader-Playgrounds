@@ -2,8 +2,8 @@ import { app, Menu, MenuItemConstructorOptions, BrowserWindow, shell } from "ele
 import * as background from "./background"
 import { ShaderType } from "./scripts/renderer/_constants"
 
-const ___ = "separator"
 const enum WINDOW { WELCOME, PLAYGROUND }
+const ___ = "separator"
 
 function sendAction( action: string, payload?: any ) {
     const focusedWindow = BrowserWindow.getFocusedWindow()
@@ -121,10 +121,6 @@ function getMenuTemplate( type: WINDOW ) {
                 click: () => { sendAction( "set-active-shader", ShaderType.Fragment ) }
             },
             { type: ___ },
-            { role: "resetzoom" }, // 📝 ver si el hecho de que una ventana no sea "maximizable" afecta su estado
-            { role: "zoomin" },
-            { role: "zoomout" },
-            { type: ___ },
             { role: "togglefullscreen" }
         ]
     }
@@ -133,7 +129,11 @@ function getMenuTemplate( type: WINDOW ) {
         submenu: [
             { role: "reload" },
             { role: "forcereload" },
-            { role: "toggledevtools" }
+            { role: "toggledevtools" },
+            { type: ___ },
+            { role: "resetzoom" },
+            { role: "zoomin" },
+            { role: "zoomout" },
         ]
     }
     const windowSubmenu: MenuItemConstructorOptions = {
