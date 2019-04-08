@@ -1,11 +1,17 @@
 module.exports = {
     lintOnSave: false,
     pages: {
-        index: {
+        playground: {
             entry: 'src/pages/playground.ts',
             template: 'public/playground.html',
             filename: 'playground.html',
             title: 'Playground',
+        },
+        welcome: {
+            entry: 'src/pages/welcome.ts',
+            template: 'public/welcome.html',
+            filename: 'welcome.html',
+            title: 'Welcome',
         }
     },
     chainWebpack: config => {

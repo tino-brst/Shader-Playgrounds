@@ -30,6 +30,7 @@ function newWelcomeWindow() {
         backgroundColor: "#3c3c3c"
     } )
 
+    loadWindowContents( window, WINDOW_TYPE.WELCOME )
     setMenu( window, WINDOW_TYPE.WELCOME )
 
     window.on( "close", ( event ) => {
