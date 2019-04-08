@@ -33,7 +33,18 @@ function newWelcomeWindow() {
         setWelcomeMenu()
     } )
 
-    window.show()
+    window.on( "close", ( event ) => {
+        // by default, the welcome window just hides when closing it (to make showing it again snappier),
+        // but if it is the only window remaining and the app is trying to quit, it closes itself
+        if ( playgroundWindows.size === 0 && appQuitting ) {
+            window.destroy()
+        } else {
+            event.preventDefault()
+            window.hide()
+        }
+    } )
+
+    window.show() // 📝 move to "ready-to-show" once web contents are being loaded
 
     return window
 }
@@ -84,10 +95,17 @@ ipc.on( "close-window", ( event: any, proceed: boolean, openFile: string ) => {
             openFiles.delete( openFile )
         }
 
-        // if the window closing was due to a "quit" command and this one was the last window, quit the app.
-        if ( appQuitting && playgroundWindows.size === 0 ) {
-            app.quit()
+        // if this one was the las playground window
+        if ( playgroundWindows.size === 0 ) {
+            if ( appQuitting ) {
+                // and the app was trying to quit, it continues the quitting process
+                app.quit()
+            } else {
+                // if not, shows the welcome window
+                welcomeWindow.show()
+            }
         }
+
     } else {
         // cancel app quitting (if in process)
         appQuitting = false
@@ -124,7 +142,7 @@ app.on( "window-all-closed", () => {
 app.on( "activate", () => {
     // 📝 mostrar la ventana de bienvenida si no hay ninguna abierta
     if ( playgroundWindows.size === 0 ) {
-        openFile()
+        welcomeWindow.show()
     }
 } )
 
@@ -146,36 +164,41 @@ function loadWindowContents( window: BrowserWindow, type: "playground" | "welcom
     }
 }
 
-function showOpenFileDialog( callback: ( filePath?: string ) => void ) {
+function showOpenFileDialog() {
     app.focus() // los 'dialogs' por defecto no ponen a la aplicacion en foco y pueden terminan atras de otras ventanas
 
-    dialog.showOpenDialog( {
+    const filePaths = dialog.showOpenDialog( {
         properties: [ "openFile" ],
         title: "Open file",
         filters: [
             { name: "Shaders Playground", extensions: [ FILE_EXTENSION ] }
         ]
-    }, ( filePaths ) => {
-        callback( filePaths ? filePaths[ 0 ] : undefined )
     } )
+
+    return filePaths ? filePaths[ 0 ] : undefined
 }
 
 function openFile() {
-    showOpenFileDialog( ( filePath ) => {
-        if ( filePath !== undefined ) {
-            const windowWorkingOnFile = openFiles.get( filePath )
+    welcomeWindow.hide()
 
-            if ( windowWorkingOnFile ) {
-                windowWorkingOnFile.focus()
-            } else {
-                const newPlayground = newPlaygroundWindow( filePath )
-                playgroundWindows.add( newPlayground )
-            }
+    const filePath = showOpenFileDialog()
+
+    if ( filePath !== undefined ) {
+        const windowWorkingOnFile = openFiles.get( filePath )
+
+        if ( windowWorkingOnFile ) {
+            windowWorkingOnFile.focus()
+        } else {
+            const newPlayground = newPlaygroundWindow( filePath )
+            playgroundWindows.add( newPlayground )
         }
-    } )
+    } else if ( playgroundWindows.size === 0 ) {
+        welcomeWindow.show()
+    }
 }
 
 function newFile() {
+    welcomeWindow.hide()
     const newPlayground = newPlaygroundWindow()
     playgroundWindows.add( newPlayground )
 }
