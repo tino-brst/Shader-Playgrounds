@@ -1,11 +1,12 @@
 "use strict"
 
-import { FILE_EXTENSION } from "./constants"
+import { FILE_EXTENSION, WINDOW_TYPE } from "./constants"
 import { app, protocol, dialog, Menu, BrowserWindow, ipcMain as ipc } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
 import { ShaderType } from "./scripts/renderer/_constants"
-import { setWelcomeMenu, setPlaygroundMenu } from "./menu"
+import { setWindowMenu, setAppMenu } from "./menu"
 
+const onMac = process.platform === "darwin"
 const isDevelopment = process.env.NODE_ENV !== "production"
 protocol.registerStandardSchemes( [ "app" ], { secure: true } ) // Standard scheme must be registered before the app is ready
 app.commandLine.appendSwitch( "--ignore-gpu-blacklist" ) // Chrome by default black lists certain GPUs because of bugs.
@@ -29,13 +30,11 @@ function newWelcomeWindow() {
         backgroundColor: "#3c3c3c"
     } )
 
-    window.on( "focus", () => {
-        setWelcomeMenu()
-    } )
+    setMenu( window, WINDOW_TYPE.WELCOME )
 
     window.on( "close", ( event ) => {
-        // by default, the welcome window just hides when closing it (to make showing it again snappier),
-        // but if it is the only window remaining and the app is trying to quit, it closes itself
+        // by default, the welcome window just hides when closing it (to make showing it again snappy),
+        // but if it is the only window remaining and the app is trying to quit, it closes itself and continues quitting
         if ( playgroundWindows.size === 0 && appQuitting ) {
             window.destroy()
         } else {
@@ -59,17 +58,12 @@ function newPlaygroundWindow( filePath?: string ) {
         webPreferences: { experimentalFeatures: true }
     } )
 
-    loadWindowContents( window, "playground" )
-
-    // Window lifecycle
+    loadWindowContents( window, WINDOW_TYPE.PLAYGROUND )
+    setMenu( window, WINDOW_TYPE.PLAYGROUND )
 
     window.on( "close", ( event ) => {
         event.preventDefault()
         window.webContents.send( "close" )
-    } )
-
-    window.on( "focus", () => {
-        setPlaygroundMenu()
     } )
 
     window.webContents.on( "did-finish-load", () => {
@@ -153,7 +147,7 @@ app.on( "before-quit", () => {
 
 // Utils 🛠
 
-function loadWindowContents( window: BrowserWindow, type: "playground" | "welcome" ) {
+function loadWindowContents( window: BrowserWindow, type: WINDOW_TYPE ) {
     if ( process.env.WEBPACK_DEV_SERVER_URL ) {
         // Load the url of the dev server if in development mode
         window.loadURL( process.env.WEBPACK_DEV_SERVER_URL + type + ".html" )
@@ -161,6 +155,16 @@ function loadWindowContents( window: BrowserWindow, type: "playground" | "welcom
         // Load the index.html when not in development
         createProtocol( "app" )
         window.loadURL( `app://./${type}.html` )
+    }
+}
+
+function setMenu( window: BrowserWindow, type: WINDOW_TYPE ) {
+    if ( ! onMac ) {
+        // on windows & linux the menu remains fixed per window
+        setWindowMenu( window, type )
+    } else {
+        // on mac, it updates depending on the focused window
+        window.on( "focus", () => { setAppMenu( type ) } )
     }
 }
 
@@ -203,9 +207,14 @@ function newFile() {
     playgroundWindows.add( newPlayground )
 }
 
+function showWelcomeWindow() {
+    welcomeWindow.show()
+}
+
 export {
     openFile,
-    newFile
+    newFile,
+    showWelcomeWindow
 }
 
 // Exit cleanly on request from parent process in development mode.

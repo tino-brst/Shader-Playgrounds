@@ -1,8 +1,8 @@
 import { app, Menu, MenuItemConstructorOptions, BrowserWindow, shell } from "electron"
+import { FILE_EXTENSION, WINDOW_TYPE } from "./constants"
 import * as background from "./background"
 import { ShaderType } from "./scripts/renderer/_constants"
 
-const enum WINDOW { WELCOME, PLAYGROUND }
 const ___ = "separator"
 
 function sendAction( action: string, payload?: any ) {
@@ -13,9 +13,9 @@ function sendAction( action: string, payload?: any ) {
     }
 }
 
-function getMenuTemplate( type: WINDOW ) {
+function getMenuTemplate( type: WINDOW_TYPE ) {
 
-    const isPlayground = type === WINDOW.PLAYGROUND
+    const isPlayground = type === WINDOW_TYPE.PLAYGROUND
 
     const appSubmenu: MenuItemConstructorOptions = {
         label: app.getName(),
@@ -143,10 +143,20 @@ function getMenuTemplate( type: WINDOW ) {
             { role: "close" },
             { role: "zoom" },
             { type: ___ },
+            {
+                label: "Welcome",
+                click: () => { background.showWelcomeWindow() }
+            },
+            { type: ___ },
             { role: "front" }
         ] : [
             { role: "minimize" },
-            { role: "close" }
+            { role: "close" },
+            { type: ___ },
+            {
+                label: "Welcome",
+                click: () => { background.showWelcomeWindow() }
+            },
         ]
     }
     const helpSubmenu: MenuItemConstructorOptions = {
@@ -176,17 +186,17 @@ function getMenuTemplate( type: WINDOW ) {
     return template
 }
 
-function setWelcomeMenu() {
-    const menu = Menu.buildFromTemplate( getMenuTemplate( WINDOW.WELCOME ))
+function setAppMenu( type: WINDOW_TYPE ) {
+    const menu = Menu.buildFromTemplate( getMenuTemplate( type ))
     Menu.setApplicationMenu( menu )
 }
 
-function setPlaygroundMenu() {
-    const menu = Menu.buildFromTemplate( getMenuTemplate( WINDOW.PLAYGROUND ))
-    Menu.setApplicationMenu( menu )
+function setWindowMenu( window: BrowserWindow, type: WINDOW_TYPE ) {
+    const menu = Menu.buildFromTemplate( getMenuTemplate( type ))
+    window.setMenu( menu )
 }
 
 export {
-    setWelcomeMenu,
-    setPlaygroundMenu
+    setAppMenu,
+    setWindowMenu
 }
