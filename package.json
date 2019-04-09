@@ -22,6 +22,7 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "electron-store": "3.1.0",
     "fs-jetpack": "2.2.2",
     "fuzzysort": "1.1.4",
     "gl-matrix": "3.0.0",
@@ -33,6 +34,7 @@
     "vuex": "3.1.0"
   },
   "devDependencies": {
+    "@types/electron-store": "1.3.1",
     "@types/gl-matrix": "2.4.5",
     "@types/round-to": "3.0.0",
     "@vue/cli-plugin-eslint": "3.5.1",

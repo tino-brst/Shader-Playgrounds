@@ -1,17 +1,24 @@
 "use strict"
 
-import { FILE_EXTENSION, WINDOW_TYPE } from "./constants"
+import { FILE_EXTENSION, WINDOW_TYPE, MAX_RECENTS } from "./constants"
 import { app, protocol, dialog, Menu, BrowserWindow, ipcMain as ipc } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
 import { ShaderType } from "./scripts/renderer/_constants"
 import { setWindowMenu, setAppMenu } from "./menu"
+import Store from "electron-store"
 
 const onMac = process.platform === "darwin"
 const isDevelopment = process.env.NODE_ENV !== "production"
 protocol.registerStandardSchemes( [ "app" ], { secure: true } ) // Standard scheme must be registered before the app is ready
 app.commandLine.appendSwitch( "--ignore-gpu-blacklist" ) // Chrome by default black lists certain GPUs because of bugs.
 
-// Window Management 🖼
+// User data setup 🗄
+
+const store = new Store( { defaults: {
+    recents: [] as string[]
+} } )
+
+// Window management 🖼
 
 let welcomeWindow: BrowserWindow
 const playgroundWindows: Set <BrowserWindow> = new Set()
@@ -100,7 +107,6 @@ ipc.on( "close-window", ( event: any, proceed: boolean, openFile: string ) => {
                 welcomeWindow.show()
             }
         }
-
     } else {
         // cancel app quitting (if in process)
         appQuitting = false
@@ -110,8 +116,8 @@ ipc.on( "close-window", ( event: any, proceed: boolean, openFile: string ) => {
 ipc.on( "opened-file", ( event: any, filePath: string ) => {
     const window = BrowserWindow.fromWebContents( event.sender )
 
-    // keep track of which window is working on the file
     openFiles.set( filePath, window )
+    addToRecentDocuments( filePath )
 } )
 
 // App lifecycle 🔄
@@ -122,6 +128,8 @@ app.on( "ready", async() => {
     if ( isDevelopment && ! process.env.IS_TEST ) {
         await installVueDevtools()
     }
+
+    loadRecents()
 
     welcomeWindow = newWelcomeWindow()
 } )
@@ -146,6 +154,46 @@ app.on( "before-quit", () => {
     appQuitting = true
 } )
 
+// Recent documents 📄
+
+let recents: string[] = []
+
+function addToRecentDocuments( filePath: string ) {
+    // check if already in recents
+    const index = recents.indexOf( filePath )
+
+    if ( index < 0 ) {
+        // if not on the list
+        recents.unshift( filePath )
+    } else if ( index > 0 ) {
+        // if on the list and not the most recent
+        recents.splice( index, 1 )
+        recents.unshift( filePath )
+    }
+
+    // keep the list short
+    if ( recents.length > MAX_RECENTS ) recents.length = MAX_RECENTS
+
+    store.set( "recents", recents )
+    app.addRecentDocument( filePath )
+}
+
+function clearRecentDocuments() {
+    recents = []
+    store.set( "recents", [] )
+    app.clearRecentDocuments()
+}
+
+function loadRecents() {
+    // keeps the stored recents and system ones in sync
+    recents = store.get( "recents" )
+    app.clearRecentDocuments()
+
+    for ( let index = recents.length - 1; index >= 0; index -- ) {
+        app.addRecentDocument( recents[ index ] )
+    }
+}
+
 // Utils 🛠
 
 function loadWindowContents( window: BrowserWindow, type: WINDOW_TYPE ) {
@@ -155,7 +203,7 @@ function loadWindowContents( window: BrowserWindow, type: WINDOW_TYPE ) {
     } else {
         // Load the index.html when not in development
         createProtocol( "app" )
-        window.loadURL( `app://./${type}.html` )
+        window.loadURL( `app://./${ type }.html` )
     }
 }
 
@@ -215,6 +263,7 @@ function showWelcomeWindow() {
 export {
     openFile,
     newFile,
+    clearRecentDocuments,
     showWelcomeWindow
 }
 

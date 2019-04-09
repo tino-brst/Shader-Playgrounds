@@ -212,7 +212,6 @@ export default Vue.extend( {
         registerWorkingFile() {
             if ( this.filePath ) {
                 this.window.setRepresentedFilename( this.filePath )
-                app.addRecentDocument( this.filePath )
                 ipc.send( "opened-file", this.filePath )
             }
         }

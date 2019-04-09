@@ -33,8 +33,6 @@ import "@/scripts/editor/codemirror/addon/hint/glsl-hint"
 import "@/scripts/editor/codemirror/addon/comment/comment"
 import "@/scripts/editor/codemirror/keymap/sublime"
 
-
-
 export default Vue.extend( {
     name: "Editor",
     components: {

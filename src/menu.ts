@@ -14,7 +14,6 @@ function sendAction( action: string, payload?: any ) {
 }
 
 function getMenuTemplate( type: WINDOW_TYPE ) {
-
     const isPlayground = type === WINDOW_TYPE.PLAYGROUND
 
     const appSubmenu: MenuItemConstructorOptions = {
@@ -46,7 +45,10 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
                 role: "recentDocuments",
                 submenu: [
                     { type: ___ },
-                    { role: "clearRecentDocuments" }
+                    {
+                        label: "Clear Menu",
+                        click: () => { background.clearRecentDocuments() }
+                    }
                 ]
             },
             { type: ___ },
