@@ -1,7 +1,7 @@
 "use strict"
 
 import { FILE_EXTENSION, WINDOW_TYPE, MAX_RECENTS } from "./constants"
-import { app, protocol, dialog, Menu, BrowserWindow, ipcMain as ipc } from "electron"
+import { app, protocol, dialog, Menu, BrowserWindow, ipcMain as ipc, Event } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
 import { ShaderType } from "./scripts/renderer/_constants"
 import { setWindowMenu, setAppMenu } from "./menu"
@@ -28,12 +28,13 @@ function newWelcomeWindow() {
     const window = new BrowserWindow( {
         title: "Welcome",
         show: false,
-        width: 400,
-        height: 300,
-        resizable: false,
+        width: 800,
+        height: 400,
+        resizable: true, // for debugging 🐛
         minimizable: false,
         maximizable: false,
         fullscreenable: false,
+        frame: false,
         backgroundColor: "#3c3c3c"
     } )
 
@@ -91,7 +92,7 @@ function newPlaygroundWindow( filePath?: string ) {
     return window
 }
 
-ipc.on( "close-window", ( event: any, proceed: boolean, openFile: string ) => {
+ipc.on( "close-window", ( event: Event, proceed: boolean, openFile: string ) => {
     const window = BrowserWindow.fromWebContents( event.sender )
 
     if ( proceed ) {
@@ -119,11 +120,19 @@ ipc.on( "close-window", ( event: any, proceed: boolean, openFile: string ) => {
     }
 } )
 
-ipc.on( "opened-file", ( event: any, filePath: string ) => {
+ipc.on( "opened-file", ( event: Event, filePath: string ) => {
     const window = BrowserWindow.fromWebContents( event.sender )
 
     openFiles.set( filePath, window )
     addToRecentDocuments( filePath )
+} )
+
+ipc.on( "open-file", ( event: Event, filePath?: string ) => {
+    openFile( filePath )
+} )
+
+ipc.on( "new-file", () => {
+    newFile()
 } )
 
 // App lifecycle 🔄
@@ -239,17 +248,21 @@ function showOpenFileDialog() {
     return filePaths ? filePaths[ 0 ] : undefined
 }
 
-function openFile() {
+function openFile( filePath?: string ) {
     welcomeWindow.hide()
 
-    const filePath = showOpenFileDialog()
+    // if no file passed, select from dialog
+    if ( ! filePath ) filePath = showOpenFileDialog()
 
-    if ( filePath !== undefined ) {
+    // if the user selected a file
+    if ( filePath ) {
         const windowWorkingOnFile = openFiles.get( filePath )
 
+        // check if it is already open
         if ( windowWorkingOnFile ) {
             windowWorkingOnFile.focus()
         } else {
+            // if not, open on new window
             const newPlayground = newPlaygroundWindow( filePath )
             playgroundWindows.add( newPlayground )
         }
