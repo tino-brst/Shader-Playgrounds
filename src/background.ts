@@ -51,7 +51,13 @@ function newWelcomeWindow() {
         }
     } )
 
-    window.show() // 📝 move to "ready-to-show" once web contents are being loaded
+    window.webContents.on( "did-finish-load", () => {
+        window.webContents.send( "recents", recents )
+    } )
+
+    window.on( "ready-to-show", () => {
+        window.show()
+    } )
 
     return window
 }
@@ -176,12 +182,14 @@ function addToRecentDocuments( filePath: string ) {
 
     store.set( "recents", recents )
     app.addRecentDocument( filePath )
+    welcomeWindow.webContents.send( "recents", recents )
 }
 
 function clearRecentDocuments() {
     recents = []
     store.set( "recents", [] )
     app.clearRecentDocuments()
+    welcomeWindow.webContents.send( "recents", recents )
 }
 
 function loadRecents() {

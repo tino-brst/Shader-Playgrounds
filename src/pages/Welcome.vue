@@ -6,9 +6,24 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { remote, ipcRenderer as ipc, Event } from "electron"
+
+const { app } = remote
 
 export default Vue.extend( {
-    name: "Welcome"
+    name: "Welcome",
+    data: () => ( {
+        window: remote.getCurrentWindow(),
+        recents: [] as string[]
+    } ),
+    mounted() {
+        ipc.on( "recents", this.onRecentsUpdate )
+    },
+    methods: {
+        onRecentsUpdate( event: Event, recents: string[] ) {
+            this.recents = recents
+        }
+    }
 } )
 </script>
 
