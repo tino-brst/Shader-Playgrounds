@@ -42,7 +42,7 @@ export class Renderer {
         // setup del canvas y contexto WebGL
 
         this.canvas = canvas
-        this.gl = this.canvas.getContext( "webgl" ) as WebGLRenderingContext
+        this.gl = this.canvas.getContext( "webgl2" ) as WebGLRenderingContext
 
         // seguimiento de estado ( valores que se mantienen de un loop al siguiente )
 
