@@ -12,8 +12,6 @@ import { UniformEditor } from "./UniformEditor"
 import { UniformsCache, UniformState } from "./UniformsCache"
 import { VertexAttribute, Uniform } from "./ShaderInputs"
 import { VertexAttributeBuffer } from "./Buffers"
-import defaultFragmentShaderSource from "./defaults/default.frag.glsl"
-import defaultVertexShaderSource from "./defaults/default.vert.glsl"
 
 export interface Model {
     name: string,
@@ -68,12 +66,12 @@ export class Renderer {
 
         // uniforms por defecto
 
-        const defaultUniforms: Array < [ string, ShaderVariableType, any ] > = [
-            [ "modelMatrix", ShaderVariableType.mat4, this.model.modelMatrix ],
-            [ "modelViewMatrix", ShaderVariableType.mat4, this.model.modelViewMatrix ],
-            [ "normalMatrix", ShaderVariableType.mat4, this.model.normalMatrix ],
-            [ "viewMatrix", ShaderVariableType.mat4, this.camera.viewMatrix ],
-            [ "projectionMatrix", ShaderVariableType.mat4, this.camera.projectionMatrix ]
+        const defaultUniforms: Array < { name: string, type: ShaderVariableType, value: any } > = [
+            { name: "modelMatrix", type: ShaderVariableType.mat4, value: this.model.modelMatrix },
+            { name: "modelViewMatrix", type: ShaderVariableType.mat4, value: this.model.modelViewMatrix },
+            { name: "normalMatrix", type: ShaderVariableType.mat4, value: this.model.normalMatrix },
+            { name: "viewMatrix", type: ShaderVariableType.mat4, value: this.camera.viewMatrix },
+            { name: "projectionMatrix", type: ShaderVariableType.mat4, value: this.camera.projectionMatrix }
         ]
 
         // cache de uniforms
@@ -84,7 +82,7 @@ export class Renderer {
         // inspector de programa
 
         this.inspector = new Inspector()
-        this.initInspector( this.model, defaultUniforms )
+        this.inspector.updateDefaultUniforms( defaultUniforms )
 
         // editores de uniforms
 
@@ -123,7 +121,7 @@ export class Renderer {
 
         if ( geometry !== undefined ) {
             this.model.updateBuffersFromGeometry( geometry )
-            this.updateInspectorAvailableVertexAttributes( this.model.vertexAttributesBuffers )
+            this.inspector.updateAvailableVertexAttributesFromBuffers( this.model.vertexAttributesBuffers )
             this.inspector.checkForErrorsAndWarnings( this.program )
 
             this.state.drawBufferNeedsUpdate = true
@@ -354,16 +352,6 @@ export class Renderer {
         }
     }
 
-    private updateInspectorAvailableVertexAttributes( buffers: Map < string, VertexAttributeBuffer > ) {
-        this.inspector.availableVertexAttributes.clear()
-
-        for ( const [ name, buffer ] of buffers ) {
-            const type = ( buffer.itemSize === 2 ) ? ShaderVariableType.vec2 : ShaderVariableType.vec3
-
-            this.inspector.availableVertexAttributes.set( name, type )
-        }
-    }
-
     private updateViewSize() {
         // current canvas display size
         const displayWidth = Math.floor( this.canvas.clientWidth * window.devicePixelRatio )
@@ -379,25 +367,10 @@ export class Renderer {
         }
     }
 
-    private initUniformsCache( defaultUniforms: Array < [ string, ShaderVariableType, any ] > ) {
-        for ( const uniform of defaultUniforms ) {
-            const name  = uniform[ 0 ]
-            const type  = uniform[ 1 ]
-            const value = uniform[ 2 ]
-
-            this.uniformsCache.addDefault( name, type, value )
+    private initUniformsCache( uniforms: Array < { name: string, type: ShaderVariableType, value: any } > ) {
+        for ( const uniform of uniforms ) {
+            this.uniformsCache.addDefault( uniform.name, uniform.type, uniform.value )
         }
-    }
-
-    private initInspector( geometry: BuffersGeometry, defaultUniforms: Array < [ string, ShaderVariableType, any ] > ) {
-        for ( const uniform of defaultUniforms ) {
-            const name  = uniform[ 0 ]
-            const type  = uniform[ 1 ]
-
-            this.inspector.defaultUniforms.set( name, type )
-        }
-
-        this.updateInspectorAvailableVertexAttributes( geometry.vertexAttributesBuffers )
     }
 
     private clearUniformsCacheAndEditors() {

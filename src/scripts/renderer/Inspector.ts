@@ -44,6 +44,24 @@ export class Inspector {
         return uniformsInfo
     }
 
+    public updateAvailableVertexAttributesFromBuffers( buffers: Map <string, VertexAttributeBuffer > ) {
+        this.availableVertexAttributes.clear()
+
+        for ( const [ name, buffer ] of buffers ) {
+            const type = ( buffer.itemSize === 2 ) ? ShaderVariableType.vec2 : ShaderVariableType.vec3
+
+            this.availableVertexAttributes.set( name, type )
+        }
+    }
+
+    public updateDefaultUniforms( uniforms: Array < { name: string, type: ShaderVariableType, value: any } > ) {
+        this.defaultUniforms.clear()
+
+        for ( const uniform of uniforms ) {
+            this.defaultUniforms.set( uniform.name, uniform.type )
+        }
+    }
+
     // ✋🏼  Metodos Privados
 
     private checkShader( shader: Shader, log: InspectorLogEntry[] ) {
