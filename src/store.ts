@@ -1,7 +1,7 @@
 import Vue from "vue"
 import Vuex, { ActionContext } from "vuex"
 import { InspectorLogEntry, LogEntryType } from "@/scripts/renderer/InspectorLogEntry"
-import { ShaderType } from "@/scripts/renderer/_constants"
+import { ShaderType, LanguageVersion } from "@/scripts/renderer/_constants"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import { ShaderLog } from "@/scripts/editor/ShaderView"
 import { UniformState } from "./scripts/renderer/UniformsCache"
@@ -9,6 +9,7 @@ import { UniformState } from "./scripts/renderer/UniformsCache"
 export interface State {
     vertexSource: string,
     fragmentSource: string,
+    languageVersion: LanguageVersion,
     activeShader: ShaderType,
     editorClean: boolean,
     model: string,
@@ -37,6 +38,7 @@ Vue.use( Vuex )
 const state: State = {
     vertexSource: "",
     fragmentSource: "",
+    languageVersion: LanguageVersion.GLSL_ES300,
     activeShader: ShaderType.Vertex,
     editorClean: true,
     model: "",
@@ -59,6 +61,9 @@ const mutations = {
     },
     SET_FRAGMENT_SOURCE( state: State, value: string ) {
         state.fragmentSource = value
+    },
+    SET_LANGUAGE_VERSION( state: State, value: LanguageVersion ) {
+        state.languageVersion = value
     },
     SET_ACTIVE_SHADER( state: State, value: ShaderType ) {
         state.activeShader = value
@@ -148,24 +153,14 @@ const mutations = {
 
 const getters = {
     errorsCount( state: State ) {
-        const vertexErrors = state.vertexLog.errors.reduce( ( previous, current ) => {
-            return previous + current[ 1 ].length
-        }, 0 )
-
-        const fragmentErrors = state.fragmentLog.errors.reduce( ( previous, current ) => {
-            return previous + current[ 1 ].length
-        }, 0 )
+        const vertexErrors = state.vertexLog.errors.reduce( ( previous, current ) => previous + current[ 1 ].length, 0 )
+        const fragmentErrors = state.fragmentLog.errors.reduce( ( previous, current ) => previous + current[ 1 ].length, 0 )
 
         return vertexErrors + fragmentErrors
     },
     warningsCount( state: State ) {
-        const vertexWarnings = state.vertexLog.warnings.reduce( ( previous, current ) => {
-            return previous + current[ 1 ].length
-        }, 0 )
-
-        const fragmentWarnings = state.fragmentLog.warnings.reduce( ( previous, current ) => {
-            return previous + current[ 1 ].length
-        }, 0 )
+        const vertexWarnings = state.vertexLog.warnings.reduce( ( previous, current ) => previous + current[ 1 ].length, 0 )
+        const fragmentWarnings = state.fragmentLog.warnings.reduce( ( previous, current ) => previous + current[ 1 ].length, 0 )
 
         return vertexWarnings + fragmentWarnings
     },
@@ -194,7 +189,7 @@ const actions = {
 }
 
 export default new Vuex.Store( {
-    strict: process.env.NODE_ENV !== 'production',
+    strict: process.env.NODE_ENV !== "production",
     state,
     mutations,
     getters,

@@ -1,29 +1,26 @@
 <template>
-    <div class="model-select">
+    <div class="select">
         <label> <slot> set label </slot> </label>
-        <div class="models-container" ref="clickableArea">
+        <div class="select-container" ref="clickableArea">
             <div
                 class="button"
                 @mousedown.prevent
                 @click="isActive = ! isActive"
                 :class="{ active: isActive }"
             >
-                <span> {{ value }} </span>
-                <div class="select-icon"/>
+                <span> {{ selected.text }} </span>
+                <div class="select-icon" />
             </div>
-            <div class="models" :class="{ visible: isActive, dropup }">
+            <div class="options" :class="{ visible: isActive, dropup }">
                 <div
-                    class="model"
-                    v-for="model in models"
-                    :key="model.name"
-                    :class="{ 'selected': model.name === value }"
+                    class="option"
+                    v-for="option in options"
+                    :key="option.value"
+                    :class="{ 'selected': option.value === selected.value }"
                     @mousedown.prevent
-                    @click="updateValue( model.name )"
+                    @click="updateValue( option.value )"
                 >
-                    <div class="model-info">
-                        <span> {{ model.name }} </span>
-                        <span v-if="model.attributes.textureCoordinates" class="textures" />
-                    </div>
+                    <span> {{ option.text }} </span>
                     <v-check-icon class="icon" />
                 </div>
             </div>
@@ -33,23 +30,17 @@
 
 <script lang="ts">
 import Vue from "vue"
-import { Model } from "@/scripts/renderer/Renderer"
+import { mapState } from "vuex"
+import { LanguageVersion } from "@/scripts/renderer/_constants"
+
 const { CheckIcon } = require( "vue-feather-icons" )
 
 export default Vue.extend( {
-    name: "ModelSelect",
+    name: "LanguageVersionSelect",
     components: {
         "v-check-icon": CheckIcon
     },
     props: {
-        value: {
-            type: String,
-            default: ""
-        },
-        models: {
-            type: Array as () => Model[],
-            default: () => []
-        },
         autohide: {
             type: Boolean,
             default: false
@@ -61,18 +52,31 @@ export default Vue.extend( {
     },
     data() {
         return {
-            isActive: false
+            isActive: false,
+            options: [
+                { text: "1.00", value: LanguageVersion.GLSL_ES100 },
+                { text: "3.00", value: LanguageVersion.GLSL_ES300 }
+            ]
         }
+    },
+    computed: {
+        selected(): { text: string, value: LanguageVersion } {
+            // @ts-ignore
+            return ( this.languageVersion === this.options[ 0 ].value ) ? this.options[ 0 ] : this.options[ 1 ]
+        },
+        ...mapState( [
+            "languageVersion"
+        ] )
     },
     created() {
         document.addEventListener( "mousedown", ( event ) => { this.checkOutsideClick( event ) } )
     },
     methods: {
-        updateValue( model: string ) {
+        updateValue( value: LanguageVersion ) {
             if ( this.autohide ) {
-                this.isActive = false
+                setTimeout( () => { this.isActive = false }, 150 )
             }
-            this.$emit( "input", model )
+            this.$store.commit( "SET_LANGUAGE_VERSION", value )
         },
         checkOutsideClick( event: MouseEvent ) {
             const clickableArea = this.$refs.clickableArea as Element
@@ -91,13 +95,7 @@ export default Vue.extend( {
 
 accent-color = royalblue
 
-.model-select {
-
-    width: fit-content
-    display: flex
-    align-items: center
-    user-select: none
-    pointer-events: all;
+.select {
 
     label {
 
@@ -108,7 +106,13 @@ accent-color = royalblue
 
     }
 
-    .models-container {
+    width: fit-content
+    display: flex
+    align-items: center
+    user-select: none
+    pointer-events: all;
+
+    .select-container {
 
         position: relative
         display: flex
@@ -126,12 +130,14 @@ accent-color = royalblue
             padding-right: 0.1rem
             border-radius: 3pt
             transition: background-color 0.15s;
+            color: rgba(255, 255, 255, 0.6)
 
             .select-icon {
                 width: 13px;
                 height: 13px;
                 margin-left: 2px;
                 position: relative
+                opacity: 0.7
             }
             .select-icon:after {
                 display: block;
@@ -148,7 +154,6 @@ accent-color = royalblue
 
             &:active, &.active {
 
-                filter: brightness( 0.8 )
                 background-color: rgba( 255, 255, 255, 0.1 )
 
             }
@@ -161,15 +166,16 @@ accent-color = royalblue
 
         }
 
-        .models {
+        .options {
 
             z-index: 1
             box-sizing: border-box
             left: -0.3rem
             position: absolute
             border-radius: 6px
-            background: rgb( 30, 30, 30 )
-            box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.8);
+            background: rgb( 60, 60, 60 )
+            border: 1px solid rgb( 20, 20, 20 )
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
             overflow: hidden
             opacity: 0
             pointer-events: none
@@ -200,7 +206,7 @@ accent-color = royalblue
 
             }
 
-            .model {
+            .option {
 
                 display: flex
                 align-items: center
@@ -208,7 +214,7 @@ accent-color = royalblue
                 text-overflow: ellipsis
                 white-space: nowrap
                 cursor: pointer
-                color: rgba( 255, 255, 255, 0.4 )
+                color: rgba( 255, 255, 255, 0.6 )
                 padding: 0.3rem 0.5rem 0.3rem 0.5rem
                 transition: color 0.1s
 
@@ -220,32 +226,6 @@ accent-color = royalblue
                     margin-top: 0.1rem
                     opacity: 0
 
-                }
-
-                .model-info {
-
-                    display: flex;
-                    align-items: center;
-
-                    .textures {
-                        width: 12px;
-                        height: 12px;
-                        margin-left: 8px;
-                        margin-right: 15px;
-                        border-radius: 2px;
-                        background: rgba(255, 255, 255, 0.3);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        transition: all 0.1s
-                    }
-
-                    .textures::after  {
-                        font-size: 11px;
-                        font-weight: 500;
-                        content: "T";
-                        color: rgb(30, 30, 30);
-                    }
                 }
 
                 &.selected,
@@ -260,24 +240,12 @@ accent-color = royalblue
 
                     }
 
-                    .textures {
-                        background: rgba(255, 255, 255, 0.8);
-                    }
-
-                    .textures::after  {
-                        color: royalblue;
-                    }
-
                 }
 
                 &:hover {
 
                     background-color: rgba(255, 255, 255, 0.05)
                     color: white
-
-                    .textures {
-                        background: rgba(255, 255, 255, 0.8);
-                    }
 
                 }
 

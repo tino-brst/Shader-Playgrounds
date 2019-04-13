@@ -15,8 +15,8 @@ export enum ShaderType {
 }
 
 export enum LanguageVersion {
-    GLSL_ES100 = "100 es",
-    GLSL_ES300 = "300 es"
+    GLSL_ES100 = "GLSL ES 1.00",
+    GLSL_ES300 = "GLSL ES 3.00"
 }
 
 export enum DrawMode { Lines, Triangles }

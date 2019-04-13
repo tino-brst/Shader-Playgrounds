@@ -141,7 +141,7 @@ export class Inspector {
     // ✋🏼  Metodos Privados
 
     private parseItems( source: string ): ShaderItems {
-        const transpile = transpiler( { version: this.languageVersion } )
+        const transpile = transpiler( { version: ( this.languageVersion === LanguageVersion.GLSL_ES100 ) ? "100 es" : "300 es" } )
 
         let items: ShaderItems = {
             uniforms: {},

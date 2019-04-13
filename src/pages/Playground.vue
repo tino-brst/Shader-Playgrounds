@@ -19,9 +19,9 @@
                             {{ warningsCount }}
                         </div>
                     </div>
-                    <div class="glsl-version">
-                        GLSL ES 1.0
-                    </div>
+                    <v-language-version-select dropup autohide>
+                        GLSL ES:
+                    </v-language-version-select>
                 </div>
             </div>
             <div class="right-panel">
@@ -42,6 +42,7 @@ import Tabs from "@/components/Tabs.vue"
 import Editor from "@/components/Editor.vue"
 import Renderer from "@/components/Renderer.vue"
 import TitleBar from "@/components/TitleBar.vue"
+import LanguageVersionSelect from "@/components/LanguageVersionSelect.vue"
 import { ShaderType } from "@/scripts/renderer/_constants"
 import { StateSaveInfo } from "@/store"
 import { FILE_EXTENSION, NEW_FILE_NAME } from "@/constants"
@@ -54,7 +55,8 @@ export default Vue.extend( {
         "v-titlebar": TitleBar,
         "v-editor": Editor,
         "v-renderer": Renderer,
-        "v-tabs": Tabs
+        "v-tabs": Tabs,
+        "v-language-version-select": LanguageVersionSelect
     },
     data: () => ( {
         filePath: "",
@@ -330,24 +332,19 @@ body::after {
 }
 
 .status-bar {
-    z-index: 1;
+    z-index: 7;
     flex: 0 0 25px;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     padding-left: 8px;
-    padding-right: 8px;
+    padding-right: 4px;
     box-sizing: border-box;
     background: rgb(60, 60, 60);
     border-top: 1px solid rgb(80, 80, 80);
     box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
     padding-bottom: 1px;
-}
-
-.status-bar .glsl-version {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.5);
 }
 
 .status-bar .log-counts {
