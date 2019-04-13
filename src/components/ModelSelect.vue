@@ -9,8 +9,7 @@
                 :class="{ active: isActive }"
             >
                 <span> {{ value }} </span>
-                <v-chevron-down-icon v-if="! dropup" class="icon" />
-                <v-chevron-up-icon v-if="dropup" class="icon" />
+                <div class="select-icon"/>
             </div>
             <div class="models" :class="{ visible: isActive, dropup }">
                 <div
@@ -35,15 +34,11 @@
 <script lang="ts">
 import Vue from "vue"
 import { Model } from "@/scripts/renderer/Renderer"
-const { ChevronDownIcon } = require( "vue-feather-icons" )
-const { ChevronUpIcon } = require( "vue-feather-icons" )
 const { CheckIcon } = require( "vue-feather-icons" )
 
 export default Vue.extend( {
     name: "ModelSelect",
     components: {
-        "v-chevron-down-icon": ChevronDownIcon,
-        "v-chevron-up-icon": ChevronUpIcon,
         "v-check-icon": CheckIcon
     },
     props: {
@@ -122,7 +117,9 @@ accent-color = royalblue
 
             cursor: pointer
             display: flex
+            flex-direction: row
             align-items: center
+            justify-content: center
             text-overflow: ellipsis
             white-space: nowrap
             padding-left: 0.2rem
@@ -130,13 +127,21 @@ accent-color = royalblue
             border-radius: 3pt
             transition: background-color 0.15s;
 
-            .icon {
-
-                width: 1rem
-                height: 1rem
-                padding-left: 0.1rem
-                padding-top: 0.1rem
-
+            .select-icon {
+                width: 13px;
+                height: 13px;
+                margin-left: 2px;
+                position: relative
+            }
+            .select-icon:after {
+                display: block;
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                content: "";
+                mask: url("/assets/icons/chevrons.svg");
+                mask-size: cover;
+                background: white;
             }
 
             // states
@@ -165,22 +170,32 @@ accent-color = royalblue
             border-radius: 6px
             background: rgb( 30, 30, 30 )
             border: 1px solid rgb( 20, 20, 20 )
-            box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.1)
             overflow: hidden
             opacity: 0
             pointer-events: none
             transition: all 0.15s
 
+            &::after {
+                content: "";
+                position: absolute;
+                box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
+                border-radius: 6px;
+                width: 100%;
+                height: 100%;
+                top: 0;
+                pointer-events: none;
+            }
+
             &:not(.dropup) {
 
-                top: 1.6rem
+                top: 1.5rem
                 transform: translateY( - 2pt )
 
             }
 
             &.dropup {
 
-                bottom: 1.6rem
+                bottom: 1.5rem
                 transform: translateY( 2pt )
 
             }
@@ -204,7 +219,6 @@ accent-color = royalblue
                     margin-left: 0.5rem
                     margin-top: 0.1rem
                     opacity: 0
-                    transition: all 0.1s
 
                 }
 
