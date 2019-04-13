@@ -6,7 +6,7 @@ import { Inspector } from "./Inspector"
 import { mat4, glMatrix } from "gl-matrix"
 import { Program } from "./Program"
 import { RendererState } from "./RendererState"
-import { ShaderVariableType, DrawMode } from "./_constants"
+import { ShaderVariableType, DrawMode, LanguageVersion } from "./_constants"
 import { TexturesManager } from "./TexturesManager"
 import { UniformEditor } from "./UniformEditor"
 import { UniformsCache, UniformState } from "./UniformsCache"
@@ -99,10 +99,11 @@ export class Renderer {
         const programWasUsable = this.program.usable
 
         this.program.setShadersSourceAndLink( vertexSaderSource, fragmentShaderSource )
+        this.inspector.inspect( this.program )
 
         if ( this.program.usable ) {
             this.program.use()
-            this.updateUniformsCacheAndEditors( this.inspector.getUniformsInfo( this.program ) )
+            this.updateUniformsCacheAndEditors( this.inspector.definedUniforms )
             this.state.attributeBuffersNeedUpdate = true
 
             if ( ! programWasUsable ) {
@@ -116,13 +117,18 @@ export class Renderer {
         return this.program.usable
     }
 
+    public setLanguageVersion( version: LanguageVersion ) {
+        this.inspector.languageVersion = version
+        this.inspector.inspect( this.program )
+    }
+
     public setModel( name: string ) {
         const geometry = this.geometriesManager.getGeometry( name )
 
         if ( geometry !== undefined ) {
             this.model.updateBuffersFromGeometry( geometry )
             this.inspector.updateAvailableVertexAttributesFromBuffers( this.model.vertexAttributesBuffers )
-            this.inspector.checkForErrorsAndWarnings( this.program )
+            this.inspector.checkVertexShaderAttributes()
 
             this.state.drawBufferNeedsUpdate = true
             this.state.attributeBuffersNeedUpdate = true
@@ -157,7 +163,7 @@ export class Renderer {
     }
 
     public getErrorsAndWarnings() {
-        return this.inspector.checkForErrorsAndWarnings( this.program )
+        return this.inspector.getErrorsAndWarnings()
     }
 
     public getUniformsEditors() {

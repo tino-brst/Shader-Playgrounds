@@ -14,4 +14,9 @@ export enum ShaderType {
     Fragment = "fragment"
 }
 
+export enum LanguageVersion {
+    GLSL_ES100 = "100 es",
+    GLSL_ES300 = "300 es"
+}
+
 export enum DrawMode { Lines, Triangles }

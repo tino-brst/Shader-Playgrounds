@@ -1,47 +1,123 @@
+import transpiler from "glsl-transpiler"
 import { InspectorLogEntry, LogEntryType } from "./InspectorLogEntry"
 import { Program } from "./Program"
 import { Shader } from "./Shader"
-import { ShaderVariableType, ShaderType } from "./_constants"
+import { ShaderVariableType, ShaderType, LanguageVersion } from "./_constants"
 import { VertexAttributeBuffer } from "./Buffers"
+
+interface ShaderItems {
+    uniforms: { [ key: string ]: any },
+    attributes: { [ key: string ]: any },
+    varyings: { [ key: string ]: any },
+    ins: { [ key: string ]: any },
+    outs: { [ key: string ]: any }
+}
 
 export class Inspector {
     public availableVertexAttributes: Map < string, ShaderVariableType >
     public defaultUniforms: Map < string, ShaderVariableType >
+    public definedUniforms: Map < string, string >
+    public languageVersion: LanguageVersion
+    private compilationLog: InspectorLogEntry[]
+    private uniformsLog: InspectorLogEntry[]
+    private attributesLog: InspectorLogEntry[]
+    private varyingsLog: InspectorLogEntry[] // named 'in's and 'out's in newer versions of GLSL
+    private vertexShaderItems: ShaderItems
+    private fragmentShaderItems: ShaderItems
 
     constructor() {
-        this.defaultUniforms = new Map()
         this.availableVertexAttributes = new Map()
+        this.defaultUniforms = new Map()
+        this.definedUniforms = new Map()
+        this.languageVersion = LanguageVersion.GLSL_ES300
+
+        this.compilationLog = []
+        this.uniformsLog    = []
+        this.attributesLog  = []
+        this.varyingsLog    = []
+
+        this.vertexShaderItems = {
+            uniforms: {},
+            attributes: {},
+            varyings: {},
+            ins: {},
+            outs: {}
+        }
+
+        this.fragmentShaderItems = {
+            uniforms: {},
+            attributes: {},
+            varyings: {},
+            ins: {},
+            outs: {}
+        }
     }
 
     // 👥  Metodos Publicos
 
-    public checkForErrorsAndWarnings( program: Program ) {
-        const log: InspectorLogEntry[] = []
+    public inspect( program: Program ) {
+        // 🔍 Errors and warnings compilation
+
+        this.compilationLog = []
+        this.uniformsLog    = []
+        this.attributesLog  = []
+        this.varyingsLog    = []
 
         const vertexShader = program.vertexShader
         const fragmentShader = program.fragmentShader
 
-        this.checkShader( vertexShader, log )
-        this.checkShader( fragmentShader, log )
-
-        if ( vertexShader.usable && fragmentShader.usable ) {
-            this.checkDefinedVaryings( vertexShader, fragmentShader, log )
+        // Vertex shader uniforms & attributes inspection
+        if ( vertexShader.usable ) {
+            this.vertexShaderItems = this.parseItems( vertexShader.source )
+            this.checkDefinedUniforms( vertexShader, this.vertexShaderItems, this.uniformsLog )
+            this.checkDefinedVertexAttributes( this.vertexShaderItems, this.attributesLog )
+        } else {
+            this.checkCompilationLog( vertexShader, this.compilationLog )
         }
 
-        return log
+        // Fragment shader uniforms inspection
+        if ( fragmentShader.usable ) {
+            this.fragmentShaderItems = this.parseItems( fragmentShader.source )
+            this.checkDefinedUniforms( fragmentShader, this.fragmentShaderItems, this.uniformsLog )
+        } else {
+            this.checkCompilationLog( fragmentShader, this.compilationLog )
+        }
+
+        // Vertex and fragment shaders "connection" inspection (varyings | ins & outs)
+        if ( vertexShader.usable && fragmentShader.usable ) {
+            this.checkDefinedVaryings( this.vertexShaderItems, this.fragmentShaderItems, this.varyingsLog )
+        }
+
+        // #️⃣ Inspection of uniforms defined across shaders
+
+        this.definedUniforms.clear()
+
+        // Uniforms found by the parser
+        for ( const name in this.vertexShaderItems.uniforms ) {
+            this.definedUniforms.set( name, this.vertexShaderItems.uniforms[ name ].type )
+        }
+        for ( const name in this.fragmentShaderItems.uniforms ) {
+            this.definedUniforms.set( name, this.fragmentShaderItems.uniforms[ name ].type )
+        }
+
+        // Uniforms found by the compiler (used as last resort in case of the parser failing, to at least add the active uniforms)
+        for ( const [ name, uniform ] of program.activeUniforms ) {
+            this.definedUniforms.set( name, uniform.type )
+        }
     }
 
-    public getUniformsInfo( program: Program ) {
-        const uniformsInfo: Map < string, string > = new Map()
+    public checkVertexShaderAttributes() {
+        this.attributesLog = []
+        this.checkDefinedVertexAttributes( this.vertexShaderItems, this.attributesLog )
+    }
 
-        this.checkParsedUniformsInfo( program.vertexShader, uniformsInfo )
-        this.checkParsedUniformsInfo( program.fragmentShader, uniformsInfo )
-
-        // en caso de error en parser al menos tener en cuenta los uniforms activos
-
-        this.checkActiveUniformsInfo( program, uniformsInfo )
-
-        return uniformsInfo
+    public getErrorsAndWarnings(): InspectorLogEntry[] {
+        return [
+            ...this.compilationLog,
+            ...this.uniformsLog,
+            ...this.attributesLog,
+            ...this.varyingsLog
+        ]
     }
 
     public updateAvailableVertexAttributesFromBuffers( buffers: Map <string, VertexAttributeBuffer > ) {
@@ -64,19 +140,31 @@ export class Inspector {
 
     // ✋🏼  Metodos Privados
 
-    private checkShader( shader: Shader, log: InspectorLogEntry[] ) {
-        if ( shader.usable && shader.items ) {
-            this.checkDefinedUniforms( shader, log )
+    private parseItems( source: string ): ShaderItems {
+        const transpile = transpiler( { version: this.languageVersion } )
 
-            if ( shader.type === ShaderType.Vertex ) {
-                this.checkDefinedVertexAttributes( shader, log )
-            }
-        } else {
-            this.checkForCompilationErrors( shader, log )
+        let items: ShaderItems = {
+            uniforms: {},
+            attributes: {},
+            varyings: {},
+            ins: {},
+            outs: {}
         }
+
+        try {
+            transpile( source )
+            const { uniforms, attributes, varyings, ins, outs } = transpile.compiler
+            items = { uniforms, attributes, varyings, ins, outs }
+        } catch ( error ) {
+            const message = `%c❱ %cCould not parse GLSL code %c(${ error })`
+            const styles = [ "color: crimson; font-weight: bold;", "font-weight: bold;", "color: gray;" ]
+            console.log( message, ...styles )
+        }
+
+        return items
     }
 
-    private checkForCompilationErrors( shader: Shader, log: InspectorLogEntry[] ) {
+    private checkCompilationLog( shader: Shader, log: InspectorLogEntry[] ) {
         const errorLines = shader.log.split( "\n" )
 
         errorLines.pop()  // elimino string vacio [ ... , "" ]
@@ -97,8 +185,8 @@ export class Inspector {
         }
     }
 
-    private checkDefinedUniforms( shader: Shader, log: InspectorLogEntry[] ) {
-        const uniforms = shader.items.uniforms
+    private checkDefinedUniforms( shader: Shader, items: ShaderItems, log: InspectorLogEntry[] ) {
+        const uniforms = items.uniforms
 
         for ( const name in uniforms ) {
             const uniform = uniforms[ name ]
@@ -119,32 +207,30 @@ export class Inspector {
         }
     }
 
-    private checkDefinedVertexAttributes( shader: Shader, log: InspectorLogEntry[] ) {
-        const vertexAttributes = shader.items.attributes
+    private checkDefinedVertexAttributes( items: ShaderItems, log: InspectorLogEntry[] ) {
+        const attributes = ( this.languageVersion === LanguageVersion.GLSL_ES100 ) ? items.attributes : items.ins
 
-        for ( const name in vertexAttributes ) {
-            const vertexAttribute = vertexAttributes[ name ]
-            const availableVertexAttributeType = this.availableVertexAttributes.get( name )
+        for ( const name in attributes ) {
+            const attribute = attributes[ name ]
+            const availableAttributeType = this.availableVertexAttributes.get( name )
 
-            if ( availableVertexAttributeType === undefined ) {
+            if ( availableAttributeType === undefined ) {
                 // warning ante attributo sin info disponible
-
                 const warning = new InspectorLogEntry(
-                    shader.type,
+                    ShaderType.Vertex,
                     LogEntryType.Warning,
-                    vertexAttribute.node.token.line,
+                    attribute.node.token.line,
                     `'${ name }' - no info available, check the available attributes`
                 )
 
                 log.push( warning )
-            } else if ( vertexAttribute.type !== availableVertexAttributeType ) {
+            } else if ( attribute.type !== availableAttributeType ) {
                 // warning ante atributo con el mismo nombre pero distinto tipo que uno de los definidos por defecto
-
                 const warning = new InspectorLogEntry(
-                    shader.type,
+                    ShaderType.Vertex,
                     LogEntryType.Warning,
-                    vertexAttribute.node.token.line,
-                    `'${ name }' - type mismatch, should be '${ availableVertexAttributeType }'`
+                    attribute.node.token.line,
+                    `'${ name }' - type mismatch, should be '${ availableAttributeType }'`
                 )
 
                 log.push( warning )
@@ -152,78 +238,66 @@ export class Inspector {
         }
     }
 
-    private checkDefinedVaryings( vertexShader: Shader, fragmentShader: Shader, log: InspectorLogEntry[] ) {
-        if ( vertexShader.items && fragmentShader.items ) {
-            const vertexShaderVaryings = vertexShader.items.varyings
-            const fragmentShaderVaryings = fragmentShader.items.varyings
+    private checkDefinedVaryings( vertexItems: ShaderItems, fragmentItems: ShaderItems, log: InspectorLogEntry[] ) {
+        let vertexOutputs
+        let fragmentInputs
 
-            // 🔎  analisis de varyings definidos en el shader de vertices
+        if ( this.languageVersion === LanguageVersion.GLSL_ES100 ) {
+            vertexOutputs  = vertexItems.varyings
+            fragmentInputs = fragmentItems.varyings
+        } else {
+            vertexOutputs  = vertexItems.outs
+            fragmentInputs = fragmentItems.ins
+        }
 
-            for ( const name in vertexShaderVaryings ) {
-                const varying = vertexShaderVaryings[ name ]
+        // 🔎  analisis de varyings definidos en el shader de vertices
+        for ( const name in vertexOutputs ) {
+            const varying = vertexOutputs[ name ]
 
-                if ( ! ( name in fragmentShaderVaryings ) ) {
-                    const warning = new InspectorLogEntry(
-                        ShaderType.Vertex,
-                        LogEntryType.Warning,
-                        varying.node.token.line,
-                        `'${ name }' - value not read by fragment shader`
-                    )
+            if ( ! ( name in fragmentInputs ) ) {
+                const warning = new InspectorLogEntry(
+                    ShaderType.Vertex,
+                    LogEntryType.Warning,
+                    varying.node.token.line,
+                    `'${ name }' - value not read by fragment shader`
+                )
 
-                    log.push( warning )
-                } else if ( varying.type !== fragmentShaderVaryings[ name ].type ) {
-                    const warning = new InspectorLogEntry(
-                        ShaderType.Vertex,
-                        LogEntryType.Warning,
-                        varying.node.token.line,
-                        `'${ name }' - type mismatch, the fragment shader expects a '${ fragmentShaderVaryings[ name ].type }'`
-                    )
+                log.push( warning )
+            } else if ( varying.type !== fragmentInputs[ name ].type ) {
+                const warning = new InspectorLogEntry(
+                    ShaderType.Vertex,
+                    LogEntryType.Warning,
+                    varying.node.token.line,
+                    `'${ name }' - type mismatch, the fragment shader expects a '${ fragmentInputs[ name ].type }'`
+                )
 
-                    log.push( warning )
-                }
-            }
-
-            // 🔎  analisis de varyings definidos en el shader de fragmentos
-
-            for ( const name in fragmentShaderVaryings ) {
-                const varying = fragmentShaderVaryings[ name ]
-
-                if ( ! ( name in vertexShaderVaryings ) ) {
-                    const error = new InspectorLogEntry(
-                        ShaderType.Fragment,
-                        LogEntryType.Error,
-                        varying.node.token.line,
-                        `'${ name }' - value not sent by vertex shader`
-                    )
-
-                    log.push( error )
-                } else if ( varying.type !== vertexShaderVaryings[ name ].type ) {
-                    const error = new InspectorLogEntry(
-                        ShaderType.Fragment,
-                        LogEntryType.Error,
-                        varying.node.token.line,
-                        `'${ name }' - type mismatch, the vertex shader sends a '${ vertexShaderVaryings[ name ].type }' `
-                    )
-
-                    log.push( error )
-                }
+                log.push( warning )
             }
         }
-    }
 
-    private checkParsedUniformsInfo( shader: Shader, info: Map < string, string > ) {
-        if ( shader.items !== undefined ) {
-            const uniforms = shader.items.uniforms
+        // 🔎  analisis de varyings definidos en el shader de fragmentos
+        for ( const name in fragmentInputs ) {
+            const varying = fragmentInputs[ name ]
 
-            for ( const name in uniforms ) {
-                info.set( name, uniforms[ name ].type )
+            if ( ! ( name in vertexOutputs ) ) {
+                const error = new InspectorLogEntry(
+                    ShaderType.Fragment,
+                    LogEntryType.Error,
+                    varying.node.token.line,
+                    `'${ name }' - value not sent by vertex shader`
+                )
+
+                log.push( error )
+            } else if ( varying.type !== vertexOutputs[ name ].type ) {
+                const error = new InspectorLogEntry(
+                    ShaderType.Fragment,
+                    LogEntryType.Error,
+                    varying.node.token.line,
+                    `'${ name }' - type mismatch, the vertex shader sends a '${ vertexOutputs[ name ].type }' `
+                )
+
+                log.push( error )
             }
-        }
-    }
-
-    private checkActiveUniformsInfo( program: Program, info: Map < string, string > ) {
-        for ( const [ name, uniform ] of program.activeUniforms ) {
-            info.set( name, uniform.type )
         }
     }
 }
