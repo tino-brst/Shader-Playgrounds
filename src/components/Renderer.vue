@@ -99,6 +99,7 @@ export default Vue.extend( {
             "compilationSucceeded",
             "vertexSource",
             "fragmentSource",
+            "languageVersion",
             "uniforms",
             "textureUnitToUpdate",
             "windowReady"
@@ -120,6 +121,9 @@ export default Vue.extend( {
         },
         wireframe() {
             this.renderer.setWireframe( this.wireframe )
+        },
+        languageVersion() {
+            this.updateLanguageVersion()
         }
     },
     mounted() {
@@ -165,6 +169,14 @@ export default Vue.extend( {
             this.renderer.setModel( this.model )
 
             // the model change may generate new warnings (e.g. missing attributes)
+            const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
+            this.$store.commit( "SET_LOGS", errorsAndWarnings )
+        },
+        updateLanguageVersion() {
+            // @ts-ignore
+            this.renderer.setLanguageVersion( this.languageVersion )
+
+            // the version change may generate new warnings (e.g. missing ins|attributes)
             const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
             this.$store.commit( "SET_LOGS", errorsAndWarnings )
         },

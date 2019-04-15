@@ -130,14 +130,14 @@ accent-color = royalblue
             padding-right: 0.1rem
             border-radius: 3pt
             transition: background-color 0.15s;
-            color: rgba(255, 255, 255, 0.6)
+            color: rgba(255, 255, 255, 0.7)
 
             .select-icon {
                 width: 13px;
                 height: 13px;
                 margin-left: 2px;
                 position: relative
-                opacity: 0.7
+                opacity: 0.8
             }
             .select-icon:after {
                 display: block;
