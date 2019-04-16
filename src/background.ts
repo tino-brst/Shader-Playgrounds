@@ -28,11 +28,11 @@ function newWelcomeWindow() {
     const window = new BrowserWindow( {
         title: "Welcome",
         show: false,
-        width: 800,
+        width: 700,
         height: 400,
-        resizable: true, // for debugging 🐛
         minimizable: false,
         maximizable: false,
+        resizable: false,
         fullscreenable: false,
         frame: false,
         backgroundColor: "#3c3c3c"
