@@ -1,4 +1,4 @@
-# Shaders Playground
+# Shader Playgrounds
 
 ![editor](docs/screenshot.png)
 
