@@ -156,9 +156,9 @@ export default Vue.extend( {
     padding-bottom: 4px;
     padding-left: 8px;
     align-self: center;
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: var(--font-weight);
     text-overflow: ellipsis;
     color: white;
     background-color: transparent;

@@ -110,11 +110,6 @@ html {
 body {
     margin: 0;
     height: 100%;
-    -webkit-font-smoothing: antialiased;
-    font-family: IBM Plex Sans;
-    font-size: 13px;
-    font-weight: 500;
-    color: white;
 }
 body::after { /* Window outline */
     content: "";
@@ -128,13 +123,21 @@ body::after { /* Window outline */
     z-index: 100;
 }
 
+:root {
+    --font-weight: 500;
+}
+
 #welcome {
-    font-size: 20px;
     height: 100%;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
+    -webkit-font-smoothing: antialiased;
+    font-family: system-ui;
+    font-size: 13px;
+    font-weight: var(--font-weight);
+    color: white;
 }
 
 .info {
@@ -157,7 +160,8 @@ body::after { /* Window outline */
 }
 
 .info h1 {
-    font-size: 34px;
+    font-size: 36px;
+    font-weight: 300;
     margin-top: 5px;
     margin-bottom: 10px;
 }
@@ -285,6 +289,7 @@ button.close-window::after {
 }
 
 .recents li .name {
+    font-weight: normal;
     font-size: 15px;
     margin-bottom: 2px;
 }

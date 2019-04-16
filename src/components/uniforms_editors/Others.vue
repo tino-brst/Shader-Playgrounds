@@ -66,24 +66,24 @@ export default Vue.extend( {
     color: white;
 }
 .uniform-editor-others .punctuation {
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
     color: gray;
 }
 .uniform-editor-others .attribute {
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
     font-style: italic;
     color: gainsboro;
 }
 
 .uniform-editor-others .type {
     margin-right: 10px;
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
     padding: 2px 4px;
     font-size: 12px;
     background: rgba(255, 255, 255, 0.5);
     color: rgb( 50, 50, 50 );
     border-radius: 3px;
-    font-weight: 500;
+    font-weight: var(--font-weight);;
     letter-spacing: 0.03rem;
 }
 </style>

@@ -231,15 +231,8 @@ html {
 body {
     margin: 0;
     height: 100%;
-    -webkit-font-smoothing: antialiased;
-    font-family: IBM Plex Sans;
-    font-size: 13px;
-    font-weight: 500;
-    color: white;
 }
-
-/* macOS window outline - if not used: delete unnecessary bottom padding on renderer-toolbar & statusbar */
-body::after {
+body::after { /* macOS window outline - if not used: delete unnecessary bottom padding on renderer-toolbar & statusbar */
     content: "";
     display: block;
     position: absolute;
@@ -251,11 +244,20 @@ body::after {
     z-index: 100;
 }
 
+:root {
+    --font-weight: 500;
+}
+
 #playground {
     height: 100%;
     user-select: none;
     display: flex;
     flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    font-family: system-ui;
+    font-size: 13px;
+    font-weight: var(--font-weight);
+    color: white;
 }
 
 .panels {
@@ -340,11 +342,11 @@ body::after {
     justify-content: space-between;
     padding-left: 8px;
     padding-right: 4px;
+    padding-bottom: 1px;
     box-sizing: border-box;
     background: rgb(60, 60, 60);
     border-top: 1px solid rgb(80, 80, 80);
     box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
-    padding-bottom: 1px;
 }
 
 .status-bar .log-counts {

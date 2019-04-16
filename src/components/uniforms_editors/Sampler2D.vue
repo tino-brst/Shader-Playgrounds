@@ -99,7 +99,7 @@ export default Vue.extend( {
     height: 200px;
     width: 290px;
     flex-direction: column;
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
 }
 
 .uniform-editor.sampler2D .texture-units {

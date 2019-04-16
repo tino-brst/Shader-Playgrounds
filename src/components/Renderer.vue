@@ -226,14 +226,14 @@ export default Vue.extend( {
 }
 .renderer .compilation-info h1 {
     font-size: 20px;
-    font-weight: 500;
+    font-weight: var(--font-weight);
     margin: 0;
     margin-bottom: 12px;
     opacity: 0.8;
 }
 .renderer .compilation-info h2 {
     font-size: 14px;
-    font-weight: 500;
+    font-weight: var(--font-weight);
     margin: 0;
     opacity: 0.5;
 }

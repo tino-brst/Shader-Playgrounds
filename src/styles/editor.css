@@ -4,7 +4,7 @@
     position: relative;
     flex: 1 1 auto;
     font-family: IBM Plex Mono;
-    font-weight: 500;
+    font-weight: var(--font-weight);
     font-size: 14px;
     color: white;
 }
@@ -107,7 +107,7 @@
 .CodeMirror-linenumber {
     padding: 0 3px 0 5px;
     min-width: 20px;
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
     font-size: 14px;
     text-align: right;
     color: rgb(95, 95, 95);
@@ -149,7 +149,6 @@
     align-items: center;
     vertical-align: middle;
     font-size: 10px;
-    font-weight: 500;
     height: 12px;
     margin: 0 4px;
     padding: 0 3px;
@@ -232,9 +231,8 @@
     padding: 4px 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     color: white;
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
     font-size: 13px;
-    letter-spacing: 0.05em;
     line-height: 20px;
 }
 .CodeMirror-marker-info span:last-child {
@@ -352,7 +350,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     right: 0;
     height: fit-content;
     max-height: 80px;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding: 4px 8px;
     user-select: none;
     background: rgb(70, 70, 70);
@@ -362,9 +360,8 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     border-radius: 6px 6px 0 0;
     box-sizing: border-box;
     color: white;
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
     font-size: 13px;
-    letter-spacing: 0.05em;
     z-index: 0;
 }
 .CodeMirror-hints.below > .CodeMirror-hint-active-docs {
@@ -426,7 +423,6 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     border: 1px solid transparent;
     background: transparent;
     position: relative;
-    font-weight: 500;
 }
 
 /* 🎨 Hint Types */
@@ -478,7 +474,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 }
 .CodeMirror-hint.macro .icon::before {
     content: "M";
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
     font-size: 12px;
 }
 
@@ -490,7 +486,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 .CodeMirror-hint.type .icon::before {
     content: "T";
     color: sienna;
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
     font-size: 12px;
 }
 
@@ -507,7 +503,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 .CodeMirror-hint.precision-qualifier .icon::before,
 .CodeMirror-hint.invariance-qualifier .icon::before {
     color: rgb(189, 66, 66);
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
     font-size: 12px;
 }
 .CodeMirror-hint.storage-qualifier .icon::before {
@@ -534,7 +530,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 .CodeMirror-hint.variable .icon::before,
 .CodeMirror-hint.constant .icon::before {
     color: royalblue;
-    font-family: IBM Plex Sans;
+    font-family: system-ui;
     font-size: 12px;
 }
 .CodeMirror-hint.variable .icon::before {

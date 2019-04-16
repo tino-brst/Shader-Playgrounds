@@ -50,7 +50,7 @@ export default Vue.extend( {
 } )
 </script>
 
-<style scoped>
+<style>
 .tabs {
     height: 100%;
     flex-grow: 1;

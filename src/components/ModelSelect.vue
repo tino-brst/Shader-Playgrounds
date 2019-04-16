@@ -242,7 +242,6 @@ accent-color = royalblue
 
                     .textures::after  {
                         font-size: 11px;
-                        font-weight: 500;
                         content: "T";
                         color: rgb(30, 30, 30);
                     }
