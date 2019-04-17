@@ -6,6 +6,7 @@ import { ShaderVariableType, ShaderType, LanguageVersion } from "./_constants"
 import { VertexAttributeBuffer } from "./Buffers"
 
 interface ShaderItems {
+    valid: boolean,
     uniforms: { [ key: string ]: any },
     attributes: { [ key: string ]: any },
     varyings: { [ key: string ]: any },
@@ -37,6 +38,7 @@ export class Inspector {
         this.varyingsLog    = []
 
         this.vertexShaderItems = {
+            valid: true,
             uniforms: {},
             attributes: {},
             varyings: {},
@@ -45,6 +47,7 @@ export class Inspector {
         }
 
         this.fragmentShaderItems = {
+            valid: true,
             uniforms: {},
             attributes: {},
             varyings: {},
@@ -84,7 +87,7 @@ export class Inspector {
         }
 
         // Vertex and fragment shaders "connection" inspection (varyings | ins & outs)
-        if ( vertexShader.usable && fragmentShader.usable ) {
+        if ( vertexShader.usable && fragmentShader.usable) {
             this.checkDefinedVaryings( this.vertexShaderItems, this.fragmentShaderItems, this.varyingsLog )
         }
 
@@ -144,6 +147,7 @@ export class Inspector {
         const transpile = transpiler( { version: ( this.languageVersion === LanguageVersion.GLSL_ES100 ) ? "100 es" : "300 es" } )
 
         let items: ShaderItems = {
+            valid: true,
             uniforms: {},
             attributes: {},
             varyings: {},
@@ -154,11 +158,12 @@ export class Inspector {
         try {
             transpile( source )
             const { uniforms, attributes, varyings, ins, outs } = transpile.compiler
-            items = { uniforms, attributes, varyings, ins, outs }
+            items = { valid: true, uniforms, attributes, varyings, ins, outs }
         } catch ( error ) {
             const message = `%c❱ %cCould not parse GLSL code %c(${ error })`
             const styles = [ "color: crimson; font-weight: bold;", "font-weight: bold;", "color: gray;" ]
             console.log( message, ...styles )
+            items.valid = false
         }
 
         return items
@@ -239,6 +244,8 @@ export class Inspector {
     }
 
     private checkDefinedVaryings( vertexItems: ShaderItems, fragmentItems: ShaderItems, log: InspectorLogEntry[] ) {
+        if ( ! vertexItems.valid || ! fragmentItems.valid ) return
+
         let vertexOutputs
         let fragmentInputs
 
