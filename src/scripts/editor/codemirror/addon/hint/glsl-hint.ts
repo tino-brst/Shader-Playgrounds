@@ -21,7 +21,9 @@ enum CompletionType {
     Constant = "constant",
     Function = "function",
     Selection = "selection",
-    Iteration = "iteration"
+    Iteration = "iteration",
+    VertexAttribute = "vertex-attribute",
+    Uniform = "uniform"
 }
 
 const predefinedCompletions: Completion[] = [
@@ -181,6 +183,23 @@ const predefinedCompletions: Completion[] = [
     { name: "false" }
 ]
 
+const predefinedVariables: Completion[] = [
+    // Available vertex attributes
+    { name: "vertexPosition",           type: CompletionType.VertexAttribute },
+    { name: "vertexNormal",             type: CompletionType.VertexAttribute },
+    { name: "vertexTextureCoordinates", type: CompletionType.VertexAttribute },
+    // Available uniforms
+    { name: "modelMatrix",      type: CompletionType.Uniform },
+    { name: "modelViewMatrix",  type: CompletionType.Uniform },
+    { name: "viewMatrix",       type: CompletionType.Uniform },
+    { name: "projectionMatrix", type: CompletionType.Uniform },
+    { name: "normalMatrix",     type: CompletionType.Uniform }
+]
+
+const predefinedVariableNames = predefinedVariables.map( variable => variable.name )
+
+const predefined = predefinedVariables.concat( predefinedCompletions )
+
 function render( element: HTMLLIElement, data: CodeMirror.Hints, cur: CodeMirror.Hint ) {
     const typeIcon = document.createElement( "span" )
     typeIcon.classList.add( "icon" )
@@ -242,7 +261,7 @@ function getLocalIdentifiers( editor: CodeMirror.Editor ): string[] {
         if ( line !== cursor.line ) {
             // cuando la linea no corresponde a la del cursor agrego todos los identificadores
             for ( let token of tokens ) {
-                if ( token.type === "identifier" ) identifiers.add( token.string )
+                if ( token.type === "identifier" && ! predefinedVariableNames.includes( token.string ) ) identifiers.add( token.string )
             }
         } else {
             // cuando coincide con la del cursor me fijo de no estar agregando al token que se esta tipeando
@@ -267,7 +286,7 @@ CodeMirror.registerHelper( "hint", "glsl", ( editor: CodeMirror.Editor, options:
     const localIdentifiers: Completion[] = getLocalIdentifiers( editor ).map( identifier => ( { name: identifier, type: CompletionType.LocalIdentifier } ) )
 
     // en caso de estar tipeando un atributo, solo paso la lista de identificadores
-    const completions = tokenAtCursor.type === "attribute" || tokenAtCursor.string === "." ? localIdentifiers : predefinedCompletions.concat( localIdentifiers )
+    const completions = tokenAtCursor.type === "attribute" || tokenAtCursor.string === "." ? localIdentifiers : predefined.concat( localIdentifiers )
     const results = fuzzysort.go<Completion>( tokenAtCursor.string, completions, { key: "name" } )
 
     let list: CodeMirror.Hint[]
