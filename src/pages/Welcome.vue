@@ -1,10 +1,12 @@
 <template>
     <div id="welcome" :class="platform">
-        <button class="close-window" @click="closeWindow()" />
-        <div class="info">
-            <h2> Welcome to </h2>
-            <h1> Shader Playgrounds </h1>
-            <h3> Version {{ version }} </h3>
+        <div class="info-container">
+            <button class="close-window" @click="closeWindow()" />
+            <div class="info">
+                <h2> Welcome to </h2>
+                <h1> Shader Playgrounds </h1>
+                <h3> Version {{ version }} </h3>
+            </div>
         </div>
         <div class="recents">
             <ul>
@@ -144,16 +146,50 @@ body
     border-radius: 5px;
 }
 
-.info {
+/* -webkit-app-region: drag; */
+
+.info-container {
     -webkit-app-region: drag;
     user-select: none;
+    position: relative;
     height: 100%;
     flex-grow: 1;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+button.close-window {
+    -webkit-app-region: no-drag;
+    position: relative;
+    width: 20px;
+    height: 20px;
+    margin: 8px;
+    padding: 0;
+    user-select: none;
+    border: none;
+    background: none;
+    outline: none;
+    opacity: 0.5;
+}
+button.close-window::after {
+    display: block;
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    content: "";
+    mask: url("/assets/icons/close.svg");
+    mask-size: cover;
+    background: white;
+}
+
+.info {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+    pointer-events: none;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .info h1,
@@ -174,32 +210,6 @@ body
 }
 .info h3 {
     font-size: 14px; opacity: 0.5;
-}
-
-button.close-window {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    top: 8px;
-    left: 8px;
-    padding: 0;
-    -webkit-app-region: no-drag; /* has no effect on absolutely positiones elements */
-    user-select: none;
-    border: none;
-    background: none;
-    outline: none;
-    opacity: 0.5;
-}
-button.close-window::after {
-    display: block;
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    content: "";
-    mask: url("/assets/icons/close.svg");
-    mask-size: cover;
-    background: white;
 }
 
 .recents {
