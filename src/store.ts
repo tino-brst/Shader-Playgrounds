@@ -1,5 +1,6 @@
 import Vue from "vue"
 import Vuex, { ActionContext } from "vuex"
+import { remote } from "electron"
 import { InspectorLogEntry, LogEntryType } from "@/scripts/renderer/InspectorLogEntry"
 import { ShaderType, LanguageVersion } from "@/scripts/renderer/_constants"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
@@ -7,6 +8,7 @@ import { ShaderLog } from "@/scripts/editor/ShaderView"
 import { UniformState } from "./scripts/renderer/UniformsCache"
 
 export interface State {
+    platform: string,
     vertexSource: string,
     fragmentSource: string,
     languageVersion: LanguageVersion,
@@ -36,6 +38,7 @@ export interface StateSaveInfo {
 Vue.use( Vuex )
 
 const state: State = {
+    platform: remote.process.platform,
     vertexSource: "",
     fragmentSource: "",
     languageVersion: LanguageVersion.GLSL_ES300,

@@ -207,7 +207,7 @@
     width: fit-content;
     height: fit-content;
     background: rgb( 50, 50, 50 );
-    border-radius: 6px;
+    border-radius: var(--border-radius);
     box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3), inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
     box-sizing: border-box;
     border: 1px solid rgb( 30, 30, 30 );
@@ -317,7 +317,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 .CodeMirror-hints-list-container {
     max-height: 10.5rem;
     overflow: auto;
-    border-radius: 6px;
+    border-radius: var(--border-radius);
     background: rgb( 50, 50, 50 );
     border: 1px solid rgb( 30, 30, 30 );
     box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3), inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
@@ -325,10 +325,10 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     z-index: 1;
 }
 .CodeMirror-hints.docs-visible > .CodeMirror-hints-list-container {
-    border-radius: 0 0 6px 6px;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 .CodeMirror-hints.docs-visible.below > .CodeMirror-hints-list-container {
-    border-radius: 6px 6px 0 0;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
     z-index: 0;
 }
 
@@ -357,7 +357,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3), inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
     border: 1px solid rgb( 30, 30, 30 );
     border-bottom: none;
-    border-radius: 6px 6px 0 0;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
     box-sizing: border-box;
     color: white;
     font-family: system-ui;
@@ -366,7 +366,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 }
 .CodeMirror-hints.below > .CodeMirror-hint-active-docs {
     top: 100%;
-    border-radius: 0 0 6px 6px;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
     border: 1px solid rgb( 30, 30, 30 );
     border-top: none;
     z-index: 1;
@@ -426,6 +426,10 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 }
 
 /* 🎨 Hint Types */
+
+#playground.win32 .CodeMirror-hint .icon::before {
+    font-weight: 600;
+}
 
 .CodeMirror-hint.function .icon {
     box-shadow:0 0 0 1px rgba( 0, 0, 0, 0.3 );

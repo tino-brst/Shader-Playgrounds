@@ -9,7 +9,7 @@
             <span class="marker" />
             <span> Vertex </span>
             <span class="shortcut">
-                ⌘ 1
+                {{ platform === "darwin" ? "⌘" : "ctrl" }} 1
             </span>
         </div>
 
@@ -24,7 +24,7 @@
             <span class="marker" />
             <span> Fragment </span>
             <span class="shortcut">
-                ⌘ 2
+                {{ platform === "darwin" ? "⌘" : "ctrl" }} 2
             </span>
         </div>
     </div>
@@ -40,7 +40,8 @@ export default Vue.extend( {
     computed: mapState( [
         "activeShader",
         "vertexLog",
-        "fragmentLog"
+        "fragmentLog",
+        "platform"
     ] ),
     methods: {
         updateValue( value: ShaderType ) {
@@ -92,12 +93,15 @@ export default Vue.extend( {
     opacity: 0;
     position: absolute;
     letter-spacing: 1px;
-    font-weight: 600;
     right: 10px;
     transition: opacity 0.1s;
+    font-size: 13px;
 }
 .tab:hover .shortcut {
     opacity: 0.4;
+}
+#playground.darwin .tab .shortcut {
+    font-weight: 600;
 }
 
 .tab .marker {

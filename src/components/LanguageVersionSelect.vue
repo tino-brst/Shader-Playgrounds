@@ -173,7 +173,7 @@ accent-color = royalblue
             box-sizing: border-box
             left: -0.3rem
             position: absolute
-            border-radius: 6px
+            border-radius: var(--border-radius);
             background: rgb( 60, 60, 60 )
             border: 1px solid rgb( 20, 20, 20 )
             box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
@@ -186,7 +186,7 @@ accent-color = royalblue
                 content: "";
                 position: absolute;
                 box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
-                border-radius: 6px;
+                border-radius: var(--border-radius);
                 width: 100%;
                 height: 100%;
                 top: 0;

@@ -98,7 +98,7 @@ export default Vue.extend( {
 .tooltip {
     position: fixed;
     z-index: 10;
-    border-radius: 6px;
+    border-radius: var(--border-radius);
     border: 1px solid rgb(30, 30, 30);
     background: rgb(50, 50, 50);
     box-shadow: 0px 2.5px 30px rgba(0, 0, 0, 0.3);
@@ -115,7 +115,7 @@ export default Vue.extend( {
     content: "";
     position: absolute;
     box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
+    border-radius: var(--border-radius);
     width: 100%;
     height: 100%;
     top: 0;

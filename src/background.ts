@@ -70,8 +70,9 @@ function newPlaygroundWindow( filePath?: string ) {
         height: 700,
         minWidth: 900,
         minHeight: 600,
-        backgroundColor: "#3c3c3c", // rgb(60, 60, 60)
+        autoHideMenuBar: true,
         titleBarStyle: "hidden",
+        backgroundColor: "#3c3c3c", // rgb(60, 60, 60)
         webPreferences: { experimentalFeatures: true }
     } )
 

@@ -181,7 +181,6 @@ export default Vue.extend( {
 .number-input label {
     position: absolute;
     font-size: 16px;
-    padding-bottom: 3px;
     padding-right: 2px;
     user-select: none;
     color: rgba( 255, 255, 255, 0.5 );
@@ -190,6 +189,9 @@ export default Vue.extend( {
 .number-input:hover label,
 .number-input.dragging label {
     opacity: 0;
+}
+#playground.darwin .number-input label {
+    padding-bottom: 3px;
 }
 
 .number-input .controls {

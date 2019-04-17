@@ -136,6 +136,7 @@ accent-color = royalblue
             .select-icon:after {
                 display: block;
                 position: absolute;
+                top: 0.5px;
                 width: 100%;
                 height: 100%;
                 content: "";
@@ -167,7 +168,7 @@ accent-color = royalblue
             box-sizing: border-box
             left: -0.3rem
             position: absolute
-            border-radius: 6px
+            border-radius: var(--border-radius);
             background: rgb( 30, 30, 30 )
             box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.8);
             overflow: hidden
@@ -179,7 +180,7 @@ accent-color = royalblue
                 content: "";
                 position: absolute;
                 box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
-                border-radius: 6px;
+                border-radius: var(--border-radius);
                 width: 100%;
                 height: 100%;
                 top: 0;

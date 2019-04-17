@@ -1,6 +1,6 @@
 <template>
-    <div id="playground">
-        <v-titlebar :file-name="fileName" :edited="documentHasUnsavedChanges" />
+    <div id="playground" :class="platform">
+        <v-titlebar v-if="platform === 'darwin'" :file-name="fileName" :edited="documentHasUnsavedChanges" />
         <div class="panels">
             <div class="left-panel">
                 <div class="toolbar">
@@ -78,6 +78,9 @@ export default Vue.extend( {
             "errorsCount",
             "warningsCount",
             "saveInfo"
+        ] ),
+        ...mapState( [
+            "platform"
         ] )
     },
     watch: {
@@ -232,20 +235,14 @@ body {
     margin: 0;
     height: 100%;
 }
-body::after { /* macOS window outline - if not used: delete unnecessary bottom padding on renderer-toolbar & statusbar */
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0; bottom: 0; left: 0; right: 0;
-    box-sizing: border-box;
-    border-radius: 5px;
-    box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
-    pointer-events: none;
-    z-index: 100;
-}
 
-:root {
+#playground {  /* global variables */
+    --font-weight: 400;
+    --border-radius: 0px;
+}
+#playground.darwin {
     --font-weight: 500;
+    --border-radius: 6px;
 }
 
 #playground {
@@ -258,6 +255,19 @@ body::after { /* macOS window outline - if not used: delete unnecessary bottom p
     font-size: 13px;
     font-weight: var(--font-weight);
     color: white;
+}
+#playground::after { /* macOS window outline - if not used: delete bottom padding on renderer-toolbar & statusbar */
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    box-sizing: border-box;
+    box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, 0.1);
+    pointer-events: none;
+    z-index: 100;
+}
+#playground.darwin::after {
+    border-radius: 5px;
 }
 
 .panels {
