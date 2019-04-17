@@ -188,11 +188,11 @@ const predefinedVariables: Completion[] = [
     { name: "vertexNormal",             extraInfo: ": vec3", type: CompletionType.VertexAttribute },
     { name: "vertexTextureCoordinates", extraInfo: ": vec2", type: CompletionType.VertexAttribute },
     // Available uniforms
-    { name: "modelMatrix",      extraInfo: ": mat3", type: CompletionType.Uniform },
-    { name: "modelViewMatrix",  extraInfo: ": mat3", type: CompletionType.Uniform },
-    { name: "viewMatrix",       extraInfo: ": mat3", type: CompletionType.Uniform },
-    { name: "projectionMatrix", extraInfo: ": mat3", type: CompletionType.Uniform },
-    { name: "normalMatrix",     extraInfo: ": mat3", type: CompletionType.Uniform }
+    { name: "modelMatrix",      extraInfo: ": mat4", type: CompletionType.Uniform },
+    { name: "modelViewMatrix",  extraInfo: ": mat4", type: CompletionType.Uniform },
+    { name: "viewMatrix",       extraInfo: ": mat4", type: CompletionType.Uniform },
+    { name: "projectionMatrix", extraInfo: ": mat4", type: CompletionType.Uniform },
+    { name: "normalMatrix",     extraInfo: ": mat4", type: CompletionType.Uniform }
 ]
 const predefined = predefinedVariables.concat( predefinedCompletions )
 
