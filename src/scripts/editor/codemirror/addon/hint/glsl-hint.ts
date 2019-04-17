@@ -182,23 +182,21 @@ const predefinedCompletions: Completion[] = [
     { name: "true" },
     { name: "false" }
 ]
-
 const predefinedVariables: Completion[] = [
     // Available vertex attributes
-    { name: "vertexPosition",           type: CompletionType.VertexAttribute },
-    { name: "vertexNormal",             type: CompletionType.VertexAttribute },
-    { name: "vertexTextureCoordinates", type: CompletionType.VertexAttribute },
+    { name: "vertexPosition",           extraInfo: ": vec3", type: CompletionType.VertexAttribute },
+    { name: "vertexNormal",             extraInfo: ": vec3", type: CompletionType.VertexAttribute },
+    { name: "vertexTextureCoordinates", extraInfo: ": vec2", type: CompletionType.VertexAttribute },
     // Available uniforms
-    { name: "modelMatrix",      type: CompletionType.Uniform },
-    { name: "modelViewMatrix",  type: CompletionType.Uniform },
-    { name: "viewMatrix",       type: CompletionType.Uniform },
-    { name: "projectionMatrix", type: CompletionType.Uniform },
-    { name: "normalMatrix",     type: CompletionType.Uniform }
+    { name: "modelMatrix",      extraInfo: ": mat3", type: CompletionType.Uniform },
+    { name: "modelViewMatrix",  extraInfo: ": mat3", type: CompletionType.Uniform },
+    { name: "viewMatrix",       extraInfo: ": mat3", type: CompletionType.Uniform },
+    { name: "projectionMatrix", extraInfo: ": mat3", type: CompletionType.Uniform },
+    { name: "normalMatrix",     extraInfo: ": mat3", type: CompletionType.Uniform }
 ]
+const predefined = predefinedVariables.concat( predefinedCompletions )
 
 const predefinedVariableNames = predefinedVariables.map( variable => variable.name )
-
-const predefined = predefinedVariables.concat( predefinedCompletions )
 
 function render( element: HTMLLIElement, data: CodeMirror.Hints, cur: CodeMirror.Hint ) {
     const typeIcon = document.createElement( "span" )
