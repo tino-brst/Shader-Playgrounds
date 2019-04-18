@@ -167,6 +167,10 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
             {
                 label: "Source Code",
                 click: () => { shell.openExternal( "https://github.com/AgustinBrst/Shaders-Playground" ) }
+            },
+            {
+                label: "Send Feedback",
+                click: () => { shell.openExternal( "https://github.com/AgustinBrst/Shader-Playgrounds/issues/new" ) }
             }
         ]
     }
