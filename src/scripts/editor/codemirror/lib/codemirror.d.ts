@@ -166,6 +166,13 @@ declare namespace CodeMirror { // eslint-disable-line
         /** Retrieves the current value of the given option for this editor instance. */
         getOption( option: string ): any;
 
+        /** Get the first line of the editor. This will usually be zero but for linked sub-views,
+        or documents instantiated with a non-zero first line, it might return other values. */
+        firstLine(): number;
+
+        /** Get the last line of the editor. This will usually be lineCount() - 1, but for linked sub-views, it might return other values. */
+        lastLine(): number;
+
         /** Attach an additional keymap to the editor.
         This is mostly useful for add - ons that need to register some key handlers without trampling on the extraKeys option.
         Maps added in this way have a higher precedence than the extraKeys and keyMap options, and between them,
@@ -199,9 +206,16 @@ declare namespace CodeMirror { // eslint-disable-line
         /** Set the content of the current editor document. */
         setValue( content: string ): void;
 
+        /** Replace the part of the document between from and to with the given string.
+        from and to must be {line, ch} objects. to can be left off to simply insert the string at position from. */
+        replaceRange( replacement: string, from: CodeMirror.Position, to?: CodeMirror.Position, origin?: string ): void;
+
         /** Sets the gutter marker for the given gutter (identified by its CSS class, see the gutters option) to the given value.
         Value can be either null, to clear the marker, or a DOM element, to set it. The DOM element will be shown in the specified gutter next to the specified line. */
         setGutterMarker( line: any, gutterID: string, value: HTMLElement | null ): CodeMirror.LineHandle;
+
+        /** Can be used to mark a range of text with a specific CSS class name. from and to should be { line , ch } objects. */
+        markText( from: CodeMirror.Position, to: CodeMirror.Position, options?: CodeMirror.TextMarkerOptions ): TextMarker;
 
         /** Remove all gutter markers in the gutter with the given ID. */
         clearGutter( gutterID: string ): void;
@@ -368,6 +382,11 @@ declare namespace CodeMirror { // eslint-disable-line
 
         /** Give the editor focus. */
         focus(): void;
+
+        /** start is a an optional string indicating which end of the selection to return.
+        It may be "start" , "end" , "head"(the side of the selection that moves when you press shift + arrow),
+        or "anchor"(the fixed side of the selection).Omitting the argument is the same as passing "head".A { line , ch } object will be returned. */
+        getCursor( start?: string ): CodeMirror.Position;
 
         /** Returns the hidden textarea used to read input. */
         getInputField(): HTMLTextAreaElement;
