@@ -31,6 +31,7 @@ declare module "../../lib/codemirror" {
         /** Indexes in the text property that match the search (used in render for highlighting) */
         indexes?: number[]
         docs?: string
+        snippet?: string
     }
 
     interface Editor {

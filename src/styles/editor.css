@@ -1,3 +1,14 @@
+/* 🚧 */
+
+.snippet-placeholder {
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+}
+.snippet-placeholder:focus {
+    background: royalblue;
+}
+
 /* 🎨 Basics */
 
 .editor {
@@ -544,34 +555,18 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     content: "C";
 }
 
-.CodeMirror-hint.iteration .icon {
+.CodeMirror-hint.snippet .icon {
     box-shadow:0 0 0 1px rgba( 0, 0, 0, 0.3 );
     background: rgb(167, 152, 255);
     border-color: rgb(127, 115, 192);
 }
-.CodeMirror-hint.iteration .icon::before {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    content: "";
-    mask: url("/assets/icons/iteration.svg");
-    mask-size: cover;
-    background-color: rgb(74, 65, 129);
-}
-
-.CodeMirror-hint.selection .icon {
-    box-shadow:0 0 0 1px rgba( 0, 0, 0, 0.3 );
-    background: rgb(167, 152, 255);
-    border-color: rgb(127, 115, 192);
-}
-.CodeMirror-hint.selection .icon::before {
-    display: inline-block;
-    width: 15px;
-    height: 15px;
-    content: "";
-    mask: url("/assets/icons/selection.svg");
-    mask-size: cover;
-    background-color: rgb(55, 47, 104);
+.CodeMirror-hint.snippet .icon::after {
+    color: rgb(74, 65, 129);
+    font-family: IBM Plex Mono;
+    font-weight: 600;
+    font-size: 11px;
+    content: "{}";
+    padding-bottom: 1px;
 }
 
 .CodeMirror-hint.vertex-attribute .icon {
@@ -597,7 +592,6 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     font-family: system-ui;
     font-size: 12px;
 }
-
 
 /* Errors & Warnings */
 
