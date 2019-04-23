@@ -166,6 +166,7 @@ export default Vue.extend( {
             value: this.activeShaderView.doc,
             lineNumbers: true,
             indentUnit: 4,
+            autofocus: true,
             gutters: [ "CodeMirror-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter" ],  // define el orden de los items en el margen
             extraKeys: { "Ctrl-Q": "toggleFold", "Ctrl-Space": "autocomplete" },
             keyMap: "sublime",
@@ -182,7 +183,6 @@ export default Vue.extend( {
         this.editor = CodeMirror( this.$refs.editor as HTMLElement, editorConfiguration )
         this.editor.on( "keydown", this.handleShowHints )
         this.editor.on( "changes", this.updateCleanState )
-        this.editor.focus()
 
         EventBus.$on( "saveShadersCode", this.saveShadersCode )
         EventBus.$on( "saveState", this.saveState )

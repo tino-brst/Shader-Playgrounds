@@ -100,6 +100,8 @@ export default Vue.extend( {
         ipc.on( "set-active-shader", this.setActiveShader )
         ipc.on( "compile-and-run", this.compileAndRun )
 
+        // @ts-ignore
+        this.window.setDocumentEdited( this.documentHasUnsavedChanges )
         this.window.setTitle( this.windowTitle )
     },
     methods: {
