@@ -6,7 +6,12 @@
                 <div class="toolbar">
                     <v-tabs />
                     <div class="tools">
-                        <button class="compile-and-run" @mousedown.prevent @click="compileAndRun()" />
+                        <button
+                            class="compile-and-run"
+                            tabindex="-1"
+                            @mousedown.prevent
+                            @click="compileAndRun()"
+                        />
                     </div>
                 </div>
                 <v-editor />

@@ -146,6 +146,9 @@ declare namespace CodeMirror { // eslint-disable-line
         /** Tells you whether the editor currently has focus. */
         hasFocus(): boolean;
 
+        /** Return true if any text is selected. */
+        somethingSelected(): boolean;
+
         /** Used to find the target position for horizontal cursor motion.start is a { line , ch } object,
         amount an integer(may be negative), and unit one of the string "char", "column", or "word".
         Will return a position that is produced by moving amount times the distance specified by unit.
@@ -165,6 +168,9 @@ declare namespace CodeMirror { // eslint-disable-line
 
         /** Retrieves the current value of the given option for this editor instance. */
         getOption( option: string ): any;
+
+        /** Get the number of lines in the editor. */
+        lineCount(): number;
 
         /** Get the first line of the editor. This will usually be zero but for linked sub-views,
         or documents instantiated with a non-zero first line, it might return other values. */
@@ -216,6 +222,12 @@ declare namespace CodeMirror { // eslint-disable-line
 
         /** Can be used to mark a range of text with a specific CSS class name. from and to should be { line , ch } objects. */
         markText( from: CodeMirror.Position, to: CodeMirror.Position, options?: CodeMirror.TextMarkerOptions ): TextMarker;
+
+        /** Returns an array of all the bookmarks and marked ranges found between the given positions. */
+        findMarks( from: CodeMirror.Position, to: CodeMirror.Position ): TextMarker[];
+
+        /** Returns an array of all the bookmarks and marked ranges present at the given position. */
+        findMarksAt( pos: CodeMirror.Position ): TextMarker[];
 
         /** Remove all gutter markers in the gutter with the given ID. */
         clearGutter( gutterID: string ): void;
@@ -349,6 +361,9 @@ declare namespace CodeMirror { // eslint-disable-line
         /** This is similar to getTokenAt, but collects all tokens for a given line into an array. */
         getLineTokens( line: number, precise?: boolean ): Token[];
 
+        /** Get the content of line n. */
+        getLine( n: number ): string;
+
         /** Returns the mode's parser state, if any, at the end of the given line number.
         If no line number is given, the state at the end of the document is returned.
         This can be useful for storing parsing errors in the state, or getting other kinds of contextual information for a line. */
@@ -387,6 +402,14 @@ declare namespace CodeMirror { // eslint-disable-line
         It may be "start" , "end" , "head"(the side of the selection that moves when you press shift + arrow),
         or "anchor"(the fixed side of the selection).Omitting the argument is the same as passing "head".A { line , ch } object will be returned. */
         getCursor( start?: string ): CodeMirror.Position;
+
+        /** Set the cursor position. You can either pass a single {line, ch} object, or the line and the character as two separate parameters.
+        Will replace all selections with a single, empty selection at the given position.
+        The supported options are the same as for setSelection */
+        setCursor( pos: CodeMirror.Position | number, ch?: number, options?: { bias?: number, origin?: string, scroll?: boolean } ): void;
+
+        /** Set a single selection range. anchor and head should be {line, ch} objects. head defaults to anchor when not given. */
+        setSelection( anchor: CodeMirror.Position, head: CodeMirror.Position, options?: { bias?: number, origin?: string, scroll?: boolean } ): void;
 
         /** Returns the hidden textarea used to read input. */
         getInputField(): HTMLTextAreaElement;
@@ -465,6 +488,9 @@ declare namespace CodeMirror { // eslint-disable-line
         The handler may mess with the style of the resulting element, or add event handlers, but should not try to change the state of the editor. */
         on( eventName: "renderLine", handler: ( instance: CodeMirror.Editor, line: CodeMirror.LineHandle, element: HTMLElement ) => void ): void;
         off( eventName: "renderLine", handler: ( instance: CodeMirror.Editor, line: CodeMirror.LineHandle, element: HTMLElement ) => void ): void;
+
+        on( eventName: "keydown", handler: ( instance: CodeMirror.Editor, event: KeyboardEvent ) => void ): void;
+        off( eventName: "keydown", handler: ( instance: CodeMirror.Editor, event: KeyboardEvent ) => void ): void;
 
         /** Fires when one of the DOM events fires. */
         on( eventName: DOMEvent, handler: ( instance: CodeMirror.Editor, event: Event ) => void ): void;
@@ -735,6 +761,8 @@ declare namespace CodeMirror { // eslint-disable-line
         /** Fired when, after the marker was removed by editing, a undo operation brough the marker back */
         on( eventName: "unhide", handler: () => void ) : void;
         off( eventname: "unhide", handler: () => void ) : void;
+
+        replacedWith?: HTMLElement;
     }
 
     interface LineWidget {

@@ -4,6 +4,7 @@
             <input
                 type="text"
                 ref="input"
+                tabindex="-1"
                 :value="roundedValue"
                 @focus="enterEditingMode"
                 @blur="saveEdit"

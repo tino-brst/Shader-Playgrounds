@@ -1,6 +1,7 @@
 import fuzzysort from "fuzzysort"
-import CodeMirror, { Editor, Hint, Hints, Position } from "../../lib/codemirror"
+import CodeMirror, { Editor, Hint, Hints, Position, TextMarker } from "../../lib/codemirror"
 import { glsl, Name, NameWithType, NameWithParametersAndType, Docs, CodeSnippet } from "./glsl-reference"
+import { insertPlaceholder, focusOnNextPlaceholder } from "./snippet-placeholder"
 
 interface Keyword {
     name: string,
@@ -211,6 +212,8 @@ function hint( editor: Editor, data: Hints, selected: Hint ) {
     if ( ! selected.snippet ) {
         editor.replaceRange( selected.text, from, to )
     } else {
+        const placeholderMarkers: TextMarker[] = []
+
         editor.operation( () => {
             // @ts-ignore
             const lines = selected.snippet.split( "\n" )
@@ -234,29 +237,30 @@ function hint( editor: Editor, data: Hints, selected: Hint ) {
                 // insert snippet line and set cursor at the beginning of the line (ready for placeholders insertion)
                 if ( isFirstLine ) {
                     editor.replaceRange( replacement, from, to )
-                    cursor = from
+                    cursor = { line: from.line, ch: from.ch }
                 } else {
                     editor.replaceRange( "\n" + replacement, editor.getCursor() )
                     cursor = { line: from.line + index, ch: 0 }
                 }
 
                 // insert line placeholders
-                for ( let placehoder of placeholders ) {
-                    const placeholderElement = document.createElement( "span" )
+                for ( let placeholder of placeholders ) {
+                    const from = { line: cursor.line, ch: cursor.ch + placeholder.offset }
+                    const to   = { line: cursor.line, ch: cursor.ch + placeholder.offset + placeholder.text.length }
+                    const marker = insertPlaceholder( editor, from, to, placeholder.text )
 
-                    placeholderElement.className = "snippet-placeholder"
-                    placeholderElement.tabIndex  = - 1 // makes it focusable, but only via element.focus()
-                    placeholderElement.innerText = placehoder.text
-
-                    const from = { line: cursor.line, ch: cursor.ch + placehoder.offset }
-                    const to   = { line: cursor.line, ch: cursor.ch + placehoder.offset + placehoder.text.length }
-
-                    editor.markText( from, to, { replacedWith: placeholderElement } )
+                    placeholderMarkers.push( marker )
                 }
-
                 editor.indentLine( cursor.line )
             }
+            // set cursor after first placeholder and blur editor
+            editor.setCursor( placeholderMarkers[ 0 ].find().to )
+            editor.getInputField().blur()
+            // done on placeholder focus but done by hand now to avoid 'active-line' jumps
+            // due to the placeholder.focus() not being immediate
         } )
+        // @ts-ignore - by default, focus on first placeholder
+        setTimeout( () => { placeholderMarkers[ 0 ].replacedWith.focus() }, 0 )
     }
 }
 

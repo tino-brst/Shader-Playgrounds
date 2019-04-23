@@ -36,8 +36,6 @@ declare module "../../lib/codemirror" {
 
     interface Editor {
         /** An extension of the existing CodeMirror typings for the Editor.on("keyup", func) syntax */
-        on( eventName: string, handler: ( doc: CodeMirror.Doc, event: any ) => void ): void
-        off( eventName: string, handler: ( doc: CodeMirror.Doc, event: any ) => void ): void
         showHint: ( options: ShowHintOptions ) => void
     }
 
@@ -54,6 +52,7 @@ declare module "../../lib/codemirror" {
         hint?: HintFunction | AsyncHintFunction
         completeSingle?: boolean
         alignWithWord?: boolean
+        trigger?: string
     }
 
     /** The Handle used to interact with the autocomplete dialog box. */

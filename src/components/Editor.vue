@@ -18,6 +18,7 @@ import { ShaderType, ShaderVariableType } from "@/scripts/renderer/_constants"
 import { ShaderView, ShaderLog, UniformRange, Range } from "@/scripts/editor/ShaderView"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "@/scripts/editor/codemirror/lib/codemirror"
+import { focusOnNextPlaceholder, focusOnPreviousPlaceholder, isPlaceholderMarker } from "@/scripts/editor/codemirror/addon/hint/snippet-placeholder"
 import "@/scripts/editor/codemirror/mode/glsl/glsl"
 import "@/scripts/editor/codemirror/addon/selection/active-line"
 import "@/scripts/editor/codemirror/addon/edit/matchbrackets"
@@ -166,6 +167,8 @@ export default Vue.extend( {
             value: this.activeShaderView.doc,
             lineNumbers: true,
             indentUnit: 4,
+            tabindex: - 1,
+            showCursorWhenSelecting: true,
             autofocus: true,
             gutters: [ "CodeMirror-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter" ],  // define el orden de los items en el margen
             extraKeys: { "Ctrl-Q": "toggleFold", "Ctrl-Space": "autocomplete" },
@@ -181,7 +184,7 @@ export default Vue.extend( {
         }
 
         this.editor = CodeMirror( this.$refs.editor as HTMLElement, editorConfiguration )
-        this.editor.on( "keydown", this.handleShowHints )
+        this.editor.on( "keydown", this.handleKeyDown )
         this.editor.on( "changes", this.updateCleanState )
 
         EventBus.$on( "saveShadersCode", this.saveShadersCode )
@@ -189,30 +192,45 @@ export default Vue.extend( {
         EventBus.$on( "loadState", this.loadState )
     },
     methods: {
-        handleShowHints( editor: Editor, event: Event ) {
-            if ( ! editor.state.completionActive ) {    // evito reactivacion innecesaria de hints
-                // @ts-ignore
-                const cursor = editor.getCursor()
-                const token  = editor.getTokenAt( cursor )
+        handleKeyDown( editor: Editor, event: KeyboardEvent ) {
+            const hintsActive = editor.state.completionActive && editor.state.completionActive.data && editor.state.completionActive.data.list.length
+            if ( hintsActive ) return
 
-                const cursorAtMiddleOfToken = cursor.ch < token.end
+            const cursor = editor.getCursor()
+            const modifiersActive = event.ctrlKey || event.metaKey
 
-                if ( ! cursorAtMiddleOfToken ) {    // evito que se active al tipear a la mitad de una palabra
-                    const modifiersActive = ( event as KeyboardEvent ).ctrlKey || ( event as KeyboardEvent ).metaKey    // evito que Ctrl+C active el autocompletado
-
-                    if ( ! modifiersActive ) {
-                        const which = ( event as KeyboardEvent ).which  // codigo de tecla ( a: 65, z: 90, etc )
-                        const key = ( event as KeyboardEvent ).key      // character ingresado ( "a", "A", "å", etc )
-
-                        const isLetterKey = ( which >= 65 && which <= 90 )  // si primero no filtrara por teclas correspondientes a letras, la key = "Enter" caeria en el rango "A"..."Z" ( por usar la "E" para la comparacion )
-                        const isValidIdentifierLetter = isLetterKey && ( ( key >= "a" && key <= "z" ) || ( key >= "A" && key <= "z" ) )
-
-                        if ( isValidIdentifierLetter || ( key === "_" ) || ( key === "#" ) ) {
-                            // @ts-ignore
-                            this.editor.showHint( { trigger: key } )
+            switch ( event.key ) {
+                // ➡️ Look for nearby placeholders
+                case "Tab":
+                    if ( ! editor.somethingSelected() ) {
+                        const focusedOnPlaceholder = event.shiftKey ? focusOnPreviousPlaceholder( editor, cursor ) : focusOnNextPlaceholder( editor, cursor )
+                        if ( focusedOnPlaceholder ) {
+                            event.stopImmediatePropagation()
+                            event.preventDefault()
                         }
                     }
-                }
+                    break
+                // 🔠 Show code hints
+                default:
+                    const token = editor.getTokenAt( cursor )
+                    const cursorAtMiddleOfToken = cursor.ch < token.end
+
+                    if ( ! cursorAtMiddleOfToken ) {    // evito que se active al tipear a la mitad de una palabra
+                        const modifiersActive = ( event as KeyboardEvent ).ctrlKey || ( event as KeyboardEvent ).metaKey    // evito que Ctrl+C active el autocompletado
+
+                        if ( ! modifiersActive ) {
+                            const which = event.which  // codigo de tecla ( a: 65, z: 90, etc )
+                            const key = event.key      // character ingresado ( "a", "A", "å", etc )
+
+                            const isLetterKey = ( which >= 65 && which <= 90 )  // si primero no filtrara por teclas correspondientes a letras, la key = "Enter" caeria en el rango "A"..."Z" ( por usar la "E" para la comparacion )
+                            const isValidIdentifierLetter = isLetterKey && ( ( key >= "a" && key <= "z" ) || ( key >= "A" && key <= "z" ) )
+
+                            if ( isValidIdentifierLetter || ( key === "_" ) || ( key === "#" ) ) {
+                                this.editor.showHint( { trigger: key } )
+                            }
+                        }
+                    }
+                    break
             }
         },
         handleClicksOutsideButtonAndTooltip( event: MouseEvent ) {

@@ -198,10 +198,6 @@ const snippets: Snippets = [
     [ "if-else", "if ({{condition}}) {\n{{code}}\n} else {\n{{code}}\n}" ]
 ]
 
-// 🚩 ToDo
-// - Predefined Variables
-// - Snippets docs
-
 const glsl = {
     types,
     storageQualifiers,
