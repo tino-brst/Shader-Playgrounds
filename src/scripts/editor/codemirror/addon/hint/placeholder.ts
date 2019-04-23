@@ -1,6 +1,6 @@
 import { Editor, Position, TextMarker } from "../../lib/codemirror"
 
-const PLACEHOLDER_CLASS = "snippet-placeholder"
+const PLACEHOLDER_CLASS = "placeholder"
 const SEARCH_RANGE = 3 // number of lines to inspect when looking for placeholders
 
 function insertPlaceholder( editor: Editor, from: Position, to: Position, text: string ): TextMarker {

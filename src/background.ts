@@ -68,7 +68,7 @@ function newPlaygroundWindow( filePath?: string ) {
         show: false,
         width: 1000,
         height: 700,
-        minWidth: 900,
+        minWidth: 700,
         minHeight: 600,
         autoHideMenuBar: true,
         titleBarStyle: "hidden",

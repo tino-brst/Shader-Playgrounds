@@ -62,14 +62,14 @@ export default Vue.extend( {
 }
 
 .separator {
-    width: 1px;
+    flex: 0 0 1px;
     height: 100%;
     background: rgb(80, 80, 80);
 }
 
 .tab {
     height: 100%;
-    flex-grow: 1;
+    flex: 1 1 0;
     display: flex;
     align-items: center;
     justify-content: center;
