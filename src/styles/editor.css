@@ -260,9 +260,8 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     display: inline-block;
     position: absolute;
     width: 100%;
-    top: -2px; bottom: -2px;
+    top: -1px; bottom: -1px;
     z-index: -1;
-    background: rgba(255, 255, 255, 0.15);
     border-radius: 2px;
 
     animation-name: matchingbracket-pulse;
@@ -274,21 +273,21 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 @keyframes matchingbracket-pulse {
     from {
         transform: scale3d(1, 1, 1);
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0);
     }
     10% {
-        background: rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.15);
         transform: scale3d(1.2, 1.2, 1.2);
     }
     20% {
         transform: scale3d(1, 1, 1);
     }
     75% {
-        background: rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.15);
     }
     to {
         transform: scale3d(1, 1, 1);
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 255, 255, 0);
     }
 }
 
