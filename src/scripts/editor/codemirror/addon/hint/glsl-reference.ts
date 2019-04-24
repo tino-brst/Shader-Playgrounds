@@ -188,14 +188,27 @@ const snippets: Snippets = [
     // Miscellaneous
     [ "main", "void main () {\n{{code}}\n}", "Entry point." ],
     [ "struct", "struct {{name}} {\n{{components}}\n}", "Declares a custom data structure based on standard data types." ],
-    [ "function", "{{return type}} {{name}} ({{parameters}}) {\n{{code}}\n}" ],
+    [ "function", "{{return type}} {{name}} ({{parameters}}) {\n{{code}}\n}", "Encapsulates logic and behaviour." ],
     // Iteration
-    [ "for", "for ({{int i = 0}}; {{i < 42}}; {{i++}}) {\n{{code}}\n}" ],
-    [ "while", "while ({{condition}}) {\n{{code}}\n}" ],
-    [ "do-while", "do {\n{{code}}\n} while ({{condition}});" ],
+    [ "for", "for ({{int i = 0}}; {{i < 42}}; {{i++}}) {\n{{code}}\n}", "Repeats code a given number of times." ],
+    [ "while", "while ({{condition}}) {\n{{code}}\n}", "Repeats code while the condition is true." ],
+    [ "do-while", "do {\n{{code}}\n} while ({{condition}});", "Runs code once and then repeats while the condition is true." ],
     // Flow
-    [ "if", "if ({{condition}}) {\n{{code}}\n}" ],
-    [ "if-else", "if ({{condition}}) {\n{{code}}\n} else {\n{{code}}\n}" ]
+    [ "if", "if ({{condition}}) {\n{{code}}\n}", "Changes which path your code takes." ],
+    [ "if-else", "if ({{condition}}) {\n{{code}}\n} else {\n{{code}}\n}", "Changes which path your code takes." ]
+]
+
+const predefinedAttributes: Variables = [
+    [ "vertexPosition: vec3" ],
+    [ "vertexNormal: vec3" ],
+    [ "vertexTextureCoordinates: vec2" ]
+]
+const predefinedUniforms: Variables = [
+    [ "modelMatrix: mat4" ],
+    [ "modelViewMatrix: mat4" ],
+    [ "viewMatrix: mat4" ],
+    [ "projectionMatrix: mat4" ],
+    [ "normalMatrix: mat4" ]
 ]
 
 const glsl = {
@@ -210,7 +223,9 @@ const glsl = {
     variables,
     constants,
     functions,
-    snippets
+    snippets,
+    predefinedAttributes,
+    predefinedUniforms
 }
 
 export {

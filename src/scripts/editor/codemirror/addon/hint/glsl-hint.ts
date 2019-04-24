@@ -94,7 +94,9 @@ const parsed = {
     variables: glsl.variables.map( value => parseVariable( value ) ),
     constants: glsl.constants.map( value => parseVariable( value ) ),
     functions: glsl.functions.map( value => parseFunction( value ) ),
-    snippets: glsl.snippets.map( value => parseSnippet( value ) )
+    snippets: glsl.snippets.map( value => parseSnippet( value ) ),
+    predefinedAttributes: glsl.predefinedAttributes.map( value => parseVariable( value ) ),
+    predefinedUniforms: glsl.predefinedUniforms.map( value => parseVariable( value ) )
 }
 
 // Mapping to CodeMirror Hints 🗺
@@ -111,9 +113,9 @@ enum HintClass {
     Variable            = "variable",
     Constant            = "constant",
     Function            = "function",
+    Snippet             = "snippet",
     VertexAttribute     = "vertex-attribute",
-    Uniform             = "uniform",
-    Snippet             = "snippet"
+    Uniform             = "uniform"
 }
 
 function mapKeywordsToHints( keywords: Keyword[], className?: HintClass ): Hint[] {
@@ -180,6 +182,8 @@ function mapLocalIdentifiersToHints( identifiers: string[], className?: HintClas
 
 const glslHints: Hint[] = []
 
+glslHints.push( ...mapVariablesToHints( parsed.predefinedUniforms, HintClass.Uniform ) )
+glslHints.push( ...mapVariablesToHints( parsed.predefinedAttributes, HintClass.VertexAttribute ) )
 glslHints.push( ...mapKeywordsToHints( parsed.types, HintClass.Type ) )
 glslHints.push( ...mapKeywordsToHints( parsed.storageQualifiers, HintClass.StorageQualifier ) )
 glslHints.push( ...mapKeywordsToHints( parsed.parameterQualifiers, HintClass.ParameterQualifier ) )
