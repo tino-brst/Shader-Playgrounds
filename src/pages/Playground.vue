@@ -187,11 +187,14 @@ export default Vue.extend( {
         loadFile() {
             const savedState: StateSaveInfo = fs.read( this.filePath, "json" )
 
-            this.$store.dispatch( "restoreState", savedState )
-            EventBus.$emit( "loadState" )
-            this.compileAndRun()
-
-            this.registerWorkingFile()
+            if ( savedState ) {
+                this.$store.dispatch( "restoreState", savedState )
+                EventBus.$emit( "loadState" )
+                this.compileAndRun()
+                this.registerWorkingFile()
+            } else {
+                this.window.destroy()
+            }
         },
         saveFile(): boolean {
             let fileSaved = true

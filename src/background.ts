@@ -84,6 +84,10 @@ function newPlaygroundWindow( filePath?: string ) {
         window.webContents.send( "close" )
     } )
 
+    window.on( "closed", () => {
+        playgroundWindows.delete( window )
+    } )
+
     window.webContents.on( "did-finish-load", () => {
         if ( filePath ) {
             window.webContents.send( "open", filePath )
@@ -99,7 +103,6 @@ ipc.on( "close-window", ( event: Event, proceed: boolean, openFile: string ) => 
     const window = BrowserWindow.fromWebContents( event.sender )
 
     if ( proceed ) {
-        playgroundWindows.delete( window )
         window.destroy()
 
         // if the window was working on a file, clear it from the currently open files
