@@ -86,7 +86,8 @@ CodeMirror.defineSimpleMode( "glsl", {
     ],
     meta: {
         fold: [ "brace" ],
-        lineComment: "//"
+        lineComment: "//",
+        closeBrackets: { pairs: "()[]{}''\"\"", closeBefore: ")]}'\";", explode: "[]{}()" }
     }
 } )
 

@@ -16,7 +16,8 @@ declare module "../../lib/codemirror" {
         /** An array of states in which the mode's auto-indentation should not take effect. Usually used for multi-line comment and string states. */
         dontIndentStates?: string[],
         fold?: string[],
-        lineComment?: string
+        lineComment?: string,
+        closeBrackets?: { pairs?: string, closeBefore?: string, triples?: string, explode?: string }
     }
 
     interface States {

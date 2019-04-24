@@ -175,7 +175,7 @@ export default Vue.extend( {
             keyMap: "sublime",
             styleActiveLine: true,
             matchBrackets: true,
-            autoCloseBrackets: { pairs: "()[]{}''\"\"", explode: "[]{}()" },
+            autoCloseBrackets: true,
             scrollPastEnd: true,
             scrollbarStyle: "simple",
             foldGutter: true,
