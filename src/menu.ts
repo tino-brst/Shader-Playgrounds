@@ -70,29 +70,29 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
         submenu: [
             {
                 role: "undo",
-                enabled: isPlayground,
+                enabled: isPlayground
             },
             {
                 role: "redo",
-                enabled: isPlayground,
+                enabled: isPlayground
             },
             { type: ___ },
             {
                 role: "cut",
-                enabled: isPlayground,
+                enabled: isPlayground
             },
             {
                 role: "copy",
-                enabled: isPlayground,
+                enabled: isPlayground
             },
             {
                 role: "paste",
-                enabled: isPlayground,
+                enabled: isPlayground
             },
             { type: ___ },
             {
                 role: "selectall",
-                enabled: isPlayground,
+                enabled: isPlayground
             }
         ]
     }
@@ -135,7 +135,7 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
             { type: ___ },
             { role: "resetzoom" },
             { role: "zoomin" },
-            { role: "zoomout" },
+            { role: "zoomout" }
         ]
     }
     const windowSubmenu: MenuItemConstructorOptions = {
@@ -158,7 +158,7 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
             {
                 label: "Welcome",
                 click: () => { background.showWelcomeWindow() }
-            },
+            }
         ]
     }
     const helpSubmenu: MenuItemConstructorOptions = {
@@ -193,12 +193,12 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
 }
 
 function setAppMenu( type: WINDOW_TYPE ) {
-    const menu = Menu.buildFromTemplate( getMenuTemplate( type ))
+    const menu = Menu.buildFromTemplate( getMenuTemplate( type ) )
     Menu.setApplicationMenu( menu )
 }
 
 function setWindowMenu( window: BrowserWindow, type: WINDOW_TYPE ) {
-    const menu = Menu.buildFromTemplate( getMenuTemplate( type ))
+    const menu = Menu.buildFromTemplate( getMenuTemplate( type ) )
     window.setMenu( menu )
 }
 

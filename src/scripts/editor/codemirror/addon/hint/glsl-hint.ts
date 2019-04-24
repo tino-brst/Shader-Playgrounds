@@ -340,7 +340,7 @@ CodeMirror.registerHelper( "hint", "glsl", ( editor: Editor, options: any ) => {
     const localIdentifiersHints: Hint[] = mapLocalIdentifiersToHints( getLocalIdentifiers( editor ), HintClass.LocalIdentifier )
 
     // en caso de estar tipeando un atributo, solo paso la lista de identificadores
-    const hints   = tokenAtCursor.type === "attribute" || tokenAtCursor.string === "." ? localIdentifiersHints : glslHints.concat( localIdentifiersHints )
+    const hints   = tokenAtCursor.type === "attribute" || tokenAtCursor.string === "." ? localIdentifiersHints : localIdentifiersHints.concat( glslHints )
     const results = fuzzysort.go<Hint>( tokenAtCursor.string, hints, { key: "text" } )
 
     let list: Hint[]

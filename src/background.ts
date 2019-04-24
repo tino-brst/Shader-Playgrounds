@@ -107,7 +107,7 @@ ipc.on( "close-window", ( event: Event, proceed: boolean, openFile: string ) => 
             openFiles.delete( openFile )
         }
 
-        // if this one was the las playground window
+        // if this one was the last playground window
         if ( playgroundWindows.size === 0 ) {
             if ( appQuitting ) {
                 // and the app was trying to quit, it continues the quitting process
