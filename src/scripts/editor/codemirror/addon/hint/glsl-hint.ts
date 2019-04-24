@@ -99,6 +99,11 @@ const parsed = {
     predefinedUniforms: glsl.predefinedUniforms.map( value => parseVariable( value ) )
 }
 
+const predefinedVariablesNames: string[] = [
+    ...parsed.predefinedAttributes.map( value => value.name ),
+    ...parsed.predefinedUniforms.map( value => value.name )
+]
+
 // Mapping to CodeMirror Hints 🗺
 
 enum HintClass {
@@ -315,7 +320,8 @@ function getLocalIdentifiers( editor: Editor ): string[] {
         if ( line !== cursor.line ) {
             // cuando la linea no corresponde a la del cursor agrego todos los identificadores
             for ( let token of tokens ) {
-                if ( token.type === "identifier" ) identifiers.add( token.string )
+                // si son de tipo identificador y no estan entre las variables predefinidas
+                if ( token.type === "identifier" && ! predefinedVariablesNames.includes( token.string ) ) identifiers.add( token.string )
             }
         } else {
             // cuando coincide con la del cursor me fijo de no estar agregando al token que se esta tipeando
