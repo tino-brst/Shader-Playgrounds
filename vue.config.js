@@ -40,9 +40,10 @@ module.exports = {
     pluginOptions: {
         electronBuilder: {
             builderOptions: {
-                "appId": "com.agustin-burset.shader-playgrounds",
-                "copyright": "Copyright © 2019 Agustin Burset",
-                "productName": "Shader Playgrounds"
+                appId: "com.agustin-burset.shader-playgrounds",
+                copyright: "Copyright © 2019 Agustin Burset",
+                productName: "Shader Playgrounds",
+                publish: [ { provider: "github", owner: "AgustinBrst" } ]
             }
         }
     }

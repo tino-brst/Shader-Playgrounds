@@ -5,7 +5,23 @@
             <div class="info">
                 <h2> Welcome to </h2>
                 <h1> Shader Playgrounds </h1>
-                <h3> Version {{ version }} </h3>
+                <div class="version">
+                    <transition name="fade" mode="out-in">
+                        <div key="downloading" v-if="(autoUpdateProgress > 0) && (autoUpdateState !== 'failed') && (autoUpdateState !== 'downloaded')">
+                            <span class="downloading-icon" />
+                            <h3> Downloading Update {{ autoUpdateProgress.toFixed() }}% </h3>
+                        </div>
+                        <div key="restart" v-else-if="autoUpdateState === 'downloaded'">
+                            <button class="restart" @click="quitAndInstall()">
+                                <span class="restart-icon" />
+                                <h3> Restart to update </h3>
+                            </button>
+                        </div>
+                        <div key="default" v-else>
+                            <h3> Version {{ version }} </h3>
+                        </div>
+                    </transition>
+                </div>
             </div>
         </div>
         <div class="recents">
@@ -53,7 +69,9 @@ export default Vue.extend( {
         version: app.getVersion(),
         platform: remote.process.platform,
         window: remote.getCurrentWindow(),
-        recents: [] as string[]
+        recents: [] as string[],
+        autoUpdateProgress: 0,
+        autoUpdateState: "" // "downloaded" | "failed"
     } ),
     computed: {
         formatedRecents(): RecentsItem[] {
@@ -72,11 +90,19 @@ export default Vue.extend( {
     },
     mounted() {
         ipc.on( "recents", this.onRecentsUpdate )
+        ipc.on( "auto-update", this.onAutoUpdate )
         window.addEventListener( "keydown", this.onKeyDown )
     },
     methods: {
         onRecentsUpdate( event: Event, recents: string[] ) {
             this.recents = recents
+        },
+        onAutoUpdate( event: Event, value: string | number ) {
+            if ( typeof value === "string" ) {
+                this.autoUpdateState = value
+            } else {
+                this.autoUpdateProgress = value || 0
+            }
         },
         closeWindow() {
             this.window.close()
@@ -98,6 +124,9 @@ export default Vue.extend( {
                 case "Enter":
                     this.openFile( this.recents[ this.selectedRecent ] )
             }
+        },
+        quitAndInstall() {
+            ipc.send( "quit-and-install" )
         }
     }
 } )
@@ -145,8 +174,6 @@ body
 #welcome.darwin::after {
     border-radius: 5px;
 }
-
-/* -webkit-app-region: drag; */
 
 .info-container {
     -webkit-app-region: drag;
@@ -209,7 +236,89 @@ button.close-window::after {
     font-size: 20px;
 }
 .info h3 {
-    font-size: 14px; opacity: 0.5;
+    font-size: 14px;
+    opacity: 0.5;
+    margin-left: 5px; margin-right: 5px;
+}
+
+.info .version > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 20px
+}
+
+.info .version .downloading-icon,
+.info .version .restart-icon {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.info .version .restart-icon:after,
+.info .version .downloading-icon:after {
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    content: "";
+    opacity: 0.5;
+    mask-size: contain;
+    background: white;
+}
+
+.info .version .restart-icon:after {
+    mask: url("/assets/icons/restart.svg");
+}
+
+.info .version .downloading-icon:after {
+    mask: url("/assets/icons/gear.svg");
+    animation-name: rotate;
+    animation-duration: 5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+.info .version button.restart {
+    display: flex;
+    padding: 0;
+    background: none;
+    border: none;
+    outline: none;
+    pointer-events: all;
+    cursor: pointer;
+    color: white;
+}
+.info .version button.restart:hover h3,
+.info .version button.restart:hover span:after {
+    transition: all 0.1s;
+}
+.info .version button.restart:hover h3,
+.info .version button.restart:hover span:after {
+    opacity: 0.8;
+}
+.info .version button.restart:active h3,
+.info .version button.restart:active span:after {
+    filter: brightness(0.8);
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.2s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
+
+@keyframes rotate {
+  from {
+    transform: none;
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .recents {

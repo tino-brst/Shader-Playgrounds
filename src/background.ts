@@ -1,5 +1,7 @@
 "use strict"
 
+import log from "electron-log"
+import { autoUpdater } from "electron-updater"
 import { FILE_EXTENSION, WINDOW_TYPE, MAX_RECENTS } from "./constants"
 import { app, protocol, dialog, Menu, BrowserWindow, ipcMain as ipc, Event } from "electron"
 import { createProtocol, installVueDevtools } from "vue-cli-plugin-electron-builder/lib"
@@ -54,6 +56,7 @@ function newWelcomeWindow() {
 
     window.webContents.on( "did-finish-load", () => {
         window.webContents.send( "recents", recents )
+        if ( ! isDevelopment ) autoUpdater.checkForUpdates()
     } )
 
     window.on( "ready-to-show", () => {
@@ -215,6 +218,29 @@ function loadRecents() {
         app.addRecentDocument( recents[ index ] )
     }
 }
+
+// Auto-updates setup ⬇️
+
+autoUpdater.logger = log
+autoUpdater.allowPrerelease = true
+autoUpdater.autoDownload = true
+autoUpdater.autoInstallOnAppQuit = true
+
+autoUpdater.on( "download-progress", ( { percent } ) => {
+    if ( welcomeWindow ) welcomeWindow.webContents.send( "auto-update", percent )
+} )
+
+autoUpdater.on( "update-downloaded", () => {
+    if ( welcomeWindow ) welcomeWindow.webContents.send( "auto-update", "downloaded" )
+} )
+
+autoUpdater.on( "error", () => {
+    if ( welcomeWindow ) welcomeWindow.webContents.send( "auto-update", "failed" )
+} )
+
+ipc.on( "quit-and-install", () => {
+    if ( ! isDevelopment ) autoUpdater.quitAndInstall()
+} )
 
 // Utils 🛠
 
