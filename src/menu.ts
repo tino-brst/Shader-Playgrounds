@@ -166,11 +166,16 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
         submenu: [
             {
                 label: "Source Code",
-                click: () => { shell.openExternal( "https://github.com/AgustinBrst/Shaders-Playground" ) }
+                click: () => { shell.openExternal( "https://github.com/AgustinBrst/Shader-Playgrounds" ) }
             },
             {
                 label: "Send Feedback",
                 click: () => { shell.openExternal( "https://github.com/AgustinBrst/Shader-Playgrounds/issues/new" ) }
+            },
+            { type: ___ },
+            {
+                label: `What's New in ${ app.getName() }`,
+                click: () => { shell.openExternal( "https://github.com/AgustinBrst/Shader-Playgrounds/releases" ) }
             }
         ]
     }
