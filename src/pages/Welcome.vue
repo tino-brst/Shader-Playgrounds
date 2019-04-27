@@ -25,18 +25,23 @@
             </div>
         </div>
         <div class="recents">
-            <ul>
-                <li
-                    v-for="(item, index) in formatedRecents"
-                    :key="item.path"
-                    :class="{ selected: selectedRecent === index }"
-                    @click="selectedRecent = index"
-                    @dblclick="openFile( item.path )"
-                >
-                    <span class="name"> {{ item.name }} </span>
-                    <span class="folder"> {{ item.folder }} </span>
-                </li>
-            </ul>
+            <div class="items">
+                <ul v-if="formatedRecents.length">
+                    <li
+                        v-for="(item, index) in formatedRecents"
+                        :key="item.path"
+                        :class="{ selected: selectedRecent === index }"
+                        @click="selectedRecent = index"
+                        @dblclick="openFile( item.path )"
+                    >
+                        <span class="name"> {{ item.name }} </span>
+                        <span class="folder"> {{ item.folder }} </span>
+                    </li>
+                </ul>
+                <div v-else class="empty">
+                    <h3> No Recent Playgrounds </h3>
+                </div>
+            </div>
             <div class="buttons">
                 <button class="open-playground" @click="openFile()">
                     Open another playground ...
@@ -333,12 +338,33 @@ button.close-window::after {
     height: 100%;
     flex: 0 0 300px;
     background: rgb(30, 30, 30);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.recents .items {
+    flex-grow: 1;
     position: relative;
 }
 
-.recents .buttons {
+.recents .items .empty {
     position: absolute;
-    left: 0; right: 0; bottom: 0;
+    top: 0; right: 0; bottom: 0; left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.recents .items .empty h3 {
+    font-weight: normal;
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.5;
+    user-select: none;
+}
+
+.recents .buttons {
     display: flex;
     justify-content: space-between;
     align-items: center;
