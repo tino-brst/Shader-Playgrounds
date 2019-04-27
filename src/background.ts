@@ -146,6 +146,18 @@ ipc.on( "new-file", () => {
 // App lifecycle 🔄
 
 let appQuitting = false
+const gotTheLock = app.requestSingleInstanceLock()
+
+if ( ! gotTheLock ) {
+    app.quit()
+} else {
+    app.on( "second-instance", () => {
+        // Someone tried to run a second instance, focus on current instance
+        app.focus()
+        const window = BrowserWindow.getFocusedWindow()
+        if ( window ) window.focus()
+    } )
+}
 
 app.on( "ready", async() => {
     if ( isDevelopment && ! process.env.IS_TEST ) {
