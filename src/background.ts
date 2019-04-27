@@ -9,7 +9,6 @@ import { ShaderType } from "./scripts/renderer/_constants"
 import { setWindowMenu, setAppMenu } from "./menu"
 import Store from "electron-store"
 
-const onMac = process.platform === "darwin"
 const isDevelopment = process.env.NODE_ENV !== "production"
 protocol.registerStandardSchemes( [ "app" ], { secure: true } ) // Standard scheme must be registered before the app is ready
 app.commandLine.appendSwitch( "--ignore-gpu-blacklist" ) // Chrome by default black lists certain GPUs because of bugs.
@@ -45,8 +44,9 @@ function newWelcomeWindow() {
 
     window.on( "close", ( event ) => {
         // by default, the welcome window just hides when closing it (to make showing it again snappy),
-        // but if it is the only window remaining and the app is trying to quit, it closes itself and continues quitting
-        if ( playgroundWindows.size === 0 && appQuitting ) {
+        // but if it is the only window remaining and the app is trying to quit (or its not runing on windows),
+        // it closes itself and continues the quitting process
+        if ( playgroundWindows.size === 0 && ( process.platform !== "darwin" || appQuitting ) ) {
             window.destroy()
         } else {
             event.preventDefault()
@@ -219,7 +219,7 @@ function loadRecents() {
     }
 }
 
-// Auto-updates setup ⬇️
+// Auto-updates ⬇️
 
 autoUpdater.logger = log
 autoUpdater.allowPrerelease = true
@@ -239,7 +239,12 @@ autoUpdater.on( "error", () => {
 } )
 
 ipc.on( "quit-and-install", () => {
-    if ( ! isDevelopment ) autoUpdater.quitAndInstall()
+    if ( ! isDevelopment ) {
+        // manually register start of quitting process (by default called on "before-quit", but autoUpdater.quitAndInstall() postpones it)
+        appQuitting = true
+        // quit & install update
+        autoUpdater.quitAndInstall( true, true )
+    }
 } )
 
 // Utils 🛠
@@ -256,7 +261,7 @@ function loadWindowContents( window: BrowserWindow, type: WINDOW_TYPE ) {
 }
 
 function setMenu( window: BrowserWindow, type: WINDOW_TYPE ) {
-    if ( ! onMac ) {
+    if ( process.platform !== "darwin" ) {
         // on windows & linux the menu remains fixed per window
         setWindowMenu( window, type )
     } else {

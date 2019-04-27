@@ -71,7 +71,7 @@ export default Vue.extend( {
         window: remote.getCurrentWindow(),
         recents: [] as string[],
         autoUpdateProgress: 0,
-        autoUpdateState: "" // "downloaded" | "failed"
+        autoUpdateState: "" as "" | "downloaded" | "failed"
     } ),
     computed: {
         formatedRecents(): RecentsItem[] {
@@ -97,7 +97,7 @@ export default Vue.extend( {
         onRecentsUpdate( event: Event, recents: string[] ) {
             this.recents = recents
         },
-        onAutoUpdate( event: Event, value: string | number ) {
+        onAutoUpdate( event: Event, value: "downloaded" | "failed" | number ) {
             if ( typeof value === "string" ) {
                 this.autoUpdateState = value
             } else {
@@ -176,9 +176,11 @@ body
 }
 
 .info-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     -webkit-app-region: drag;
     user-select: none;
-    position: relative;
     height: 100%;
     flex-grow: 1;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
@@ -187,6 +189,7 @@ body
 button.close-window {
     -webkit-app-region: no-drag;
     position: relative;
+    align-self: flex-start;
     width: 20px;
     height: 20px;
     margin: 8px;
@@ -196,6 +199,7 @@ button.close-window {
     background: none;
     outline: none;
     opacity: 0.5;
+    cursor: pointer;
 }
 button.close-window::after {
     display: block;
@@ -210,8 +214,9 @@ button.close-window::after {
 }
 
 .info {
-    position: absolute;
-    left: 0; top: 0; right: 0; bottom: 0;
+    height: 100%;
+    position:relative;
+    top: -20px; /* close-button height */
     pointer-events: none;
     display: flex;
     flex-direction: column;
@@ -283,7 +288,10 @@ button.close-window::after {
 }
 
 .info .version button.restart {
+    -webkit-app-region: no-drag;
+    user-select: none;
     display: flex;
+    align-items: center;
     padding: 0;
     background: none;
     border: none;
