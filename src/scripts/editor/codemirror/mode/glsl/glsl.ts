@@ -47,7 +47,7 @@ const keywords = [
     "invariant"
 ]
 
-CodeMirror.defineSimpleMode( "glsl", {
+CodeMirror.defineSimpleMode( "glsl-es-100", {
     start: [
         // keywords
         { regex: asRegExp( types ), token: "type" },

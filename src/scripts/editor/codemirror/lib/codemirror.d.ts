@@ -347,6 +347,10 @@ declare namespace CodeMirror { // eslint-disable-line
         you should probably follow up by calling this method to ensure CodeMirror is still looking as intended. */
         refresh(): void;
 
+        /** Gets the mode object for the editor. Note that this is distinct from getOption("mode"), which gives you the mode specification,
+        rather than the resolved, instantiated mode object. */
+        getMode(): any;
+
         /** Gets the inner mode at a given position. This will return the same as getMode for simple modes, but will return an inner mode for nesting modes (such as htmlmixed). */
         getModeAt( pos: Position ): any;
 

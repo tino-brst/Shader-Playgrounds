@@ -31,7 +31,7 @@ export class ShaderView {
 
     constructor( type: ShaderType ) {
         this.type = type
-        this.doc = CodeMirror.Doc( "", "glsl" )
+        this.doc = CodeMirror.Doc( "" )
         this.log = { errors: [], warnings: [] }
         this.markedLines = []
         this.uniformsButtons = []

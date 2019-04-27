@@ -334,7 +334,7 @@ function getLocalIdentifiers( editor: Editor ): string[] {
     return Array.from( identifiers )
 }
 
-CodeMirror.registerHelper( "hint", "glsl", ( editor: Editor, options: any ) => {
+CodeMirror.registerHelper( "hint", "glsl-es-100", ( editor: Editor, options: any ) => {
     // @ts-ignore
     const cursor = editor.getCursor()
     const tokenAtCursor = editor.getTokenAt( cursor )

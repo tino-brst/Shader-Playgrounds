@@ -14,7 +14,7 @@ import { EventBus } from "@/event-bus"
 import { mapState, mapGetters } from "vuex"
 import Tooltip from "@/components/Tooltip.vue"
 import UniformsEditors from "@/components/uniforms_editors/UniformsEditors.ts"
-import { ShaderType, ShaderVariableType } from "@/scripts/renderer/_constants"
+import { ShaderType, ShaderVariableType, LanguageVersion } from "@/scripts/renderer/_constants"
 import { ShaderView, ShaderLog, UniformRange, Range } from "@/scripts/editor/ShaderView"
 import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "@/scripts/editor/codemirror/lib/codemirror"
@@ -99,7 +99,12 @@ export default Vue.extend( {
             // @ts-ignore
             return this.uniformsEditors.filter( editor => this.supportedUniformsTypes.has( editor.type ) )
         },
+        mode(): string {
+            // @ts-ignore
+            return ( this.languageVersion === LanguageVersion.GLSL_ES100 ) ? "glsl-es-100" : "glsl-es-300"
+        },
         ...mapState( [
+            "languageVersion",
             "activeShader",
             "vertexSource",
             "fragmentSource",
@@ -109,19 +114,22 @@ export default Vue.extend( {
         ] )
     },
     watch: {
+        mode() {
+            if ( this.hintsActive() ) this.editor.state.completionActive.close()
+            this.editor.setOption( "mode", this.mode )
+        },
         activeShaderView() {
             // close code-hints, tooltips, etc when switching tabs/views
-            if ( this.editor.state.completionActive ) {
-                this.editor.state.completionActive.close()
-            }
-            if ( this.tooltipVisible ) {
-                this.hideUniformTooltip()
-            }
+            if ( this.hintsActive() ) this.editor.state.completionActive.close()
+            if ( this.tooltipVisible ) this.hideUniformTooltip()
 
             // swap current editor document ( vertex <-> fragment )
             this.editor.swapDoc( this.activeShaderView.doc )
 
-            // force active-line highlighting when swapping docs (CodeMirror bug)
+            // force mode update on doc swap (CodeMirror bug)
+            if ( this.editor.getMode().name !== this.mode ) this.editor.setOption( "mode", this.mode )
+
+            // force active-line highlighting on doc swap (CodeMirror bug)
             this.activeShaderView.doc.setCursor( this.activeShaderView.doc.getCursor() )
 
             // enable uniforms tools
@@ -164,6 +172,7 @@ export default Vue.extend( {
     },
     mounted() {
         const editorConfiguration: CodeMirror.EditorConfiguration = {
+            mode: this.mode,
             value: this.activeShaderView.doc,
             lineNumbers: true,
             indentUnit: 4,
@@ -193,8 +202,7 @@ export default Vue.extend( {
     },
     methods: {
         handleKeyDown( editor: Editor, event: KeyboardEvent ) {
-            const hintsActive = editor.state.completionActive && editor.state.completionActive.data && editor.state.completionActive.data.list.length
-            if ( hintsActive ) return
+            if ( this.hintsActive() ) return
 
             const cursor = editor.getCursor()
             const modifiersActive = event.ctrlKey || event.metaKey
@@ -241,6 +249,9 @@ export default Vue.extend( {
             if ( ! clickedInsideButtonOrTooltip ) {
                 this.hideUniformTooltip()
             }
+        },
+        hintsActive(): boolean {
+            return this.editor.state.completionActive && this.editor.state.completionActive.data && this.editor.state.completionActive.data.list.length
         },
         showUniformTooltip( target: HTMLElement ) {
             this.tooltipTarget = target
