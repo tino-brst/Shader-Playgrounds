@@ -15,10 +15,13 @@ const es100 = {
     ],
     operators: [
         "++", "--",
-        "+", "-", "!", "*", "/", "?", ":",
-        "<", ">", "<=", ">=", "==", "!=",
+        "<=", ">=", "!=",
         "&&", "||", "^^",
-        "+=", "-=", "*=", "/="
+        "+", "-", "!", "*", "/", "?", ":",
+        "<", ">"
+    ],
+    assignments: [
+        "+=", "-=", "*=", "/=", "="
     ],
     functions: [
         "main",
@@ -78,10 +81,14 @@ const es300 = {
     ],
     operators: [
         "++", "--",
-        "+", "-", "!", "*", "/", "?", ":",
-        "<", ">", "<=", ">=", "==", "!=",
+        "<=", ">=", "!=",
         "&&", "||", "^^",
-        "+=", "-=", "*=", "/="
+        ">>", "<<",
+        "+", "-", "~", "!", "*", "%", "/", "?", ":",
+        "<", ">", "&", "^", "|"
+    ],
+    assignments: [
+        "+=", "-=", "*=", "/=", "%=", "<<=", ">>=", "&=", "^=", "|=", "="
     ],
     functions: [
         "main",
@@ -139,9 +146,10 @@ CodeMirror.defineSimpleMode( "glsl-es-100", {
         // comments
         { regex: /\/\/.*/, token: "comment" },
         { regex: /\/\*/, token: "comment", next: "comment" },
-        // operators
+        // operators & assignments
+        { regex: /==/, token: "operator" }, // special case to avoid it falling inside the "assignments" category
+        { regex: new RegExp( "(" + es100.assignments.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator assign" },
         { regex: new RegExp( "(" + es100.operators.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator" },
-        { regex: /=/, token: "operator assign" },
         // punctuation
         { regex: /\.|;|,/, token: "punctuation" },
         // brackets, indentation
@@ -183,9 +191,10 @@ CodeMirror.defineSimpleMode( "glsl-es-300", {
         // comments
         { regex: /\/\/.*/, token: "comment" },
         { regex: /\/\*/, token: "comment", next: "comment" },
-        // operators
+        // operators & assignments
+        { regex: /==/, token: "operator" }, // special case to avoid it falling inside the "assignments" category
+        { regex: new RegExp( "(" + es300.assignments.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator assign" },
         { regex: new RegExp( "(" + es300.operators.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator" },
-        { regex: /=/, token: "operator assign" },
         // punctuation
         { regex: /\.|;|,/, token: "punctuation" },
         // brackets, indentation
