@@ -37,10 +37,10 @@ const predefinedAttributes: Variables = [
 ]
 const predefinedUniforms: Variables = [
     [ "modelMatrix: mat4" ],
-    [ "modelViewMatrix: mat4" ],
     [ "viewMatrix: mat4" ],
+    [ "modelViewMatrix: mat4" ],
     [ "projectionMatrix: mat4" ],
-    [ "normalMatrix: mat4" ]
+    [ "normalMatrix: mat4", "Inverse transpose of the modelViewMatrix." ]
 ]
 
 const glslES100 = {
