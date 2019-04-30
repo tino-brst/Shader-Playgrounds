@@ -403,8 +403,8 @@ const glslES300 = {
         [ "all(x: bvec): bool", "True if all components of x are true." ],
         [ "not(x: bvec): bvec", "Logical complement of x." ],
         // Texture Lookup
-        [ "texture(sampler: S, coordinates: T): vec4", "Returns the value of the texture at the given coordinates. \n S ≡ sampler2D | sampler3D • T ≡ vec2 | vec3" ],
-        [ "texture(sampler: S, coordinates: T, bias: float): vec4", "Returns the value of the texture at the given coordinates. The bias is included in the level-of-detail computation that is used to choose mipmap(s) from which to sample. \n S ≡ sampler2D | sampler3D • T ≡ vec2 | vec3" ]
+        [ "texture(sampler: S, coordinates: T): vec4", "Returns the value of the texture at the given coordinates. \n S ≡ sampler2D | sampler3D, T ≡ vec2 | vec3" ],
+        [ "texture(sampler: S, coordinates: T, bias: float): vec4", "Returns the value of the texture at the given coordinates. The bias is included in the level-of-detail computation that is used to choose mipmap(s) from which to sample. \n S ≡ sampler2D | sampler3D, T ≡ vec2 | vec3" ]
     ] as Functions
 }
 

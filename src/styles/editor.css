@@ -496,7 +496,8 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 .CodeMirror-hint.storage-qualifier .icon,
 .CodeMirror-hint.parameter-qualifier .icon,
 .CodeMirror-hint.precision-qualifier .icon,
-.CodeMirror-hint.invariance-qualifier .icon {
+.CodeMirror-hint.invariance-qualifier .icon,
+.CodeMirror-hint.interpolation-qualifier .icon {
     box-shadow:0 0 0 1px rgba( 0, 0, 0, 0.3 );
     background: rgb(247, 207, 207);
     border-color: rgb(240, 159, 159);
@@ -504,7 +505,8 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 .CodeMirror-hint.storage-qualifier .icon::before,
 .CodeMirror-hint.parameter-qualifier .icon::before,
 .CodeMirror-hint.precision-qualifier .icon::before,
-.CodeMirror-hint.invariance-qualifier .icon::before {
+.CodeMirror-hint.invariance-qualifier .icon::before,
+.CodeMirror-hint.interpolation-qualifier .icon::before {
     color: rgb(189, 66, 66);
     font-family: system-ui;
     font-size: 12px;
@@ -514,14 +516,15 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 }
 .CodeMirror-hint.parameter-qualifier .icon::before {
     content: "Pa";
-    font-size: 11px;
 }
 .CodeMirror-hint.precision-qualifier .icon::before {
     content: "Pr";
-    font-size: 11px;
 }
 .CodeMirror-hint.invariance-qualifier .icon::before {
-    content: "I";
+    content: "Iv";
+}
+.CodeMirror-hint.interpolation-qualifier .icon::before {
+    content: "It";
 }
 
 .CodeMirror-hint.variable .icon,

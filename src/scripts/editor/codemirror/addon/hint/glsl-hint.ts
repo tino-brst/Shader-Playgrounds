@@ -83,20 +83,21 @@ function newFunctionSnippet( name: string, parameters: Parameter[] ) {
 // Mapping to CodeMirror Hints 🗺
 
 enum HintClass {
-    LocalIdentifier     = "local-identifier",
-    Type                = "type",
-    Preprocessor        = "preprocessor",
-    Macro               = "macro",
-    StorageQualifier    = "storage-qualifier",
-    ParameterQualifier  = "parameter-qualifier",
-    PrecisionQualifier  = "precision-qualifier",
-    InvarianceQualifier = "invariance-qualifier",
-    Variable            = "variable",
-    Constant            = "constant",
-    Function            = "function",
-    Snippet             = "snippet",
-    VertexAttribute     = "vertex-attribute",
-    Uniform             = "uniform"
+    LocalIdentifier        = "local-identifier",
+    Type                   = "type",
+    Preprocessor           = "preprocessor",
+    Macro                  = "macro",
+    StorageQualifier       = "storage-qualifier",
+    ParameterQualifier     = "parameter-qualifier",
+    PrecisionQualifier     = "precision-qualifier",
+    InvarianceQualifier    = "invariance-qualifier",
+    InterpolationQualifier = "interpolation-qualifier",
+    Variable               = "variable",
+    Constant               = "constant",
+    Function               = "function",
+    Snippet                = "snippet",
+    VertexAttribute        = "vertex-attribute",
+    Uniform                = "uniform"
 }
 
 function mapKeywordsToHints( keywords: Keyword[], className?: HintClass ): Hint[] {
@@ -164,13 +165,13 @@ function mapLocalIdentifiersToHints( identifiers: string[], className?: HintClas
 const snippetsHints: Hint[] = [
     ...mapSnippetsToHints( snippets.map( value => parseSnippet( value ) ), HintClass.Snippet )
 ]
-const predefiedVariablesHints: Hint[] =  [
+const predefinedVariablesHints: Hint[] =  [
     ...mapVariablesToHints( predefinedUniforms.map( value => parseVariable( value ) ), HintClass.Uniform ),
     ...mapVariablesToHints( predefinedAttributes.map( value => parseVariable( value ) ), HintClass.VertexAttribute )
 ]
 
 const glslES100Hints: Hint[] = [
-    ...predefiedVariablesHints,
+    ...predefinedVariablesHints,
     ...snippetsHints,
     ...mapFunctionsToHints( glslES100.functions.map( value => parseFunction( value ) ), HintClass.Function ),
     ...mapKeywordsToHints( glslES100.types.map( value => parseKeyword( value ) ), HintClass.Type ),
@@ -185,7 +186,7 @@ const glslES100Hints: Hint[] = [
     ...mapVariablesToHints( glslES100.constants.map( value => parseVariable( value ) ), HintClass.Constant )
 ]
 const glslES300Hints: Hint[] = [
-    ...predefiedVariablesHints,
+    ...predefinedVariablesHints,
     ...snippetsHints,
     ...mapFunctionsToHints( glslES300.functions.map( value => parseFunction( value ) ), HintClass.Function ),
     ...mapKeywordsToHints( glslES300.types.map( value => parseKeyword( value ) ), HintClass.Type ),
@@ -193,7 +194,7 @@ const glslES300Hints: Hint[] = [
     ...mapKeywordsToHints( glslES300.parameterQualifiers.map( value => parseKeyword( value ) ), HintClass.ParameterQualifier ),
     ...mapKeywordsToHints( glslES300.precisionQualifiers.map( value => parseKeyword( value ) ), HintClass.PrecisionQualifier ),
     ...mapKeywordsToHints( glslES300.invarianceQualifiers.map( value => parseKeyword( value ) ), HintClass.InvarianceQualifier ),
-    ...mapKeywordsToHints( glslES300.interpolationQualifiers.map( value => parseKeyword( value ) ), HintClass.InvarianceQualifier ),
+    ...mapKeywordsToHints( glslES300.interpolationQualifiers.map( value => parseKeyword( value ) ), HintClass.InterpolationQualifier ),
     ...mapKeywordsToHints( glslES300.preprocessor.map( value => parseKeyword( value ) ), HintClass.Preprocessor ),
     ...mapKeywordsToHints( glslES300.macros.map( value => parseKeyword( value ) ), HintClass.Macro ),
     ...mapKeywordsToHints( glslES300.others.map( value => parseKeyword( value ) ) ),
