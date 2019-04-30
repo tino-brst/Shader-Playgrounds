@@ -1,6 +1,6 @@
 import fuzzysort from "fuzzysort"
 import CodeMirror, { Editor, Hint, Hints, Position, TextMarker } from "../../lib/codemirror"
-import { glsl, Name, NameWithType, NameWithParametersAndType, Docs, CodeSnippet } from "./glsl-reference"
+import { glslES100, glslES300, Name, NameWithType, NameWithParametersAndType, Docs, CodeSnippet, snippets, predefinedUniforms, predefinedAttributes } from "./glsl-reference"
 import { insertPlaceholder, focusOnNextPlaceholder } from "./placeholder"
 
 interface Keyword {
@@ -79,30 +79,6 @@ function newFunctionSnippet( name: string, parameters: Parameter[] ) {
     const formattedParameters = parameters.map( parameter => `{{${ parameter.name }: ${ parameter.type }}}` ).join( ", " )
     return name + "(" + formattedParameters + ")"
 }
-
-// Parsed GLSL Info
-
-const parsed = {
-    types: glsl.types.map( value => parseKeyword( value ) ),
-    storageQualifiers: glsl.storageQualifiers.map( value => parseKeyword( value ) ),
-    parameterQualifiers: glsl.parameterQualifiers.map( value => parseKeyword( value ) ),
-    precisionQualifiers: glsl.precisionQualifiers.map( value => parseKeyword( value ) ),
-    invarianceQualifiers: glsl.invarianceQualifiers.map( value => parseKeyword( value ) ),
-    preprocessor: glsl.preprocessor.map( value => parseKeyword( value ) ),
-    macros: glsl.macros.map( value => parseKeyword( value ) ),
-    others: glsl.others.map( value => parseKeyword( value ) ),
-    variables: glsl.variables.map( value => parseVariable( value ) ),
-    constants: glsl.constants.map( value => parseVariable( value ) ),
-    functions: glsl.functions.map( value => parseFunction( value ) ),
-    snippets: glsl.snippets.map( value => parseSnippet( value ) ),
-    predefinedAttributes: glsl.predefinedAttributes.map( value => parseVariable( value ) ),
-    predefinedUniforms: glsl.predefinedUniforms.map( value => parseVariable( value ) )
-}
-
-const predefinedVariablesNames: string[] = [
-    ...parsed.predefinedAttributes.map( value => value.name ),
-    ...parsed.predefinedUniforms.map( value => value.name )
-]
 
 // Mapping to CodeMirror Hints 🗺
 
@@ -185,22 +161,50 @@ function mapLocalIdentifiersToHints( identifiers: string[], className?: HintClas
 
 // Available Hints 🔤
 
-const glslHints: Hint[] = []
+const snippetsHints: Hint[] = [
+    ...mapSnippetsToHints( snippets.map( value => parseSnippet( value ) ), HintClass.Snippet )
+]
+const predefiedVariablesHints: Hint[] =  [
+    ...mapVariablesToHints( predefinedUniforms.map( value => parseVariable( value ) ), HintClass.Uniform ),
+    ...mapVariablesToHints( predefinedAttributes.map( value => parseVariable( value ) ), HintClass.VertexAttribute )
+]
 
-glslHints.push( ...mapVariablesToHints( parsed.predefinedUniforms, HintClass.Uniform ) )
-glslHints.push( ...mapVariablesToHints( parsed.predefinedAttributes, HintClass.VertexAttribute ) )
-glslHints.push( ...mapKeywordsToHints( parsed.types, HintClass.Type ) )
-glslHints.push( ...mapKeywordsToHints( parsed.storageQualifiers, HintClass.StorageQualifier ) )
-glslHints.push( ...mapKeywordsToHints( parsed.parameterQualifiers, HintClass.ParameterQualifier ) )
-glslHints.push( ...mapKeywordsToHints( parsed.precisionQualifiers, HintClass.PrecisionQualifier ) )
-glslHints.push( ...mapKeywordsToHints( parsed.invarianceQualifiers, HintClass.InvarianceQualifier ) )
-glslHints.push( ...mapKeywordsToHints( parsed.preprocessor, HintClass.Preprocessor ) )
-glslHints.push( ...mapKeywordsToHints( parsed.macros, HintClass.Macro ) )
-glslHints.push( ...mapKeywordsToHints( parsed.others ) )
-glslHints.push( ...mapVariablesToHints( parsed.variables, HintClass.Variable ) )
-glslHints.push( ...mapVariablesToHints( parsed.constants, HintClass.Constant ) )
-glslHints.push( ...mapFunctionsToHints( parsed.functions, HintClass.Function ) )
-glslHints.push( ...mapSnippetsToHints( parsed.snippets, HintClass.Snippet ) )
+const glslES100Hints: Hint[] = [
+    ...predefiedVariablesHints,
+    ...snippetsHints,
+    ...mapFunctionsToHints( glslES100.functions.map( value => parseFunction( value ) ), HintClass.Function ),
+    ...mapKeywordsToHints( glslES100.types.map( value => parseKeyword( value ) ), HintClass.Type ),
+    ...mapKeywordsToHints( glslES100.storageQualifiers.map( value => parseKeyword( value ) ), HintClass.StorageQualifier ),
+    ...mapKeywordsToHints( glslES100.parameterQualifiers.map( value => parseKeyword( value ) ), HintClass.ParameterQualifier ),
+    ...mapKeywordsToHints( glslES100.precisionQualifiers.map( value => parseKeyword( value ) ), HintClass.PrecisionQualifier ),
+    ...mapKeywordsToHints( glslES100.invarianceQualifiers.map( value => parseKeyword( value ) ), HintClass.InvarianceQualifier ),
+    ...mapKeywordsToHints( glslES100.preprocessor.map( value => parseKeyword( value ) ), HintClass.Preprocessor ),
+    ...mapKeywordsToHints( glslES100.macros.map( value => parseKeyword( value ) ), HintClass.Macro ),
+    ...mapKeywordsToHints( glslES100.others.map( value => parseKeyword( value ) ) ),
+    ...mapVariablesToHints( glslES100.variables.map( value => parseVariable( value ) ), HintClass.Variable ),
+    ...mapVariablesToHints( glslES100.constants.map( value => parseVariable( value ) ), HintClass.Constant )
+]
+const glslES300Hints: Hint[] = [
+    ...predefiedVariablesHints,
+    ...snippetsHints,
+    ...mapFunctionsToHints( glslES300.functions.map( value => parseFunction( value ) ), HintClass.Function ),
+    ...mapKeywordsToHints( glslES300.types.map( value => parseKeyword( value ) ), HintClass.Type ),
+    ...mapKeywordsToHints( glslES300.storageQualifiers.map( value => parseKeyword( value ) ), HintClass.StorageQualifier ),
+    ...mapKeywordsToHints( glslES300.parameterQualifiers.map( value => parseKeyword( value ) ), HintClass.ParameterQualifier ),
+    ...mapKeywordsToHints( glslES300.precisionQualifiers.map( value => parseKeyword( value ) ), HintClass.PrecisionQualifier ),
+    ...mapKeywordsToHints( glslES300.invarianceQualifiers.map( value => parseKeyword( value ) ), HintClass.InvarianceQualifier ),
+    ...mapKeywordsToHints( glslES300.interpolationQualifiers.map( value => parseKeyword( value ) ), HintClass.InvarianceQualifier ),
+    ...mapKeywordsToHints( glslES300.preprocessor.map( value => parseKeyword( value ) ), HintClass.Preprocessor ),
+    ...mapKeywordsToHints( glslES300.macros.map( value => parseKeyword( value ) ), HintClass.Macro ),
+    ...mapKeywordsToHints( glslES300.others.map( value => parseKeyword( value ) ) ),
+    ...mapVariablesToHints( glslES300.variables.map( value => parseVariable( value ) ), HintClass.Variable ),
+    ...mapVariablesToHints( glslES300.constants.map( value => parseVariable( value ) ), HintClass.Constant )
+]
+
+const predefinedVariablesNames: string[] =  [
+    ...predefinedUniforms.map( value => parseVariable( value ).name ),
+    ...predefinedAttributes.map( value => parseVariable( value ).name )
+]
 
 // Hint support functions
 
@@ -334,31 +338,36 @@ function getLocalIdentifiers( editor: Editor ): string[] {
     return Array.from( identifiers )
 }
 
-CodeMirror.registerHelper( "hint", "glsl-es-100", ( editor: Editor, options: any ) => {
-    // @ts-ignore
-    const cursor = editor.getCursor()
-    const tokenAtCursor = editor.getTokenAt( cursor )
-    const cursorFollowsWhitespace = tokenAtCursor.string.trimLeft().length === 0
+function getGLSLHintsHelper( glslHints: Hint[] ) {
+    return ( editor: Editor, options: any ) => {
+        // @ts-ignore
+        const cursor = editor.getCursor()
+        const tokenAtCursor = editor.getTokenAt( cursor )
+        const cursorFollowsWhitespace = tokenAtCursor.string.trimLeft().length === 0
 
-    const start = cursorFollowsWhitespace ? cursor.ch : tokenAtCursor.start // si no hay caracteres previos al activar el autocomplete lo alineo con el cursor ()
-    const end   = tokenAtCursor.end > cursor.ch ? tokenAtCursor.end : cursor.ch
+        const start = cursorFollowsWhitespace ? cursor.ch : tokenAtCursor.start // si no hay caracteres previos al activar el autocomplete lo alineo con el cursor ()
+        const end   = tokenAtCursor.end > cursor.ch ? tokenAtCursor.end : cursor.ch
 
-    const localIdentifiersHints: Hint[] = mapLocalIdentifiersToHints( getLocalIdentifiers( editor ), HintClass.LocalIdentifier )
+        const localIdentifiersHints: Hint[] = mapLocalIdentifiersToHints( getLocalIdentifiers( editor ), HintClass.LocalIdentifier )
 
-    // en caso de estar tipeando un atributo, solo paso la lista de identificadores
-    const hints   = tokenAtCursor.type === "attribute" || tokenAtCursor.string === "." ? localIdentifiersHints : localIdentifiersHints.concat( glslHints )
-    const results = fuzzysort.go<Hint>( tokenAtCursor.string, hints, { key: "text" } )
+        // en caso de estar tipeando un atributo, solo paso la lista de identificadores
+        const hints   = tokenAtCursor.type === "attribute" || tokenAtCursor.string === "." ? localIdentifiersHints : localIdentifiersHints.concat( glslHints )
+        const results = fuzzysort.go<Hint>( tokenAtCursor.string, hints, { key: "text" } )
 
-    let list: Hint[]
+        let list: Hint[]
 
-    if ( options.trigger === undefined && results.length === 0 ) {
-        list = hints
-    } else {
-        list = results.map( ( { obj, indexes } ): Hint => ( { ...obj, indexes } ) )
+        if ( options.trigger === undefined && results.length === 0 ) {
+            list = hints
+        } else {
+            list = results.map( ( { obj, indexes } ): Hint => ( { ...obj, indexes } ) )
+        }
+
+        const from = CodeMirror.Pos( cursor.line, start )
+        const to   = CodeMirror.Pos( cursor.line, end )
+
+        return { list, from, to }
     }
+}
 
-    const from = CodeMirror.Pos( cursor.line, start )
-    const to   = CodeMirror.Pos( cursor.line, end )
-
-    return { list, from, to }
-} )
+CodeMirror.registerHelper( "hint", "glsl-es-100", getGLSLHintsHelper( glslES100Hints ) )
+CodeMirror.registerHelper( "hint", "glsl-es-300", getGLSLHintsHelper( glslES300Hints ) )

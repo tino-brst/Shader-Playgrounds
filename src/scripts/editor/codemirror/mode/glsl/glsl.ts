@@ -1,7 +1,7 @@
 import CodeMirror from "../../lib/codemirror"
 import "../../addon/mode/simple"
 
-const es100 = {
+const glslES100 = {
     types: [
         "void", "bool", "int", "float",
         "vec2", "vec3", "vec4",
@@ -52,7 +52,7 @@ const es100 = {
     ]
 }
 
-const es300 = {
+const glslES300 = {
     types: [
         "void", "bool", "uint", "int", "float",
         "vec2", "vec3", "vec4",
@@ -103,6 +103,7 @@ const es300 = {
         "dFdx", "dFdy", "fwidth"
     ],
     variablesAndConstants: [
+        "gl_VertexID", "gl_InstanceID",
         "gl_Position", "gl_PointSize",
         "gl_FragCoord", "gl_FrontFacing", "gl_PointCoord", "gl_FragDepth",
         "gl_MaxVertexAttribs", "gl_MaxVertexUniformVectors", "gl_MaxVertexOutputVectors", "gl_MaxFragmentInputVectors", "gl_MaxVertexTextureImageUnits", "gl_MaxCombinedTextureImageUnits", "gl_MaxTextureImageUnits", "gl_MaxFragmentUniformVectors", "gl_MaxDrawBuffers", "gl_MinProgramTexelOffset", "gl_MaxProgramTexelOffset",
@@ -125,10 +126,10 @@ const es300 = {
 CodeMirror.defineSimpleMode( "glsl-es-100", {
     start: [
         // keywords
-        { regex: asRegExp( es100.types ), token: "type" },
-        { regex: asRegExp( es100.functions ), token: "builtin" },
-        { regex: asRegExp( es100.keywords ), token: "keyword" },
-        { regex: asRegExp( es100.variablesAndConstants, { prefix: "gl_" } ), token: "atom" },
+        { regex: asRegExp( glslES100.types ), token: "type" },
+        { regex: asRegExp( glslES100.functions ), token: "builtin" },
+        { regex: asRegExp( glslES100.keywords ), token: "keyword" },
+        { regex: asRegExp( glslES100.variablesAndConstants, { prefix: "gl_" } ), token: "atom" },
         // attributes
         { regex: /(\.)([a-zA-Z_][\w]*)/, token: [ "punctuation", "attribute" ] },
         // preprocessor
@@ -148,8 +149,8 @@ CodeMirror.defineSimpleMode( "glsl-es-100", {
         { regex: /\/\*/, token: "comment", next: "comment" },
         // operators & assignments
         { regex: /==/, token: "operator" }, // special case to avoid it falling inside the "assignments" category
-        { regex: new RegExp( "(" + es100.assignments.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator assign" },
-        { regex: new RegExp( "(" + es100.operators.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator" },
+        { regex: new RegExp( "(" + glslES100.assignments.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator assign" },
+        { regex: new RegExp( "(" + glslES100.operators.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator" },
         // punctuation
         { regex: /\.|;|,/, token: "punctuation" },
         // brackets, indentation
@@ -170,10 +171,10 @@ CodeMirror.defineSimpleMode( "glsl-es-100", {
 CodeMirror.defineSimpleMode( "glsl-es-300", {
     start: [
         // keywords
-        { regex: asRegExp( es300.types ), token: "type" },
-        { regex: asRegExp( es300.functions ), token: "builtin" },
-        { regex: asRegExp( es300.keywords ), token: "keyword" },
-        { regex: asRegExp( es300.variablesAndConstants, { prefix: "gl_" } ), token: "atom" },
+        { regex: asRegExp( glslES300.types ), token: "type" },
+        { regex: asRegExp( glslES300.functions ), token: "builtin" },
+        { regex: asRegExp( glslES300.keywords ), token: "keyword" },
+        { regex: asRegExp( glslES300.variablesAndConstants, { prefix: "gl_" } ), token: "atom" },
         // attributes
         { regex: /(\.)([a-zA-Z_][\w]*)/, token: [ "punctuation", "attribute" ] },
         // preprocessor
@@ -193,8 +194,8 @@ CodeMirror.defineSimpleMode( "glsl-es-300", {
         { regex: /\/\*/, token: "comment", next: "comment" },
         // operators & assignments
         { regex: /==/, token: "operator" }, // special case to avoid it falling inside the "assignments" category
-        { regex: new RegExp( "(" + es300.assignments.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator assign" },
-        { regex: new RegExp( "(" + es300.operators.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator" },
+        { regex: new RegExp( "(" + glslES300.assignments.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator assign" },
+        { regex: new RegExp( "(" + glslES300.operators.map( operator => escapeSpecialCharacters( operator ) ).join( "|" ) + ")" ), token: "operator" },
         // punctuation
         { regex: /\.|;|,/, token: "punctuation" },
         // brackets, indentation
