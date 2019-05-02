@@ -25,7 +25,7 @@ let welcomeWindow: BrowserWindow
 const playgroundWindows: Set <BrowserWindow> = new Set()
 const openFiles: Map <string, BrowserWindow> = new Map()
 
-function newWelcomeWindow() {
+function newWelcomeWindow( hidden: boolean = false ) {
     const window = new BrowserWindow( {
         title: "Welcome",
         show: false,
@@ -59,9 +59,11 @@ function newWelcomeWindow() {
         if ( ! isDevelopment ) autoUpdater.checkForUpdates()
     } )
 
-    window.on( "ready-to-show", () => {
-        window.show()
-    } )
+    if ( ! hidden ) {
+        window.on( "ready-to-show", () => {
+            window.show()
+        } )
+    }
 
     return window
 }
@@ -146,16 +148,20 @@ ipc.on( "new-file", () => {
 // App lifecycle 🔄
 
 let appQuitting = false
+let triggerFiles: Set <string> = new Set()
 const gotTheLock = app.requestSingleInstanceLock()
 
 if ( ! gotTheLock ) {
     app.quit()
 } else {
-    app.on( "second-instance", () => {
-        // Someone tried to run a second instance, focus on current instance
+    app.on( "second-instance", ( event, argv ) => {
+        // the user tried to run a second instance, focus on current instance
         app.focus()
         const window = BrowserWindow.getFocusedWindow()
         if ( window ) window.focus()
+
+        // check if the second instance was due to trying to open a file and open it
+        if ( process.platform === "win32" && app.isReady() && argv.length > 1 ) openFile( argv[ 1 ] )
     } )
 }
 
@@ -166,7 +172,18 @@ app.on( "ready", async() => {
 
     loadRecents()
 
-    welcomeWindow = newWelcomeWindow()
+    // handle app being opened by alternative methods (open-with, drag & drop, recents, etc)
+    const triggerFile = ( process.platform === "win32" && process.argv.length > 1 ) ? process.argv[ 1 ] : ""
+    const hidden = ( triggerFiles.size > 0 ) || ( triggerFile !== "" )
+    welcomeWindow = newWelcomeWindow( hidden )
+
+    if ( triggerFile ) {
+        openFile( triggerFile )
+    } else if ( triggerFiles.size > 0 ) {
+        for ( let file of triggerFiles ) {
+            openFile( file )
+        }
+    }
 } )
 
 app.on( "window-all-closed", () => {
@@ -178,9 +195,20 @@ app.on( "window-all-closed", () => {
 } )
 
 app.on( "activate", () => {
-    // 📝 mostrar la ventana de bienvenida si no hay ninguna abierta
     if ( playgroundWindows.size === 0 ) {
         welcomeWindow.show()
+    }
+} )
+
+app.on( "will-finish-launching", () => {
+    if ( process.platform === "darwin" ) {
+        app.on( "open-file", ( event, filePath ) => {
+            if ( app.isReady() ) {
+                openFile( filePath )
+            } else {
+                triggerFiles.add( filePath )
+            }
+        } )
     }
 } )
 
