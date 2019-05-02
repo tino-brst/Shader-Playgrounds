@@ -252,8 +252,13 @@
 
 div.CodeMirror span.CodeMirror-matchingbracket {
     position: relative;
-    color: white;
+    color: rgb(150, 150, 150);
     font-weight: 700;
+
+    animation-name: matchingbracket-pulse;
+    animation-duration: 1.5s;
+    animation-iteration-count: 1;
+    animation-timing-function: ease;
 }
 div.CodeMirror span.CodeMirror-matchingbracket::before {
     content: "";
@@ -264,7 +269,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     z-index: -1;
     border-radius: 2px;
 
-    animation-name: matchingbracket-pulse;
+    animation-name: matchingbracket-background-pulse;
     animation-duration: 1.5s;
     animation-iteration-count: 1;
     animation-timing-function: ease;
@@ -272,8 +277,23 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 
 @keyframes matchingbracket-pulse {
     from {
-        transform: scale3d(1, 1, 1);
+        color: rgb(150, 150, 150);
+    }
+    10% {
+        color: white;
+    }
+    75% {
+        color: white;
+    }
+    to {
+        color: rgb(150, 150, 150);
+    }
+}
+
+@keyframes matchingbracket-background-pulse {
+    from {
         background: rgba(255, 255, 255, 0);
+        transform: scale3d(1, 1, 1);
     }
     10% {
         background: rgba(255, 255, 255, 0.15);
