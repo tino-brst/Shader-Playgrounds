@@ -43,7 +43,12 @@ module.exports = {
                 appId: "com.agustin-burset.shader-playgrounds",
                 copyright: "Copyright © 2019 Agustin Burset",
                 productName: "Shader Playgrounds",
-                publish: [ { provider: "github", owner: "AgustinBrst" } ]
+                publish: [ { provider: "github", owner: "AgustinBrst" } ],
+                fileAssociations: {
+                    ext: "shdr",
+                    name: "Shader Playgrounds File",
+                    role: "Editor"
+                }
             }
         }
     }
