@@ -262,7 +262,7 @@ function loadRecents() {
 // Auto-updates ⬇️
 
 autoUpdater.logger = log
-autoUpdater.allowPrerelease = true
+autoUpdater.allowPrerelease = false
 autoUpdater.autoDownload = true
 autoUpdater.autoInstallOnAppQuit = true
 
