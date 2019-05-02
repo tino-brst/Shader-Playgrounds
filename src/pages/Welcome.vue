@@ -1,8 +1,9 @@
 <template>
-    <div id="welcome" :class="platform">
+    <div id="welcome" :class="[ platform, { loaded } ]">
         <div class="info-container">
             <button class="close-window" @click="closeWindow()" />
             <div class="info">
+                <img src="assets/images/icon.png">
                 <h2> Welcome to </h2>
                 <h1> Shader Playgrounds </h1>
                 <div class="version">
@@ -76,7 +77,8 @@ export default Vue.extend( {
         window: remote.getCurrentWindow(),
         recents: [] as string[],
         autoUpdateProgress: 0,
-        autoUpdateState: "" as "" | "downloaded" | "failed"
+        autoUpdateState: "" as "" | "downloaded" | "failed",
+        loaded: false
     } ),
     computed: {
         formatedRecents(): RecentsItem[] {
@@ -97,6 +99,7 @@ export default Vue.extend( {
         ipc.on( "recents", this.onRecentsUpdate )
         ipc.on( "auto-update", this.onAutoUpdate )
         window.addEventListener( "keydown", this.onKeyDown )
+        window.addEventListener( "load", () => { this.loaded = true } )
     },
     methods: {
         onRecentsUpdate( event: Event, recents: string[] ) {
@@ -148,7 +151,6 @@ body {
     margin: 0;
     height: 100%;
 }
-body
 
 :root {
     --font-weight: 500;
@@ -165,6 +167,11 @@ body
     font-size: 13px;
     font-weight: var(--font-weight);
     color: white;
+    opacity: 0;
+    transition: opacity 0.5s;
+}
+#welcome.darwin {
+    transition: opacity 0.3s;
 }
 #welcome::after { /* Window outline */
     content: "";
@@ -178,6 +185,9 @@ body
 }
 #welcome.darwin::after {
     border-radius: 5px;
+}
+#welcome.loaded {
+    opacity: 1;
 }
 
 .info-container {
@@ -227,6 +237,13 @@ button.close-window::after {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+
+.info img {
+    height: 140px;
+    width: 140px;
+    filter: drop-shadow(0 20px 10px rgba(0, 0, 0, 0.08));
+    margin-bottom: 15px;
 }
 
 .info h1,

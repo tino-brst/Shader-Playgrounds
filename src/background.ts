@@ -57,13 +57,8 @@ function newWelcomeWindow( hidden: boolean = false ) {
     window.webContents.on( "did-finish-load", () => {
         window.webContents.send( "recents", recents )
         if ( ! isDevelopment ) autoUpdater.checkForUpdates()
+        if ( ! hidden ) window.show()
     } )
-
-    if ( ! hidden ) {
-        window.on( "ready-to-show", () => {
-            window.show()
-        } )
-    }
 
     return window
 }
