@@ -1,5 +1,6 @@
 "use strict"
 
+import fs from "fs-jetpack"
 import log from "electron-log"
 import { autoUpdater } from "electron-updater"
 import { FILE_EXTENSION, WINDOW_TYPE, MAX_RECENTS } from "./constants"
@@ -137,7 +138,11 @@ ipc.on( "opened-file", ( event: Event, filePath: string ) => {
 } )
 
 ipc.on( "open-file", ( event: Event, filePath?: string ) => {
-    openFile( filePath )
+    if ( filePath ) {
+        openFile( filePath )
+    } else {
+        showOpenFileDialog()
+    }
 } )
 
 ipc.on( "new-file", () => {
@@ -310,7 +315,8 @@ function setMenu( window: BrowserWindow, type: WINDOW_TYPE ) {
 }
 
 function showOpenFileDialog() {
-    app.focus() // los 'dialogs' por defecto no ponen a la aplicacion en foco y pueden terminan atras de otras ventanas
+    welcomeWindow.hide()
+    app.focus() // by default, dialogs don't bring the app into focus
 
     const filePaths = dialog.showOpenDialog( {
         properties: [ "openFile" ],
@@ -320,29 +326,49 @@ function showOpenFileDialog() {
         ]
     } )
 
-    return filePaths ? filePaths[ 0 ] : undefined
+    if ( filePaths ) {
+        openFile( filePaths[ 0 ] )
+    } else if ( playgroundWindows.size === 0 ) {
+        welcomeWindow.show()
+    }
 }
 
-function openFile( filePath?: string ) {
-    welcomeWindow.hide()
+function showFileNotFoundDialog() {
+    enum options {
+        ok
+    }
+    const optionsLabels = [
+        "Ok"
+    ]
 
-    // if no file passed, select from dialog
-    if ( ! filePath ) filePath = showOpenFileDialog()
+    dialog.showMessageBox( {
+        title: "File Not Found",
+        message: "The selected file is unavailable. It might have been moved, renamed or removed.",
+        type: "warning",
+        buttons: optionsLabels,
+        defaultId: options.ok,
+        cancelId: options.ok
+    } )
+}
 
-    // if the user selected a file
-    if ( filePath ) {
+function openFile( filePath: string ) {
+    if ( fs.exists( filePath ) === "file" ) {
         const windowWorkingOnFile = openFiles.get( filePath )
 
         // check if it is already open
         if ( windowWorkingOnFile ) {
             windowWorkingOnFile.focus()
         } else {
-            // if not, open on new window
+            // if not, hide welcome window and open on new window
+            welcomeWindow.hide()
             const newPlayground = newPlaygroundWindow( filePath )
             playgroundWindows.add( newPlayground )
         }
-    } else if ( playgroundWindows.size === 0 ) {
-        welcomeWindow.show()
+    } else {
+        showFileNotFoundDialog()
+        if ( playgroundWindows.size === 0 ) {
+            welcomeWindow.show()
+        }
     }
 }
 
@@ -357,7 +383,7 @@ function showWelcomeWindow() {
 }
 
 export {
-    openFile,
+    showOpenFileDialog,
     newFile,
     clearRecentDocuments,
     showWelcomeWindow

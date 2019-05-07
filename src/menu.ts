@@ -39,7 +39,7 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
             {
                 label: "Open...",
                 accelerator: "CmdOrCtrl+O",
-                click() { background.openFile() }
+                click() { background.showOpenFileDialog() }
             },
             {
                 role: "recentDocuments",

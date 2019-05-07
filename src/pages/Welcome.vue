@@ -389,6 +389,7 @@ button.close-window::after {
     justify-content: space-between;
     align-items: center;
     padding: 4px 2px;
+    padding-bottom: 6px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
