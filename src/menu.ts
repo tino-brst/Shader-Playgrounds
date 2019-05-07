@@ -3,6 +3,7 @@ import { FILE_EXTENSION, WINDOW_TYPE } from "./constants"
 import * as background from "./background"
 import { ShaderType } from "./scripts/renderer/_constants"
 
+const isDevelopment = process.env.NODE_ENV !== "production"
 const ___ = "separator"
 
 function sendAction( action: string, payload?: any ) {
@@ -102,7 +103,7 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
             {
                 label: "Compile and Run",
                 enabled: isPlayground,
-                accelerator: "CmdOrCtrl+T",
+                accelerator: "CmdOrCtrl+R",
                 click: () => { sendAction( "compile-and-run" ) }
             }
         ]
@@ -129,8 +130,14 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
     const devSubmenu: MenuItemConstructorOptions = {
         label: "Development",
         submenu: [
-            { role: "reload" },
-            { role: "forcereload" },
+            {
+                role: "reload",
+                accelerator: isDevelopment ? "F5" : ""
+            },
+            {
+                role: "forcereload",
+                accelerator: isDevelopment ? "Ctrl+F5" : ""
+            },
             { role: "toggledevtools" },
             { type: ___ },
             { role: "resetzoom" },
