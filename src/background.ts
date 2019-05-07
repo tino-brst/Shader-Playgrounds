@@ -36,7 +36,8 @@ function newWelcomeWindow( hidden: boolean = false ) {
         resizable: false,
         fullscreenable: false,
         frame: false,
-        backgroundColor: "#3c3c3c"
+        backgroundColor: "#3c3c3c",
+        webPreferences: { enableBlinkFeatures: "OverlayScrollbars" }
     } )
 
     loadWindowContents( window, WINDOW_TYPE.WELCOME )
@@ -72,7 +73,10 @@ function newPlaygroundWindow( filePath?: string ) {
         minHeight: 600,
         titleBarStyle: "hidden",
         backgroundColor: "#3c3c3c", // rgb(60, 60, 60)
-        webPreferences: { experimentalFeatures: true }
+        webPreferences: {
+            experimentalFeatures: true,
+            enableBlinkFeatures: "OverlayScrollbars"
+        }
     } )
 
     loadWindowContents( window, WINDOW_TYPE.PLAYGROUND )
@@ -312,7 +316,7 @@ function showOpenFileDialog() {
         properties: [ "openFile" ],
         title: "Open file",
         filters: [
-            { name: "Shaders Playground", extensions: [ FILE_EXTENSION ] }
+            { name: "Shader Playgrounds Files", extensions: [ FILE_EXTENSION ] }
         ]
     } )
 

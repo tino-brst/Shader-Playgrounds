@@ -124,9 +124,11 @@ export default Vue.extend( {
         onKeyDown( event: KeyboardEvent ) {
             switch ( event.key ) {
                 case "ArrowUp":
+                    event.preventDefault()
                     if ( this.selectedRecent > 0 ) this.selectedRecent --
                     break
                 case "ArrowDown":
+                    event.preventDefault()
                     if ( this.selectedRecent < this.recents.length - 1 ) this.selectedRecent ++
                     break
                 case "Enter":
@@ -363,6 +365,7 @@ button.close-window::after {
 .recents .items {
     flex-grow: 1;
     position: relative;
+    overflow-y: auto;
 }
 
 .recents .items .empty {
@@ -385,7 +388,7 @@ button.close-window::after {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 4px 4px;
+    padding: 4px 2px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -397,6 +400,8 @@ button.close-window::after {
     outline: none;
     color: white;
     font-size: 13px;
+    font-weight: normal;
+    font-family: system-ui;
     cursor: pointer;
     border-radius: 3px;
     transition: background 0.1s;
@@ -468,6 +473,7 @@ button.close-window::after {
     margin-bottom: 2px;
 }
 .recents li .folder {
+    font-weight: normal;
     font-size: 12px;
     opacity: 0.3;
 }

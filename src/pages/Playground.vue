@@ -171,7 +171,7 @@ export default Vue.extend( {
             const filePath = dialog.showSaveDialog( this.window, {
                 defaultPath: this.fileName,
                 filters: [
-                    { name: "Shaders Playground Files", extensions: [ FILE_EXTENSION ] }
+                    { name: "Shader Playgrounds File", extensions: [ FILE_EXTENSION ] }
                 ]
             } )
 
