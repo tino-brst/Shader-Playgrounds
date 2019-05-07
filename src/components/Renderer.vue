@@ -196,7 +196,7 @@ export default Vue.extend( {
     height: 100%;
     overflow: hidden;
     position: relative;
-    background: rgb(8, 8, 8);
+    background: rgb(20,20,20);
 }
 
 .renderer .compilation-info {

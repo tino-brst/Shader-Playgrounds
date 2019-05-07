@@ -164,7 +164,7 @@ CodeMirror.defineSimpleMode( "glsl-es-100", {
     meta: {
         fold: [ "brace" ],
         lineComment: "//",
-        closeBrackets: { pairs: "()[]{}''\"\"", closeBefore: ")]}'\";", explode: "[]{}()" }
+        closeBrackets: { pairs: "()[]{}''\"\"", closeBefore: ")]}'\";,", explode: "[]{}()" }
     }
 } )
 
@@ -209,7 +209,7 @@ CodeMirror.defineSimpleMode( "glsl-es-300", {
     meta: {
         fold: [ "brace" ],
         lineComment: "//",
-        closeBrackets: { pairs: "()[]{}''\"\"", closeBefore: ")]}'\";", explode: "[]{}()" }
+        closeBrackets: { pairs: "()[]{}''\"\"", closeBefore: ")]}'\";,", explode: "[]{}()" }
     }
 } )
 

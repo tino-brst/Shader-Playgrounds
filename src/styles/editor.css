@@ -253,10 +253,9 @@
 div.CodeMirror span.CodeMirror-matchingbracket {
     position: relative;
     color: rgb(150, 150, 150);
-    font-weight: 700;
 
     animation-name: matchingbracket-pulse;
-    animation-duration: 1.5s;
+    animation-duration: 1s;
     animation-iteration-count: 1;
     animation-timing-function: ease;
 }
@@ -265,12 +264,11 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     display: inline-block;
     position: absolute;
     width: 100%;
-    top: -1px; bottom: -1px;
     z-index: -1;
     border-radius: 2px;
 
     animation-name: matchingbracket-background-pulse;
-    animation-duration: 1.5s;
+    animation-duration: 1s;
     animation-iteration-count: 1;
     animation-timing-function: ease;
 }
@@ -280,10 +278,10 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
         color: rgb(150, 150, 150);
     }
     10% {
-        color: white;
+        color: black;
     }
     75% {
-        color: white;
+        color: black;
     }
     to {
         color: rgb(150, 150, 150);
@@ -295,15 +293,15 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
         background: rgba(255, 255, 255, 0);
         transform: scale3d(1, 1, 1);
     }
-    10% {
-        background: rgba(255, 255, 255, 0.15);
+    15% {
+        background: rgba(255, 240, 80, 1);
         transform: scale3d(1.2, 1.2, 1.2);
     }
-    20% {
+    30% {
         transform: scale3d(1, 1, 1);
     }
     75% {
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(255, 240, 80, 1);
     }
     to {
         transform: scale3d(1, 1, 1);
@@ -614,7 +612,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     content: "";
     display: inline-block;
     position: absolute;
-    top: -1px; bottom: -1px; left: -1px; right: -1px;
+    left: -1px; right: -1px;
     z-index: -1;
     background: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
@@ -704,25 +702,25 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 .uniform-button * {
     pointer-events: none;
 }
-.uniform-button::after {
+.uniform-button::before {
     content: "";
     display: inline-block;
     position: absolute;
-    top: -1px; bottom: -1px; left: -1px; right: -1px;
+    left: -1px; right: -1px;
     z-index: -1;
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.15);
     opacity: 0;
     transition: opacity 0.08s ease;
 }
-.uniform-button:hover::after {
+.uniform-button:hover::before {
     opacity: 1;
 }
-.uniform-button.active::after {
+.uniform-button.active::before {
     opacity: 0.7;
 }
 
-.uniform-button.highlighted::after {
+.uniform-button.highlighted::before {
     opacity: 0;
     animation-name: highlight;
     animation-duration: 0.7s;
@@ -740,6 +738,20 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     to {
         opacity: 0;
     }
+}
+
+/* Backgrounds vertical padding (placeholders, matching brackets, etc) */
+
+div.CodeMirror span.CodeMirror-matchingbracket::before,
+.uniform-button::before,
+.placeholder:before {
+    top: -1px; bottom: -1px;
+}
+
+#playground.win32 div.CodeMirror span.CodeMirror-matchingbracket::before,
+#playground.win32 .uniform-button::before,
+#playground.win32 .placeholder:before {
+    top: -3px; bottom: -2px;
 }
 
 /* 🛑 Do not change */
