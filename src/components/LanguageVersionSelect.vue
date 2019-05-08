@@ -100,7 +100,7 @@ accent-color = royalblue
     label {
 
         opacity: 0.4
-        margin-right: 0.3rem
+        margin-right: 0.1rem
         text-overflow: ellipsis
         white-space: nowrap
 
@@ -130,14 +130,14 @@ accent-color = royalblue
             padding-right: 0.1rem
             border-radius: 3pt
             transition: background-color 0.15s;
-            color: rgba(255, 255, 255, 0.7)
+            color: rgba(255, 255, 255, 1)
 
             .select-icon {
                 width: 13px;
                 height: 13px;
                 margin-left: 2px;
                 position: relative
-                opacity: 0.8
+                opacity: 1
             }
             .select-icon:after {
                 display: block;

@@ -102,7 +102,7 @@ accent-color = royalblue
     label {
 
         opacity: 0.4
-        margin-right: 0.3rem
+        margin-right: 0.1rem
         text-overflow: ellipsis
         white-space: nowrap
 

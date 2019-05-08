@@ -201,6 +201,9 @@ export default Vue.extend( {
         EventBus.$on( "loadState", this.loadState )
     },
     methods: {
+        refresh() {
+            this.editor.refresh()
+        },
         handleKeyDown( editor: Editor, event: KeyboardEvent ) {
             if ( this.hintsActive() ) return
 

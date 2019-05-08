@@ -1,7 +1,7 @@
 <template>
     <div id="playground" :class="platform">
         <v-titlebar v-if="platform === 'darwin'" :file-name="fileName" :edited="documentHasUnsavedChanges" />
-        <div class="panels">
+        <div class="panels" :class="{ 'right-hidden': ! rendererVisible }">
             <div class="left-panel">
                 <div class="toolbar">
                     <v-tabs />
@@ -14,7 +14,7 @@
                         />
                     </div>
                 </div>
-                <v-editor />
+                <v-editor ref="editor" />
                 <div class="status-bar">
                     <div class="log-counts">
                         <div class="errors" :class="{ visible: errorsCount }">
@@ -24,9 +24,15 @@
                             {{ warningsCount }}
                         </div>
                     </div>
+                    <div class="space-flex" />
                     <v-language-version-select dropup autohide>
                         GLSL ES:
                     </v-language-version-select>
+                    <v-checkbox v-model="rendererVisible">
+                        <template slot="icon">
+                            <v-sidebar />
+                        </template>
+                    </v-checkbox>
                 </div>
             </div>
             <div class="right-panel">
@@ -48,9 +54,11 @@ import Editor from "@/components/Editor.vue"
 import Renderer from "@/components/Renderer.vue"
 import TitleBar from "@/components/TitleBar.vue"
 import LanguageVersionSelect from "@/components/LanguageVersionSelect.vue"
+import Checkbox from "@/components/Checkbox.vue"
 import { ShaderType } from "@/scripts/renderer/_constants"
 import { StateSaveInfo } from "@/store"
 import { FILE_EXTENSION, NEW_FILE_NAME } from "@/constants"
+const { SidebarIcon } = require( "vue-feather-icons" )
 
 const { app, dialog } = remote
 
@@ -61,11 +69,14 @@ export default Vue.extend( {
         "v-editor": Editor,
         "v-renderer": Renderer,
         "v-tabs": Tabs,
-        "v-language-version-select": LanguageVersionSelect
+        "v-language-version-select": LanguageVersionSelect,
+        "v-checkbox": Checkbox,
+        "v-sidebar": SidebarIcon
     },
     data: () => ( {
         filePath: "",
-        window: remote.getCurrentWindow()
+        window: remote.getCurrentWindow(),
+        rendererVisible: true
     } ),
     computed: {
         newFile(): boolean {
@@ -95,6 +106,12 @@ export default Vue.extend( {
         },
         windowTitle() {
             this.window.setTitle( this.windowTitle )
+        },
+        rendererVisible() {
+            setTimeout( () => {
+                // @ts-ignore
+                ( this.$refs.editor as Vue ).refresh()
+            }, 0 )
         }
     },
     mounted() {
@@ -249,6 +266,7 @@ body {
 #playground {  /* global variables */
     --font-weight: 400;
     --border-radius: 0px;
+    --right-panel-width: 300px;
 }
 #playground.darwin {
     --font-weight: 500;
@@ -265,6 +283,7 @@ body {
     font-size: 13px;
     font-weight: var(--font-weight);
     color: white;
+    overflow: hidden;
 }
 #playground::after { /* macOS window outline - if not used: delete bottom padding on renderer-toolbar & statusbar */
     content: "";
@@ -286,6 +305,12 @@ body {
     flex-wrap: nowrap;
     flex-grow: 1;
 }
+.panels.right-hidden .right-panel {
+   display: none;
+}
+.panels.right-hidden .left-panel {
+    border-right: none;
+}
 
 .left-panel {
     height: auto;
@@ -298,7 +323,7 @@ body {
 
 .right-panel {
     height: auto;
-    flex: 0 0 300px;
+    flex: 0 0 var(--right-panel-width);
     position: relative;
 }
 
@@ -359,14 +384,17 @@ body {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
     padding-left: 8px;
-    padding-right: 4px;
+    padding-right: 8px;
     padding-bottom: 1px;
     box-sizing: border-box;
     background: rgb(60, 60, 60);
     border-top: 1px solid rgb(80, 80, 80);
     box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.1);
+}
+
+.status-bar .space-flex {
+    flex-grow: 1;
 }
 
 .status-bar .log-counts {
@@ -406,5 +434,12 @@ body {
     mask: url("/assets/icons/warning.svg");
     mask-size: contain;
     background: white;
+}
+
+.status-bar .checkbox {
+    margin-left: 10px;
+}
+.status-bar .checkbox .icon {
+    transform: rotate(180deg) translateY(-1px);
 }
 </style>
