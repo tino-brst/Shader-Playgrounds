@@ -132,11 +132,11 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
         submenu: [
             {
                 role: "reload",
-                accelerator: isDevelopment ? "F5" : ""
+                accelerator: ""
             },
             {
                 role: "forcereload",
-                accelerator: isDevelopment ? "Ctrl+F5" : ""
+                accelerator: ""
             },
             { role: "toggledevtools" },
             { type: ___ },

@@ -220,12 +220,18 @@ export class Inspector {
             const availableAttributeType = this.availableVertexAttributes.get( name )
 
             if ( availableAttributeType === undefined ) {
+                let description = `'${ name }' - no data available for this attribute`
+
+                if ( name === "vertexTextureCoordinates" ) {
+                    description = `'${ name }' - no data available for this attribute, look for the models marked with a 'T'`
+                }
+
                 // warning ante attributo sin info disponible
                 const warning = new InspectorLogEntry(
                     ShaderType.Vertex,
                     LogEntryType.Warning,
                     attribute.node.token.line,
-                    `'${ name }' - no info available, check the available attributes`
+                    description
                 )
 
                 log.push( warning )
