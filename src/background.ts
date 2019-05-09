@@ -121,7 +121,7 @@ ipc.on( "close-window", ( event: Event, proceed: boolean, openFile: string ) => 
                 app.quit()
             } else {
                 // if not, shows the welcome window
-                welcomeWindow.show()
+                showWelcomeWindow()
             }
         }
     } else {
@@ -200,7 +200,7 @@ app.on( "window-all-closed", () => {
 
 app.on( "activate", () => {
     if ( playgroundWindows.size === 0 ) {
-        welcomeWindow.show()
+        showWelcomeWindow()
     }
 } )
 
@@ -329,7 +329,7 @@ function showOpenFileDialog() {
     if ( filePaths ) {
         openFile( filePaths[ 0 ] )
     } else if ( playgroundWindows.size === 0 ) {
-        welcomeWindow.show()
+        showWelcomeWindow()
     }
 }
 
@@ -367,7 +367,7 @@ function openFile( filePath: string ) {
     } else {
         showFileNotFoundDialog()
         if ( playgroundWindows.size === 0 ) {
-            welcomeWindow.show()
+            showWelcomeWindow()
         }
     }
 }
@@ -379,7 +379,13 @@ function newFile() {
 }
 
 function showWelcomeWindow() {
-    welcomeWindow.show()
+    // Work-around to avoid moving the user to whatever workspace the welcomeWindow was hidden on.
+    // If the window is already visible, by default it moves to its corresponding worspace, but if it's not:
+    if ( ! welcomeWindow.isVisible() ) {
+        welcomeWindow.setVisibleOnAllWorkspaces( true )
+        welcomeWindow.show()
+        welcomeWindow.setVisibleOnAllWorkspaces( false )
+    }
 }
 
 export {
