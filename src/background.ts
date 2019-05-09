@@ -82,6 +82,7 @@ function newPlaygroundWindow( filePath?: string ) {
 
     loadWindowContents( window, WINDOW_TYPE.PLAYGROUND )
     setMenu( window, WINDOW_TYPE.PLAYGROUND )
+    adjustPlaygroundWindowPosition( window )
 
     window.on( "close", ( event ) => {
         event.preventDefault()
@@ -385,6 +386,24 @@ function showWelcomeWindow() {
         welcomeWindow.setVisibleOnAllWorkspaces( true )
         welcomeWindow.show()
         welcomeWindow.setVisibleOnAllWorkspaces( false )
+    }
+}
+
+function getFocusedPlaygroundWindow() {
+    const focusedWindow = BrowserWindow.getFocusedWindow()
+
+    if ( focusedWindow && focusedWindow !== welcomeWindow ) {
+        return focusedWindow
+    }
+}
+
+function adjustPlaygroundWindowPosition( window: BrowserWindow ) {
+    const focusedPlaygroundWindow = getFocusedPlaygroundWindow()
+
+    if ( focusedPlaygroundWindow ) {
+        const [ focusedX, focusedY ] = focusedPlaygroundWindow.getPosition()
+        const offset = 22
+        window.setPosition( focusedX + offset, focusedY + offset )
     }
 }
 
