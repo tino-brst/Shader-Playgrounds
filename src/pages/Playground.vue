@@ -3,7 +3,7 @@
         <v-titlebar v-if="platform === 'darwin'" :file-name="fileName" :edited="documentHasUnsavedChanges" />
         <div class="panels" :class="{ 'right-hidden': ! rendererVisible }">
             <div class="left-panel">
-                <div class="toolbar">
+                <div class="toolbar" @mousedown.prevent>
                     <v-tabs />
                     <div class="tools">
                         <button
@@ -15,7 +15,7 @@
                     </div>
                 </div>
                 <v-editor ref="editor" />
-                <div class="status-bar">
+                <div class="status-bar" @mousedown.prevent>
                     <div class="log-counts">
                         <div class="errors" :class="{ visible: errorsCount }">
                             {{ errorsCount }}

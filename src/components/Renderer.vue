@@ -21,7 +21,7 @@
                 </div>
             </transition>
         </div>
-        <div class="toolbar">
+        <div class="toolbar" @mousedown.prevent>
             <v-progress-bar :done="modelsLoaded && texturesLoaded" info="loading models & textures" ref="progressBar" />
             <div class="toolbar-items">
                 <v-model-select dropup v-model="model" :models="availableModels">
@@ -197,6 +197,8 @@ export default Vue.extend( {
     overflow: hidden;
     position: relative;
     background: rgb(20,20,20);
+    display: flex;
+    flex-direction: column;
 }
 
 .renderer .compilation-info {
@@ -249,10 +251,10 @@ export default Vue.extend( {
 }
 
 .renderer canvas {
-    height: 100%;
-    width: 100%;
+    flex-grow: 1;
     transform: scale( 0.8 );
     opacity: 0;
+    z-index: 0;
     transition: transform 0.8s ease, opacity  0.8s ease;
 }
 .renderer canvas.visible {
@@ -261,17 +263,13 @@ export default Vue.extend( {
 }
 
 .renderer .toolbar {
-    position: absolute;
-    height: 26px;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    position: relative;
+    flex: 0 0 26px;
     padding-bottom: 1px;
     box-sizing: border-box;
     border-top: 1px solid rgb( 20, 20, 20 );
     background-color: rgb( 30, 30, 30 );
     z-index: 1;
-    pointer-events: none;
 }
 .renderer .toolbar::after { /* light inner border */
     content: "";
