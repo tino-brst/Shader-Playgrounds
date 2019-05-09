@@ -73,7 +73,8 @@
 
   function cursorActivity(cm) {
     var state = cm.state.matchHighlighter;
-    var token = cm.getTokenAt(cm.getCursor())
+    clearTimeout(state.timeout);
+    var token = cm.getTokenAt(cm.getCursor(), true)
     if ( state.overlay ) {
       if (token.type === "identifier") {
         if (token.string !== state.lastMatch) {
@@ -91,7 +92,7 @@
   function quickHighlight(cm) {
     var state = cm.state.matchHighlighter;
     clearTimeout(state.timeout);
-    var token = cm.getTokenAt(cm.getCursor())
+    var token = cm.getTokenAt(cm.getCursor(), true)
     if ( state.overlay ) {
       if (token.type === "identifier") {
         if (token.string !== state.lastMatch) {

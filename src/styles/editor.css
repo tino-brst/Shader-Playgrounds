@@ -311,8 +311,19 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 
 .cm-matchhighlight {
     position: relative;
-    text-decoration: underline dashed rgb(255, 220, 80);
+    text-decoration: underline solid rgba(255, 220, 80, 1);
 }
+
+.cm-matchhighlight::before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    left: -1px; right: -1px;
+    z-index: -1;
+    background: rgba(255, 220, 80, 0.1);
+    border-radius: 4px;
+}
+
 
 /* Selection */
 
@@ -416,8 +427,8 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     /* font-weight: bold; */
     padding: 1px 0;
     font-weight: 700;
-    background-color: rgba(255, 217, 0, 0.2);
-    text-decoration: underline solid orange;
+    text-decoration: underline solid rgb(255, 220, 80);
+    background: rgba(255, 220, 80, 0.1);
     border-radius: 2px;
 }
 
@@ -749,13 +760,15 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 
 div.CodeMirror span.CodeMirror-matchingbracket::before,
 .uniform-button::before,
-.placeholder::before {
+.placeholder::before,
+.cm-matchhighlight::before {
     top: -1px; bottom: -1px;
 }
 
 #playground.win32 div.CodeMirror span.CodeMirror-matchingbracket::before,
 #playground.win32 .uniform-button::before,
-#playground.win32 .placeholder::before {
+#playground.win32 .placeholder::before,
+#playground.win32 .cm-matchhighlight::before {
     top: -3px; bottom: -2px;
 }
 
