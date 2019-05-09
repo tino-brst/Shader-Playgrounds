@@ -39,13 +39,16 @@
     trim: true
   }
 
-  function State(options) {
+  function State(cm, options) {
+    this.cm = cm
     this.options = {}
     for (var name in defaults)
       this.options[name] = (options && options.hasOwnProperty(name) ? options : defaults)[name]
     this.overlay = this.timeout = null;
     this.matchesonscroll = null;
     this.active = false;
+    this.lastMatch = null;
+    this.highlight = () => { quickHighlight(cm) }
   }
 
   CodeMirror.defineOption("highlightSelectionMatches", false, function(cm, val, old) {
@@ -57,7 +60,7 @@
       cm.off("focus", onFocus)
     }
     if (val) {
-      var state = cm.state.matchHighlighter = new State(val);
+      var state = cm.state.matchHighlighter = new State(cm, val);
       if (cm.hasFocus()) {
         state.active = true
         highlightMatches(cm)
@@ -70,7 +73,37 @@
 
   function cursorActivity(cm) {
     var state = cm.state.matchHighlighter;
-    if (state.active || cm.hasFocus()) scheduleHighlight(cm, state)
+    var token = cm.getTokenAt(cm.getCursor())
+    if ( state.overlay ) {
+      if (token.type === "identifier") {
+        if (token.string !== state.lastMatch) {
+          removeOverlay(cm)
+          scheduleHighlight(cm, state)
+        }
+      } else {
+        removeOverlay(cm)
+      }
+    } else {
+      if (token.type === "identifier") scheduleHighlight(cm, state)
+    }
+  }
+
+  function quickHighlight(cm) {
+    var state = cm.state.matchHighlighter;
+    clearTimeout(state.timeout);
+    var token = cm.getTokenAt(cm.getCursor())
+    if ( state.overlay ) {
+      if (token.type === "identifier") {
+        if (token.string !== state.lastMatch) {
+          removeOverlay(cm)
+          highlightMatches(cm)
+        }
+      } else {
+        removeOverlay(cm)
+      }
+    } else {
+      if (token.type === "identifier") highlightMatches(cm)
+    }
   }
 
   function onFocus(cm) {
@@ -117,17 +150,23 @@
         var cur = cm.getCursor(), line = cm.getLine(cur.line), start = cur.ch, end = start;
         while (start && re.test(line.charAt(start - 1))) --start;
         while (end < line.length && re.test(line.charAt(end))) ++end;
-        if (start < end)
-          addOverlay(cm, line.slice(start, end), re, state.options.style);
+        if (start < end) {
+          const match = line.slice(start, end)
+          state.lastMatch = match
+          addOverlay(cm, match, re, state.options.style);
+        }
         return;
       }
       var from = cm.getCursor("from"), to = cm.getCursor("to");
       if (from.line != to.line) return;
       if (state.options.wordsOnly && !isWord(cm, from, to)) return;
+      if (state.options.minChars < 0) return;
       var selection = cm.getRange(from, to)
       if (state.options.trim) selection = selection.replace(/^\s+|\s+$/g, "")
-      if (selection.length >= state.options.minChars)
+      if (selection.length >= state.options.minChars) {
+        state.lastMatch = selection
         addOverlay(cm, selection, false, state.options.style);
+      }
     });
   }
 

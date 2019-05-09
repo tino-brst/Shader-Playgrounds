@@ -20,6 +20,7 @@ import { UniformEditor } from "@/scripts/renderer/UniformEditor"
 import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from "@/scripts/editor/codemirror/lib/codemirror"
 import { focusOnNextPlaceholder, focusOnPreviousPlaceholder, isPlaceholderMarker } from "@/scripts/editor/codemirror/addon/hint/placeholder"
 import "@/scripts/editor/codemirror/mode/glsl/glsl"
+import "@/scripts/editor/codemirror/keymap/sublime"
 import "@/scripts/editor/codemirror/addon/selection/active-line"
 import "@/scripts/editor/codemirror/addon/edit/matchbrackets"
 import "@/scripts/editor/codemirror/addon/edit/closebrackets"
@@ -32,7 +33,7 @@ import "@/scripts/editor/codemirror/addon/fold/comment-fold"
 import "@/scripts/editor/codemirror/addon/hint/show-hint"
 import "@/scripts/editor/codemirror/addon/hint/glsl-hint"
 import "@/scripts/editor/codemirror/addon/comment/comment"
-import "@/scripts/editor/codemirror/keymap/sublime"
+import "@/scripts/editor/codemirror/addon/search/match-highlighter.js"
 
 export default Vue.extend( {
     name: "Editor",
@@ -132,6 +133,9 @@ export default Vue.extend( {
             // force active-line highlighting on doc swap (CodeMirror bug)
             this.activeShaderView.doc.setCursor( this.activeShaderView.doc.getCursor() )
 
+            // highlight matches in new doc
+            this.editor.state.matchHighlighter.highlight()
+
             // enable uniforms tools
             if ( this.noShaderChangesSinceToolsEnabled && this.toolsEnabled ) {
                 // @ts-ignore
@@ -184,6 +188,11 @@ export default Vue.extend( {
             keyMap: "sublime",
             styleActiveLine: true,
             matchBrackets: true,
+            highlightSelectionMatches: {
+                minChars: - 1,
+                showToken: true,
+                delay: 200
+            },
             autoCloseBrackets: true,
             scrollPastEnd: true,
             scrollbarStyle: "simple",
