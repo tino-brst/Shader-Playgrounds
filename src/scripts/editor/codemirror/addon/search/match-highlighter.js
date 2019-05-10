@@ -146,27 +146,29 @@
     cm.operation(function() {
       var state = cm.state.matchHighlighter;
       removeOverlay(cm);
-      if (!cm.somethingSelected() && state.options.showToken) {
-        var re = state.options.showToken === true ? /[\w$]/ : state.options.showToken;
-        var cur = cm.getCursor(), line = cm.getLine(cur.line), start = cur.ch, end = start;
-        while (start && re.test(line.charAt(start - 1))) --start;
-        while (end < line.length && re.test(line.charAt(end))) ++end;
-        if (start < end) {
-          const match = line.slice(start, end)
-          state.lastMatch = match
-          addOverlay(cm, match, re, state.options.style);
+      if (!(cm.state.completionActive && cm.state.completionActive.widget)) {
+        if (!cm.somethingSelected() && state.options.showToken) {
+          var re = state.options.showToken === true ? /[\w$]/ : state.options.showToken;
+          var cur = cm.getCursor(), line = cm.getLine(cur.line), start = cur.ch, end = start;
+          while (start && re.test(line.charAt(start - 1))) --start;
+          while (end < line.length && re.test(line.charAt(end))) ++end;
+          if (start < end) {
+            const match = line.slice(start, end)
+            state.lastMatch = match
+            addOverlay(cm, match, re, state.options.style);
+          }
+          return;
         }
-        return;
-      }
-      var from = cm.getCursor("from"), to = cm.getCursor("to");
-      if (from.line != to.line) return;
-      if (state.options.wordsOnly && !isWord(cm, from, to)) return;
-      if (state.options.minChars < 0) return;
-      var selection = cm.getRange(from, to)
-      if (state.options.trim) selection = selection.replace(/^\s+|\s+$/g, "")
-      if (selection.length >= state.options.minChars) {
-        state.lastMatch = selection
-        addOverlay(cm, selection, false, state.options.style);
+        var from = cm.getCursor("from"), to = cm.getCursor("to");
+        if (from.line != to.line) return;
+        if (state.options.wordsOnly && !isWord(cm, from, to)) return;
+        if (state.options.minChars < 0) return;
+        var selection = cm.getRange(from, to)
+        if (state.options.trim) selection = selection.replace(/^\s+|\s+$/g, "")
+        if (selection.length >= state.options.minChars) {
+          state.lastMatch = selection
+          addOverlay(cm, selection, false, state.options.style);
+        }
       }
     });
   }

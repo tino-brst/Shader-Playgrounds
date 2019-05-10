@@ -311,7 +311,6 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
 
 .cm-matchhighlight {
     position: relative;
-    text-decoration: underline solid rgba(255, 220, 80, 1);
 }
 
 .cm-matchhighlight::before {
@@ -320,7 +319,7 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     position: absolute;
     left: -1px; right: -1px;
     z-index: -1;
-    background: rgba(255, 220, 80, 0.1);
+    background: rgba(65, 105, 225, 0.3);
     border-radius: 4px;
 }
 
@@ -424,11 +423,10 @@ div.CodeMirror span.CodeMirror-matchingbracket::before {
     color: white;
 }
 .CodeMirror-hint .display-text b {
-    /* font-weight: bold; */
     padding: 1px 0;
     font-weight: 700;
-    text-decoration: underline solid rgb(255, 220, 80);
-    background: rgba(255, 220, 80, 0.1);
+    text-decoration: underline solid rgb(255, 240, 80);
+    background: rgba(255, 220, 80, 0.15);
     border-radius: 2px;
 }
 
