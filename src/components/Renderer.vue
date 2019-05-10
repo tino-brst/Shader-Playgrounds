@@ -252,6 +252,7 @@ export default Vue.extend( {
 
 .renderer canvas {
     flex-grow: 1;
+    min-height: 0; /* default: auto */
     transform: scale( 0.8 );
     opacity: 0;
     z-index: 0;
