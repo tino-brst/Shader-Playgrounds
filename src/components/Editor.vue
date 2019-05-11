@@ -22,6 +22,7 @@ import { focusOnNextPlaceholder, focusOnPreviousPlaceholder, isPlaceholderMarker
 import "@/scripts/editor/codemirror/mode/glsl/glsl"
 import "@/scripts/editor/codemirror/keymap/sublime"
 import "@/scripts/editor/codemirror/addon/selection/active-line"
+import "@/scripts/editor/codemirror/addon/selection/selection-pointer"
 import "@/scripts/editor/codemirror/addon/edit/matchbrackets"
 import "@/scripts/editor/codemirror/addon/edit/closebrackets"
 import "@/scripts/editor/codemirror/addon/scroll/scrollpastend"
@@ -182,6 +183,7 @@ export default Vue.extend( {
             indentUnit: 4,
             tabindex: - 1,
             showCursorWhenSelecting: true,
+            selectionPointer: true,
             autofocus: true,
             gutters: [ "CodeMirror-markers", "CodeMirror-linenumbers", "CodeMirror-foldgutter" ],  // define el orden de los items en el margen
             extraKeys: { "Ctrl-Q": "toggleFold", "Ctrl-Space": "autocomplete" },
