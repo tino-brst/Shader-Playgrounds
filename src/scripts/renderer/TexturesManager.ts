@@ -37,7 +37,13 @@ export class TexturesManager {
         return [ ...this.unitsTextures.values() ]
     }
 
+    public getAvailableTextureUnitsCount() {
+        return this.availableTextureUnits
+    }
+
     public setTextureForUnit( name: string, textureUnit: number ) {
+        let textureUnitUpdated = false
+
         if ( textureUnit < this.availableTextureUnits ) {
             const texture = this.textures.get( name )
 
@@ -46,11 +52,15 @@ export class TexturesManager {
                 this.gl.bindTexture( this.gl.TEXTURE_2D, texture )
                 this.unitsTextures.set( textureUnit, name )
 
-                return true
+                textureUnitUpdated = true
+            } else {
+                console.warn( `"${ name }" - texture not found` )
             }
+        } else {
+            console.warn( `Texture unit number not available (${ textureUnit })` )
         }
 
-        return false
+        return textureUnitUpdated
     }
 
     // ✋🏼  Metodos Privados

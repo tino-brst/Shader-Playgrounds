@@ -22,7 +22,7 @@
             </transition>
         </div>
         <div class="toolbar" @mousedown.prevent>
-            <v-progress-bar :done="modelsLoaded && texturesLoaded" info="loading models & textures" ref="progressBar" />
+            <v-progress-bar :done="modelsLoaded && texturesLoaded" info="Loading models & textures" ref="progressBar" />
             <div class="toolbar-items">
                 <v-model-select dropup v-model="model" :models="availableModels">
                     model:
@@ -67,7 +67,6 @@ export default Vue.extend( {
         renderer: {} as Renderer,
         availableModels: [] as Model[],
         modelsLoaded: false,
-        texturesLoaded: false,
         compiledAtLeastOnce: false
     } ),
     computed: {
@@ -102,6 +101,7 @@ export default Vue.extend( {
             "languageVersion",
             "uniforms",
             "textureUnitToUpdate",
+            "texturesLoaded",
             "windowReady"
         ] )
     },
@@ -137,6 +137,7 @@ export default Vue.extend( {
         this.renderer.setAnimation( this.animation )
         this.renderer.setWireframe( this.wireframe )
 
+        this.$store.commit( "SET_AVAILABLE_TEXTURE_UNITS_COUNT", this.renderer.getAvailableTextureUnitsCount() )
         this.$store.commit( "SET_TEXTURES_ASSIGNED_TO_TEXTURE_UNITS", this.renderer.getTexturesAssignedToTextureUnits() )
 
         EventBus.$on( "compileAndRun", this.compileAndRun )
@@ -162,8 +163,8 @@ export default Vue.extend( {
             this.updateModel()
         },
         onTexturesLoaded() {
+            this.$store.commit( "SET_TEXTURES_LOADED", true )
             this.$store.commit( "SET_AVAILABLE_TEXTURES", this.renderer.getAvailableTextures() )
-            this.texturesLoaded = true
         },
         updateModel() {
             this.renderer.setModel( this.model )

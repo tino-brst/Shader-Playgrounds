@@ -4,32 +4,42 @@
             <span> Texture Unit: </span>
             <div class="unit-numbers">
                 <div
-                    v-for="( texture, unitNumber ) in texturesAssignedToTextureUnits"
+                    v-for="unitNumber in availableTextureUnitsCount"
                     class="unit-number"
-                    :class="{ selected: selectedUnit === unitNumber }"
-                    :key="unitNumber"
-                    @click="selectUnit( unitNumber )"
+                    :class="{ selected: selectedUnit === unitNumber - 1}"
+                    :key="unitNumber - 1"
+                    @click="selectUnit( unitNumber - 1 )"
                 >
-                    <span> {{ unitNumber }} </span>
+                    <span> {{ unitNumber - 1 }} </span>
                 </div>
             </div>
         </div>
         <div class="textures-container">
-            <div class="textures" :class="{ 'highlight-selected': highlightSelected }">
+            <transition-group name="fade">
                 <div
-                    class="texture-cell"
-                    :class="{ selected: texture === texturesAssignedToTextureUnits[ selectedUnit ] }"
-                    v-for="texture in availableTextures"
-                    :key="texture"
+                    v-show="texturesLoaded"
+                    class="textures"
+                    :class="{ 'highlight-selected': highlightSelected }"
+                    key="loaded"
                 >
-                    <div class="texture" @click="updateTextureUnit( selectedUnit, texture )">
-                        <div class="image-container">
-                            <img :src="`/assets/textures/thumbnails/${ texture }.jpg`">
+                    <div
+                        v-for="texture in availableTextures"
+                        class="texture-cell"
+                        :class="{ selected: texture === texturesAssignedToTextureUnits[ selectedUnit ] }"
+                        :key="texture"
+                    >
+                        <div class="texture" @click="updateTextureUnit( selectedUnit, texture )">
+                            <div class="image-container">
+                                <img :src="`/assets/textures/thumbnails/${ texture }.jpg`">
+                            </div>
+                            <span> {{ texture }} </span>
                         </div>
-                        <span> {{ texture }} </span>
                     </div>
                 </div>
-            </div>
+                <div v-show="! texturesLoaded" class="loading" key="loading">
+                    <span> Loading textures ... </span>
+                </div>
+            </transition-group>
         </div>
     </div>
 </template>
@@ -54,7 +64,12 @@ export default Vue.extend( {
         highlightSelected: false,
         highlightSelectedTimeout: null as any
     } ),
-    computed: mapState( [ "availableTextures", "texturesAssignedToTextureUnits" ] ),
+    computed: mapState( [
+        "availableTextures",
+        "availableTextureUnitsCount",
+        "texturesAssignedToTextureUnits",
+        "texturesLoaded"
+    ] ),
     watch: {
         selectedUnit() {
             this.editor.setValue( this.selectedUnit )
@@ -167,8 +182,20 @@ export default Vue.extend( {
 
 .uniform-editor.sampler2D .textures-container {
     width: 100%;
+    height: 100%;
     flex-grow: 1;
     overflow-y: auto;
+}
+
+.uniform-editor.sampler2D .textures-container .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
+    font-size: 15px;
 }
 
 .uniform-editor.sampler2D .textures {
@@ -281,6 +308,16 @@ export default Vue.extend( {
 .uniform-editor.sampler2D .textures.highlight-selected .texture-cell.selected .image-container::before {
     transform: scale(1.03);
     filter: brightness(1.2);
+}
+
+.fade-enter-active {
+    transition: opacity 0.5s;
+}
+.fade-leave-active {
+    transition: opacity 0.3s;
+}
+.fade-enter, .fade-leave-to {
+    opacity: 0;
 }
 
 </style>

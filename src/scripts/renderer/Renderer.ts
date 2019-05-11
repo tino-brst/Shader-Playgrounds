@@ -213,6 +213,10 @@ export class Renderer {
         return this.texturesManager.getTexturesAssignedToTextureUnits()
     }
 
+    public getAvailableTextureUnitsCount() {
+        return this.texturesManager.getAvailableTextureUnitsCount()
+    }
+
     // ✋🏼  Metodos Privados
 
     private loop() {

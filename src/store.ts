@@ -23,8 +23,10 @@ export interface State {
     uniforms: UniformState[]
     uniformsEditors: UniformEditor[],
     availableTextures: string[],
+    availableTextureUnitsCount: number,
     texturesAssignedToTextureUnits: string[],
     textureUnitToUpdate: { unit: number, texture: string },
+    texturesLoaded: boolean
     windowReady: boolean
 }
 
@@ -53,8 +55,10 @@ const state: State = {
     uniforms: [],
     uniformsEditors: [] as UniformEditor[],
     availableTextures: [] as string[],
+    availableTextureUnitsCount: 0,
     texturesAssignedToTextureUnits: [] as string[],
     textureUnitToUpdate: { unit: 0, texture: "" },
+    texturesLoaded: false,
     windowReady: false
 }
 
@@ -140,6 +144,9 @@ const mutations = {
     SET_AVAILABLE_TEXTURES( state: State, textures: string[] ) {
         state.availableTextures = textures
     },
+    SET_AVAILABLE_TEXTURE_UNITS_COUNT( state: State, value: number ) {
+        state.availableTextureUnitsCount = value
+    },
     SET_TEXTURES_ASSIGNED_TO_TEXTURE_UNITS( state: State, textures: string[] ) {
         state.texturesAssignedToTextureUnits = textures
     },
@@ -148,6 +155,9 @@ const mutations = {
     },
     SET_TEXTURE_UNIT_TO_UPDATE( state: State, value: { unit: number, texture: string } ) {
         state.textureUnitToUpdate = value
+    },
+    SET_TEXTURES_LOADED( state: State, value: boolean ) {
+        state.texturesLoaded = value
     },
     SET_WINDOW_READY( state: State, value: boolean ) {
         state.windowReady = value
