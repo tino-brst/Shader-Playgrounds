@@ -10,6 +10,7 @@
 
 <script lang="ts">
 import Vue from "vue"
+import { remote } from "electron"
 import { EventBus } from "@/event-bus"
 import { mapState, mapGetters } from "vuex"
 import Tooltip from "@/components/Tooltip.vue"
@@ -35,6 +36,8 @@ import "@/scripts/editor/codemirror/addon/hint/show-hint"
 import "@/scripts/editor/codemirror/addon/hint/glsl-hint"
 import "@/scripts/editor/codemirror/addon/comment/comment"
 import "@/scripts/editor/codemirror/addon/search/match-highlighter.js"
+
+const { Menu } = remote
 
 export default Vue.extend( {
     name: "Editor",
@@ -206,6 +209,7 @@ export default Vue.extend( {
         this.editor = CodeMirror( this.$refs.editor as HTMLElement, editorConfiguration )
         this.editor.on( "keydown", this.handleKeyDown )
         this.editor.on( "changes", this.updateCleanState )
+        this.editor.on( "contextmenu", this.showConextMenu )
 
         EventBus.$on( "saveShadersCode", this.saveShadersCode )
         EventBus.$on( "saveState", this.saveState )
@@ -214,6 +218,16 @@ export default Vue.extend( {
     methods: {
         refresh() {
             this.editor.refresh()
+        },
+        showConextMenu( editor: Editor, event: Event ) {
+            const menu = Menu.buildFromTemplate( [
+                { role: "cut" },
+                { role: "copy" },
+                { role: "paste" },
+                { type: "separator" },
+                { label: "Select All", click: () => { editor.execCommand( "selectAll" ) } }
+            ] )
+            menu.popup()
         },
         handleKeyDown( editor: Editor, event: KeyboardEvent ) {
             if ( this.hintsActive() ) return
