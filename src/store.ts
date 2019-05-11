@@ -26,15 +26,19 @@ export interface State {
     availableTextureUnitsCount: number,
     texturesAssignedToTextureUnits: string[],
     textureUnitToUpdate: { unit: number, texture: string },
-    texturesLoaded: boolean
+    texturesLoaded: boolean,
+    texturesToRestore?: string[],
     windowReady: boolean
 }
 
 export interface StateSaveInfo {
+    // ⚠️ This interface defines the set of data that ends up stored in .shdr files,
+    // making changes may breaking compatibility between app versions
     vertexSource: string,
     fragmentSource: string,
     model: string,
-    uniforms: UniformState[]
+    uniforms: UniformState[],
+    textureUnits?: string[]
 }
 
 Vue.use( Vuex )
@@ -159,6 +163,9 @@ const mutations = {
     SET_TEXTURES_LOADED( state: State, value: boolean ) {
         state.texturesLoaded = value
     },
+    SET_TEXTURES_TO_RESTORE( state: State, textures: string[] ) {
+        state.texturesToRestore = textures
+    },
     SET_WINDOW_READY( state: State, value: boolean ) {
         state.windowReady = value
     }
@@ -185,7 +192,8 @@ const getters = {
             vertexSource: state.vertexSource,
             fragmentSource: state.fragmentSource,
             model: state.model,
-            uniforms: state.uniforms
+            uniforms: state.uniforms,
+            textureUnits: state.texturesAssignedToTextureUnits
         }
 
         return saveInfo
@@ -198,6 +206,10 @@ const actions = {
         context.commit( "SET_FRAGMENT_SOURCE", state.fragmentSource )
         context.commit( "SET_MODEL", state.model )
         context.commit( "SET_UNIFORMS", state.uniforms )
+
+        if ( state.textureUnits ) {
+            context.commit( "SET_TEXTURES_TO_RESTORE", state.textureUnits )
+        }
     }
 }
 

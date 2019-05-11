@@ -102,6 +102,7 @@ export default Vue.extend( {
             "uniforms",
             "textureUnitToUpdate",
             "texturesLoaded",
+            "texturesToRestore",
             "windowReady"
         ] )
     },
@@ -163,8 +164,17 @@ export default Vue.extend( {
             this.updateModel()
         },
         onTexturesLoaded() {
-            this.$store.commit( "SET_TEXTURES_LOADED", true )
+            // @ts-ignore
+            if ( this.texturesToRestore ) {
+                // @ts-ignore
+                for ( let textureUnit = 0; textureUnit < this.texturesToRestore.length; textureUnit ++ ) {
+                    // @ts-ignore
+                    this.renderer.setTextureForUnit( this.texturesToRestore[ textureUnit ], textureUnit )
+                }
+            }
             this.$store.commit( "SET_AVAILABLE_TEXTURES", this.renderer.getAvailableTextures() )
+            this.$store.commit( "SET_TEXTURES_ASSIGNED_TO_TEXTURE_UNITS", this.renderer.getTexturesAssignedToTextureUnits() )
+            this.$store.commit( "SET_TEXTURES_LOADED", true )
         },
         updateModel() {
             this.renderer.setModel( this.model )
