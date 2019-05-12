@@ -1,5 +1,5 @@
 <template>
-    <div id="playground" :class="platform">
+    <div id="playground" :class="[ platform, { 'cursor-col-resize': rightPanelResizing } ]">
         <v-titlebar v-if="platform === 'darwin'" :file-name="fileName" :edited="documentHasUnsavedChanges" />
         <div class="panels">
             <div class="left-panel">
@@ -77,6 +77,7 @@ export default Vue.extend( {
     data: () => ( {
         filePath: "",
         window: remote.getCurrentWindow(),
+        rightPanelResizing: false,
         rightPanelVisible: true,
         rightPanelWidth: 300
     } ),
@@ -145,10 +146,12 @@ export default Vue.extend( {
         resizerMoveStart( event: MouseEvent ) {
             window.addEventListener( "mousemove", this.resizerMove )
             window.addEventListener( "mouseup", this.resizerMoveEnd )
+            this.rightPanelResizing = true
         },
         resizerMoveEnd( event: MouseEvent ) {
             window.removeEventListener( "mousemove", this.resizerMove )
             window.removeEventListener( "mouseup", this.resizerMoveEnd )
+            this.rightPanelResizing = false
             this.adjustRightPanelWidth()
         },
         resizerMove( event: MouseEvent ) {
@@ -319,7 +322,7 @@ body {
     color: white;
     overflow: hidden;
 }
-#playground::after { /* macOS window outline - if not used: delete bottom padding on renderer-toolbar & statusbar */
+#playground::after { /* window outline - if not used: delete bottom padding on renderer-toolbar & statusbar */
     content: "";
     display: block;
     position: absolute;
@@ -331,6 +334,10 @@ body {
 }
 #playground.darwin::after {
     border-radius: 5px;
+}
+
+#playground.cursor-col-resize * {
+    cursor: col-resize;
 }
 
 .panels {
