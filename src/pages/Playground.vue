@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="right-panel" ref="rightPanel" :style="rightPanelStyle">
-                <div class="resizer" @mousedown="resizerMoveStart" />
+                <div class="resizer" @mousedown.prevent="resizerMoveStart" />
                 <v-renderer />
             </div>
         </div>
