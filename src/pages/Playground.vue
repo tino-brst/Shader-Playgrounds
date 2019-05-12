@@ -1,7 +1,7 @@
 <template>
     <div id="playground" :class="platform">
         <v-titlebar v-if="platform === 'darwin'" :file-name="fileName" :edited="documentHasUnsavedChanges" />
-        <div class="panels" :class="{ 'right-hidden': ! rendererVisible }">
+        <div class="panels">
             <div class="left-panel">
                 <div class="toolbar" @mousedown.prevent>
                     <v-tabs />
@@ -28,14 +28,15 @@
                     <v-language-version-select dropup autohide>
                         GLSL ES:
                     </v-language-version-select>
-                    <v-checkbox v-model="rendererVisible">
+                    <v-checkbox v-model="rightPanelVisible">
                         <template slot="icon">
                             <v-sidebar />
                         </template>
                     </v-checkbox>
                 </div>
             </div>
-            <div class="right-panel">
+            <div class="right-panel" ref="rightPanel" :style="rightPanelStyle">
+                <div class="resizer" @mousedown="resizerMoveStart" />
                 <v-renderer />
             </div>
         </div>
@@ -76,7 +77,8 @@ export default Vue.extend( {
     data: () => ( {
         filePath: "",
         window: remote.getCurrentWindow(),
-        rendererVisible: true
+        rightPanelVisible: true,
+        rightPanelWidth: 300
     } ),
     computed: {
         newFile(): boolean {
@@ -88,6 +90,12 @@ export default Vue.extend( {
         windowTitle(): string {
             // @ts-ignore
             return ( this.fileName + ( this.documentHasUnsavedChanges ? " - edited" : "" ) )
+        },
+        rightPanelStyle(): any {
+            return {
+                display: this.rightPanelVisible ? "unset" : "none",
+                flexBasis: `${ this.rightPanelWidth }px`
+            }
         },
         ...mapGetters( [
             "documentHasUnsavedChanges",
@@ -107,7 +115,7 @@ export default Vue.extend( {
         windowTitle() {
             this.window.setTitle( this.windowTitle )
         },
-        rendererVisible() {
+        rightPanelVisible() {
             setTimeout( () => {
                 // @ts-ignore
                 ( this.$refs.editor as Vue ).refresh()
@@ -125,8 +133,35 @@ export default Vue.extend( {
         // @ts-ignore
         this.window.setDocumentEdited( this.documentHasUnsavedChanges )
         this.window.setTitle( this.windowTitle )
+
+        // handling window resize events
+        let resizeTimeout: any
+        this.window.on( "resize", () => {
+            clearTimeout( resizeTimeout )
+            resizeTimeout = setTimeout( this.onWindowResizeEnd, 300 )
+        } )
     },
     methods: {
+        resizerMoveStart( event: MouseEvent ) {
+            window.addEventListener( "mousemove", this.resizerMove )
+            window.addEventListener( "mouseup", this.resizerMoveEnd )
+        },
+        resizerMoveEnd( event: MouseEvent ) {
+            window.removeEventListener( "mousemove", this.resizerMove )
+            window.removeEventListener( "mouseup", this.resizerMoveEnd )
+            this.adjustRightPanelWidth()
+        },
+        resizerMove( event: MouseEvent ) {
+            this.rightPanelWidth = window.innerWidth - event.clientX
+        },
+        onWindowResizeEnd() {
+            this.adjustRightPanelWidth()
+        },
+        adjustRightPanelWidth() {
+            // during resize, the right panel may have reached its max/min width, adjust width value to that min/max
+            const rightPanelElement = this.$refs.rightPanel as HTMLElement
+            this.rightPanelWidth = rightPanelElement.offsetWidth // offsetWidth: includes border width
+        },
         compileAndRun() {
             EventBus.$emit( "saveShadersCode" )
             EventBus.$emit( "compileAndRun" )
@@ -266,7 +301,6 @@ body {
 #playground {  /* global variables */
     --font-weight: 400;
     --border-radius: 0px;
-    --right-panel-width: 300px;
 }
 #playground.darwin {
     --font-weight: 500;
@@ -305,26 +339,30 @@ body {
     flex-wrap: nowrap;
     flex-grow: 1;
 }
-.panels.right-hidden .right-panel {
-   display: none;
-}
-.panels.right-hidden .left-panel {
-    border-right: none;
-}
 
 .left-panel {
     height: auto;
     display: flex;
+    flex: 1 1 auto;
+    min-width: 450px;
     flex-direction: column;
     flex-wrap: nowrap;
-    flex: 1 1 auto;
-    border-right: 1px solid rgb(80, 80, 80);
 }
-
 .right-panel {
     height: auto;
-    flex: 0 0 var(--right-panel-width);
+    flex-grow: 0;
+    flex-shrink: 1;
+    min-width: 250px;
     position: relative;
+    box-sizing: border-box;
+    border-left: 1px solid rgb(80, 80, 80);
+}
+.right-panel .resizer {
+    z-index: 2;
+    position: absolute;
+    height: 100%;
+    width: 4px;
+    cursor: col-resize;
 }
 
 .left-panel .toolbar {

@@ -221,7 +221,7 @@
 .CodeMirror-marker-info span {
     display: block;
     width: max-content;
-    max-width: 400px;
+    max-width: 350px;
     min-width: 100%;
     word-wrap: normal;
     text-align: justify;
