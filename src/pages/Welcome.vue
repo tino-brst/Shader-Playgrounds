@@ -175,6 +175,10 @@ body {
 #welcome.darwin {
     transition: opacity 0.3s;
 }
+#welcome.win32 {
+    flex-direction: row-reverse;
+}
+
 #welcome::after { /* Window outline */
     content: "";
     display: block;
@@ -188,6 +192,7 @@ body {
 #welcome.darwin::after {
     border-radius: 5px;
 }
+
 #welcome.loaded {
     opacity: 1;
 }
@@ -200,7 +205,12 @@ body {
     user-select: none;
     height: 100%;
     flex-grow: 1;
+}
+#welcome.darwin .info-container {
     border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+#welcome.win32 .info-container {
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 button.close-window {
@@ -228,6 +238,9 @@ button.close-window::after {
     mask: url("/assets/icons/close.svg");
     mask-size: cover;
     background: white;
+}
+#welcome.win32 button.close-window {
+    align-self: flex-end;
 }
 
 .info {
@@ -355,7 +368,8 @@ button.close-window::after {
 
 .recents {
     height: 100%;
-    flex: 0 0 300px;
+    flex: 0 0 250px;
+    max-width: 250px;
     background: rgb(30, 30, 30);
     display: flex;
     flex-direction: column;
@@ -388,8 +402,7 @@ button.close-window::after {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 4px 2px;
-    padding-bottom: 6px;
+    padding: 8px 6px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -411,8 +424,6 @@ button.close-window::after {
 .recents button.open-playground {
     height: min-content;
     padding: 2px 4px;
-    margin-left: 4px;
-    margin-right: 4px;
 }
 .recents button.open-playground:hover {
     background: rgba(255, 255, 255, 0.07);
@@ -422,16 +433,16 @@ button.close-window::after {
 }
 
 .recents button.new-playground {
-    width: 26px;
-    height: 26px;
+    width: 22px;
+    height: 22px;
     position: relative;
 }
 .recents button.new-playground::after {
     display: block;
     position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
+    top: -10%; left: -10%;
+    width: 120%;
+    height: 120%;
     content: "";
     mask: url("/assets/icons/add.svg");
     mask-size: cover;
@@ -461,21 +472,27 @@ button.close-window::after {
     background: rgba(255, 255, 255, 0.05);
 }
 
-.recents li.selected {
-    background: royalblue;
-}
-.recents li.selected .folder {
-    opacity: 0.5;
-}
-
 .recents li .name {
     font-weight: normal;
     font-size: 15px;
     margin-bottom: 2px;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 .recents li .folder {
     font-weight: normal;
     font-size: 12px;
     opacity: 0.3;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.recents li.selected {
+    background: royalblue;
+}
+.recents li.selected .folder {
+    opacity: 0.5;
 }
 </style>

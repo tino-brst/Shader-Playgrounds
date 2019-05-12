@@ -30,7 +30,7 @@ function newWelcomeWindow( hidden: boolean = false ) {
     const window = new BrowserWindow( {
         title: "Welcome",
         show: false,
-        width: 700,
+        width: 650,
         height: 400,
         minimizable: false,
         maximizable: false,
