@@ -89,11 +89,6 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
             {
                 role: "paste",
                 enabled: isPlayground
-            },
-            { type: ___ },
-            {
-                role: "selectall",
-                enabled: isPlayground
             }
         ]
     }
@@ -124,25 +119,23 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
                 click: () => { sendAction( "set-active-shader", ShaderType.Fragment ) }
             },
             { type: ___ },
-            { role: "togglefullscreen" }
-        ]
-    }
-    const devSubmenu: MenuItemConstructorOptions = {
-        label: "Development",
-        submenu: [
             {
-                role: "reload",
-                accelerator: ""
+                label: "Toggle Scene View",
+                enabled: isPlayground,
+                accelerator: "CmdOrCtrl+3",
+                click: () => { sendAction( "toggle-scene-view" ) }
             },
-            {
-                role: "forcereload",
-                accelerator: ""
-            },
-            { role: "toggledevtools" },
             { type: ___ },
             { role: "resetzoom" },
             { role: "zoomin" },
-            { role: "zoomout" }
+            { role: "zoomout" },
+            { type: ___ },
+            {
+                label: "Toggle Full Screen",
+                enabled: isPlayground,
+                accelerator: process.platform === "darwin" ? "Ctrl+Cmd+F" : "F11",
+                click: ( menuItem, window ) => { window.setFullScreen( ! window.isFullScreen() ) }
+            }
         ]
     }
     const windowSubmenu: MenuItemConstructorOptions = {
@@ -183,7 +176,9 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
             {
                 label: `What's New in ${ app.getName() }`,
                 click: () => { shell.openExternal( "https://github.com/AgustinBrst/Shader-Playgrounds/releases" ) }
-            }
+            },
+            { type: ___ },
+            { role: "toggledevtools" }
         ]
     }
 
@@ -192,7 +187,6 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
         editSubmenu,
         toolsSubmenu,
         viewSubmenu,
-        devSubmenu,
         windowSubmenu,
         helpSubmenu
     ]

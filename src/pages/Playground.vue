@@ -130,6 +130,7 @@ export default Vue.extend( {
         ipc.on( "close", this.onClose )
         ipc.on( "set-active-shader", this.setActiveShader )
         ipc.on( "compile-and-run", this.compileAndRun )
+        ipc.on( "toggle-scene-view", () => { this.rightPanelVisible = ! this.rightPanelVisible } )
 
         // @ts-ignore
         this.window.setDocumentEdited( this.documentHasUnsavedChanges )
