@@ -72,6 +72,7 @@ function newPlaygroundWindow( filePath?: string ) {
         height: 700,
         minWidth: 700,
         minHeight: 600,
+        useContentSize: true,
         titleBarStyle: "hidden",
         backgroundColor: "#3c3c3c", // rgb(60, 60, 60)
         webPreferences: {
