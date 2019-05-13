@@ -163,18 +163,7 @@ export class TexturesManager {
         const srcType = this.gl.UNSIGNED_BYTE
 
         this.gl.texImage2D( this.gl.TEXTURE_2D, level, internalFormat, srcFormat, srcType, image )
-
-        if ( this.isPowerOf2( image.width ) && this.isPowerOf2( image.height ) ) { // 📝 convertir a potencia de dos
-            this.gl.generateMipmap( this.gl.TEXTURE_2D )
-            this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR )
-        } else {
-            this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE )
-            this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE )
-            this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR )
-        }
-    }
-
-    private isPowerOf2( value: number ) {
-        return ( value & ( value - 1 ) ) === 0
+        this.gl.generateMipmap( this.gl.TEXTURE_2D )
+        this.gl.texParameteri( this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR )
     }
 }
