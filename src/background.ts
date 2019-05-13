@@ -270,7 +270,7 @@ function loadRecents() {
 autoUpdater.logger = log
 autoUpdater.allowPrerelease = false
 autoUpdater.autoDownload = true
-autoUpdater.autoInstallOnAppQuit = true
+autoUpdater.autoInstallOnAppQuit = false
 
 autoUpdater.on( "download-progress", ( { percent } ) => {
     if ( welcomeWindow ) welcomeWindow.webContents.send( "auto-update", percent )
@@ -289,7 +289,7 @@ ipc.on( "quit-and-install", () => {
         // manually register start of quitting process (by default called on "before-quit", but autoUpdater.quitAndInstall() postpones it)
         appQuitting = true
         // quit & install update
-        autoUpdater.quitAndInstall( true, true )
+        autoUpdater.quitAndInstall()
     }
 } )
 
