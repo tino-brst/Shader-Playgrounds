@@ -1,6 +1,6 @@
 <template>
-    <div id="playground" :class="[ platform, { 'cursor-col-resize': rightPanelResizing } ]">
-        <v-titlebar v-if="platform === 'darwin'" :file-name="fileName" :edited="documentHasUnsavedChanges" />
+    <div id="playground" :class="[ platform, { 'cursor-col-resize': rightPanelResizing, fullscreen } ]">
+        <v-titlebar v-if="platform === 'darwin' && ! fullscreen" :file-name="fileName" :edited="documentHasUnsavedChanges" />
         <div class="panels">
             <div class="left-panel">
                 <div class="toolbar" @mousedown.prevent>
@@ -77,6 +77,7 @@ export default Vue.extend( {
     data: () => ( {
         filePath: "",
         window: remote.getCurrentWindow(),
+        fullscreen: false,
         rightPanelResizing: false,
         rightPanelVisible: true,
         rightPanelWidth: 300
@@ -135,6 +136,11 @@ export default Vue.extend( {
         // @ts-ignore
         this.window.setDocumentEdited( this.documentHasUnsavedChanges )
         this.window.setTitle( this.windowTitle )
+
+        // fullscreen state changes
+        this.fullscreen = this.window.isFullScreen()
+        this.window.on( "enter-full-screen", () => { this.fullscreen = true } )
+        this.window.on( "leave-full-screen", () => { this.fullscreen = false } )
 
         // handling window resize events
         let resizeTimeout: any
@@ -335,7 +341,7 @@ body {
     pointer-events: none;
     z-index: 100;
 }
-#playground.darwin::after {
+#playground.darwin:not(.fullscreen)::after {
     border-radius: 5px;
 }
 
