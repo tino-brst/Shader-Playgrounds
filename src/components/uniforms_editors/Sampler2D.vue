@@ -111,8 +111,8 @@ export default Vue.extend( {
 }
 
 .uniform-editor.sampler2D {
-    height: 200px;
-    width: 290px;
+    height: 220px;
+    width: 320px;
     flex-direction: column;
     font-family: system-ui;
 }
@@ -281,6 +281,7 @@ export default Vue.extend( {
     opacity: 0.5;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
     transition: opacity 0.1s;
 }
 

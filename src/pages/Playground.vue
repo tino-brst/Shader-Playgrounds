@@ -422,7 +422,7 @@ body {
     mask: url("/assets/icons/play.svg");
     mask-size: cover;
     background: white;
-    opacity: 0.8;
+    opacity: 1;
     transition: opacity 0.2s;
 }
 .left-panel .toolbar .tools button.compile-and-run:hover::after {
