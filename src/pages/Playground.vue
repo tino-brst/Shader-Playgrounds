@@ -153,7 +153,9 @@ export default Vue.extend( {
             window.removeEventListener( "mousemove", this.resizerMove )
             window.removeEventListener( "mouseup", this.resizerMoveEnd )
             this.rightPanelResizing = false
-            this.adjustRightPanelWidth()
+            this.adjustRightPanelWidth();
+            // @ts-ignore - update scrollbars size
+            ( this.$refs.editor as Vue ).refresh()
         },
         resizerMove( event: MouseEvent ) {
             this.rightPanelWidth = window.innerWidth - event.clientX
