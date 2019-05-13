@@ -402,7 +402,8 @@ button.close-window::after {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 6px;
+    flex-shrink: 0;
+    padding: 6px 6px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 

@@ -48,7 +48,7 @@
     this.matchesonscroll = null;
     this.active = false;
     this.lastMatch = null;
-    this.highlight = () => { quickHighlight(cm) }
+    this.highlight = () => { highlight(cm, true) }
   }
 
   CodeMirror.defineOption("highlightSelectionMatches", false, function(cm, val, old) {
@@ -72,38 +72,42 @@
   });
 
   function cursorActivity(cm) {
-    var state = cm.state.matchHighlighter;
-    clearTimeout(state.timeout);
-    var token = cm.getTokenAt(cm.getCursor(), true)
-    if ( state.overlay ) {
-      if (token.type === "identifier") {
-        if (token.string !== state.lastMatch) {
-          removeOverlay(cm)
-          scheduleHighlight(cm, state)
-        }
-      } else {
-        removeOverlay(cm)
-      }
-    } else {
-      if (token.type === "identifier") scheduleHighlight(cm, state)
-    }
+    highlight(cm)
   }
 
-  function quickHighlight(cm) {
+  function highlight(cm, immediate) {
     var state = cm.state.matchHighlighter;
     clearTimeout(state.timeout);
-    var token = cm.getTokenAt(cm.getCursor(), true)
+    var cursor = cm.getCursor()
+    var token = cm.getTokenAt(cursor, true)
+    var isHighlightTarget = token.type === "identifier" || token.type === "attribute"
+
+    if (!isHighlightTarget) {
+      token = cm.getTokenAt({ line: cursor.line, ch: cursor.ch + 1 }, true)
+      isHighlightTarget = token.type === "identifier" || token.type === "attribute"
+    }
+
     if ( state.overlay ) {
-      if (token.type === "identifier") {
+      if (isHighlightTarget) {
         if (token.string !== state.lastMatch) {
           removeOverlay(cm)
-          highlightMatches(cm)
+          if (immediate) {
+            highlightMatches(cm)
+          } else {
+            scheduleHighlight(cm, state)
+          }
         }
       } else {
         removeOverlay(cm)
       }
     } else {
-      if (token.type === "identifier") highlightMatches(cm)
+      if (isHighlightTarget) {
+        if (immediate) {
+          highlightMatches(cm)
+        } else {
+          scheduleHighlight(cm, state)
+        }
+      }
     }
   }
 
