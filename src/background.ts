@@ -166,8 +166,8 @@ if ( ! gotTheLock ) {
         const window = BrowserWindow.getFocusedWindow()
         if ( window ) window.focus()
 
-        // check if the second instance was due to trying to open a file and open it
-        if ( process.platform === "win32" && app.isReady() && argv.length > 1 ) openFile( argv[ 1 ] )
+        // check if the second instance was due to trying to open a file and open it (except when the app was just updated)
+        if ( process.platform === "win32" && app.isReady() && argv.length > 1 && argv[ 1 ] !== "--updated" ) openFile( argv[ 1 ] )
     } )
 }
 
@@ -179,7 +179,7 @@ app.on( "ready", async() => {
     loadRecents()
 
     // handle app being opened by alternative methods (open-with, drag & drop, recents, etc)
-    const triggerFile = ( process.platform === "win32" && process.argv.length > 1 ) ? process.argv[ 1 ] : ""
+    const triggerFile = ( process.platform === "win32" && process.argv.length > 1 && process.argv[ 1 ] !== "--updated" ) ? process.argv[ 1 ] : ""
     const hidden = ( triggerFiles.size > 0 ) || ( triggerFile !== "" )
     welcomeWindow = newWelcomeWindow( hidden )
 
