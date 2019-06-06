@@ -1,0 +1,118 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:400|Rubik:300,300i,400i&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body {
+    padding: 60px 20px 20px 20px;
+    font-family: "Rubik", sans-serif;
+    font-weight: 300;
+    background: rgb(26, 27, 31);
+}
+
+#github {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    opacity: 0.5;
+}
+#github:hover {
+    opacity: 0.7;
+}
+#github img {
+    height: 30px;
+}
+
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+}
+
+h1 {
+    align-self: flex-start;
+    margin: 0 0 20px 0;
+    font-size: 70px;
+    font-weight: 300;
+    color: rgb(245, 250, 255);
+}
+
+h2 {
+    align-self: flex-start;
+    margin-bottom: 60px;
+    font-size: 20px;
+    font-weight: 300;
+    color: rgb(130, 135, 145);
+}
+h2 b {
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 1px;
+    color: rgb(160, 165, 175);
+}
+
+#downloads-container {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#download {
+    font-size: 20px;
+    font-style: italic;
+    color: white;
+    border-radius: 6px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+#download a {
+    color: white;
+}
+#download a:hover {
+    color: rgb(200, 200, 200);
+}
+
+#version {
+    font-family: "Roboto Mono", monospace;
+    font-size: 15px;
+    padding: 4px 6px;
+    background-color: black;
+    color: gray;
+    opacity: 0.6;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    text-decoration: none;
+}
+
+#made-by {
+    align-self: flex-end;
+    font-style: italic;
+    color: rgb(80, 85, 90);
+}
+#made-by a {
+    color: rgb(80, 85, 90);
+}
+
+#screenshot {
+    align-self: center;
+    margin: 40px 0;
+    position: relative;
+    width: calc(100% + 150px);
+    min-width: 100%;
+    box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+@media screen and (max-width: 950px) {
+  #screenshot {
+    width: calc(100% + 20px);
+  }
+}
