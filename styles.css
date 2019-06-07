@@ -111,8 +111,12 @@ h2 b {
     box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.2);
 }
 
-@media screen and (max-width: 950px) {
-  #screenshot {
-    width: calc(100% + 20px);
-  }
+@media screen and (max-width: 970px) {
+    #screenshot {
+        width: calc(100% + 20px);
+    }
+
+    h1 {
+        font-size: 50px;
+    }
 }
