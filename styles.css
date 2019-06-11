@@ -6,7 +6,6 @@
     box-sizing: border-box;
 }
 
-
 body {
     padding: 60px 20px 40px 20px;
     font-family: "Rubik", sans-serif;
@@ -21,12 +20,11 @@ body {
     opacity: 0.5;
 }
 #github:hover {
-    opacity: 0.7;
+    opacity: 0.4;
 }
 #github img {
     height: 30px;
 }
-
 
 .container {
     max-width: 800px;
@@ -45,14 +43,14 @@ h1 {
     color: rgb(245, 250, 255);
 }
 
-h2 {
+h3 {
     align-self: flex-start;
-    margin-bottom: 60px;
+    margin-bottom: 50px;
     font-size: 20px;
     font-weight: 300;
     color: rgb(130, 135, 145);
 }
-h2 b {
+h3 b {
     font-weight: 400;
     font-style: italic;
     letter-spacing: 1px;
@@ -86,20 +84,14 @@ h2 b {
     font-size: 15px;
     padding: 4px 6px;
     background-color: black;
-    color: gray;
+    color: rgb(120, 120, 120);
     opacity: 0.6;
     border-radius: 3px;
     margin-bottom: 10px;
     text-decoration: none;
 }
-
-#made-by {
-    align-self: flex-end;
-    font-style: italic;
-    color: rgb(80, 85, 90);
-}
-#made-by a {
-    color: rgb(80, 85, 90);
+#version:hover {
+    color: rgb(100, 100, 100);
 }
 
 #screenshot {
@@ -111,12 +103,23 @@ h2 b {
     box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.2);
 }
 
-@media screen and (max-width: 970px) {
-    #screenshot {
-        width: calc(100% + 20px);
-    }
+#made-by {
+    align-self: flex-end;
+    font-style: italic;
+    color: rgb(80, 85, 90);
+}
+#made-by a {
+    color: rgb(80, 85, 90);
+}
+#made-by a:hover {
+    color: rgb(70, 75, 80);
+}
 
-    h1 {
-        font-size: 50px;
-    }
+@media screen and (max-width: 970px) {
+    #screenshot { width: calc(100% + 10px); }
+    h1 { font-size: 50px; }
+}
+
+@media screen and (max-width: 400px) {
+    h1 { font-size: 40px; }
 }
