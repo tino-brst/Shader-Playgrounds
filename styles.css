@@ -104,7 +104,8 @@ h2 {
 
 #screenshot {
     align-self: center;
-    margin: 40px 0;
+    margin-top: 40px;
+    margin-bottom: 50px;
     position: relative;
     width: calc(100% + 150px);
     min-width: 100%;
@@ -117,7 +118,7 @@ h2 {
     column-count: 2;
     column-gap: 20px;
     column-width: 300px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .feature p {
@@ -130,6 +131,18 @@ h2 {
 }
 .feature p strong {
     color: rgb(245, 250, 255);
+}
+
+/* Description */
+
+#app-description {
+    display: inline-block;
+    font-weight: 300;
+    font-size: 20px;
+    text-align: justify;
+    color: rgb(120, 125, 135);
+    margin-bottom: 40px;
+    line-height: 1.4em;
 }
 
 /* Footer */
