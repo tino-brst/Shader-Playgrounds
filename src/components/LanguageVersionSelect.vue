@@ -1,31 +1,37 @@
 <template>
-    <div class="select">
-        <label> <slot> set label </slot> </label>
-        <div class="select-container" ref="clickableArea">
-            <div
-                class="button"
-                @mousedown.prevent
-                @click="isActive = ! isActive"
-                :class="{ active: isActive }"
-            >
-                <span> {{ selected.text }} </span>
-                <div class="select-icon" />
-            </div>
-            <div class="options" :class="{ visible: isActive, dropup }">
-                <div
-                    class="option"
-                    v-for="option in options"
-                    :key="option.value"
-                    :class="{ 'selected': option.value === selected.value }"
-                    @mousedown.prevent
-                    @click="updateValue( option.value )"
-                >
-                    <span> {{ option.text }} </span>
-                    <v-check-icon class="icon" />
-                </div>
-            </div>
+  <div class="select">
+    <label> <slot> set label </slot> </label>
+    <div
+      class="select-container"
+      ref="clickableArea"
+    >
+      <div
+        class="button"
+        @mousedown.prevent
+        @click="isActive = ! isActive"
+        :class="{ active: isActive }"
+      >
+        <span> {{ selected.text }} </span>
+        <div class="select-icon" />
+      </div>
+      <div
+        class="options"
+        :class="{ visible: isActive, dropup }"
+      >
+        <div
+          class="option"
+          v-for="option in options"
+          :key="option.value"
+          :class="{ 'selected': option.value === selected.value }"
+          @mousedown.prevent
+          @click="updateValue( option.value )"
+        >
+          <span> {{ option.text }} </span>
+          <v-check-icon class="icon" />
         </div>
+      </div>
     </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -36,58 +42,58 @@ import { LanguageVersion } from "@/scripts/renderer/_constants"
 const { CheckIcon } = require( "vue-feather-icons" )
 
 export default Vue.extend( {
-    name: "LanguageVersionSelect",
-    components: {
-        "v-check-icon": CheckIcon
+  name: "LanguageVersionSelect",
+  components: {
+    "v-check-icon": CheckIcon
+  },
+  props: {
+    autohide: {
+      type: Boolean,
+      default: false
     },
-    props: {
-        autohide: {
-            type: Boolean,
-            default: false
-        },
-        dropup: {
-            type: Boolean,
-            default: false
-        }
-    },
-    data() {
-        return {
-            isActive: false,
-            options: [
-                { text: "1.00", value: LanguageVersion.GLSL_ES100 },
-                { text: "3.00", value: LanguageVersion.GLSL_ES300 }
-            ]
-        }
-    },
-    computed: {
-        selected(): { text: string, value: LanguageVersion } {
-            // @ts-ignore
-            return ( this.languageVersion === this.options[ 0 ].value ) ? this.options[ 0 ] : this.options[ 1 ]
-        },
-        ...mapState( [
-            "languageVersion"
-        ] )
-    },
-    created() {
-        document.addEventListener( "mousedown", ( event ) => { this.checkOutsideClick( event ) } )
-    },
-    methods: {
-        updateValue( value: LanguageVersion ) {
-            if ( this.autohide ) {
-                setTimeout( () => { this.isActive = false }, 150 )
-            }
-            this.$store.commit( "SET_LANGUAGE_VERSION", value )
-        },
-        checkOutsideClick( event: MouseEvent ) {
-            const clickableArea = this.$refs.clickableArea as Element
-            if ( clickableArea !== undefined ) {
-                const clickedInside = clickableArea.contains( event.target as Node )
-                if ( ! clickedInside ) {
-                    this.isActive = false
-                }
-            }
-        }
+    dropup: {
+      type: Boolean,
+      default: false
     }
+  },
+  data() {
+    return {
+      isActive: false,
+      options: [
+        { text: "1.00", value: LanguageVersion.GLSL_ES100 },
+        { text: "3.00", value: LanguageVersion.GLSL_ES300 }
+      ]
+    }
+  },
+  computed: {
+    selected(): { text: string, value: LanguageVersion } {
+      // @ts-ignore
+      return ( this.languageVersion === this.options[ 0 ].value ) ? this.options[ 0 ] : this.options[ 1 ]
+    },
+    ...mapState( [
+      "languageVersion"
+    ] )
+  },
+  created() {
+    document.addEventListener( "mousedown", ( event ) => { this.checkOutsideClick( event ) } )
+  },
+  methods: {
+    updateValue( value: LanguageVersion ) {
+      if ( this.autohide ) {
+        setTimeout( () => { this.isActive = false }, 150 )
+      }
+      this.$store.commit( "SET_LANGUAGE_VERSION", value )
+    },
+    checkOutsideClick( event: MouseEvent ) {
+      const clickableArea = this.$refs.clickableArea as Element
+      if ( clickableArea !== undefined ) {
+        const clickedInside = clickableArea.contains( event.target as Node )
+        if ( ! clickedInside ) {
+          this.isActive = false
+        }
+      }
+    }
+  }
 } )
 </script>
 

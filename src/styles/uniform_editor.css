@@ -1,16 +1,16 @@
 .uniform-editor {
-    position: relative;
-    width: fit-content;
-    height: fit-content;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--border-radius);
-    overflow: hidden;
+  position: relative;
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  overflow: hidden;
 }
 
 .uniform-editor .separator {
-    width: 1px;
-    height: 24px;
-    background: rgba(255, 255, 255, 0.1);
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.1);
 }

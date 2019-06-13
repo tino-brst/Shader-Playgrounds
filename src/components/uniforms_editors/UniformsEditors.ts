@@ -6,10 +6,10 @@ import UniformEditorVec4 from "@/components/uniforms_editors/Vec4.vue"
 import UniformEditorSampler2D from "@/components/uniforms_editors/Sampler2D.vue"
 
 export default {
-    others: UniformEditorOthers,
-    float: UniformEditorFloat,
-    vec2: UniformEditorVec2,
-    vec3: UniformEditorVec3,
-    vec4: UniformEditorVec4,
-    sampler2D: UniformEditorSampler2D
+  others: UniformEditorOthers,
+  float: UniformEditorFloat,
+  vec2: UniformEditorVec2,
+  vec3: UniformEditorVec3,
+  vec4: UniformEditorVec4,
+  sampler2D: UniformEditorSampler2D
 }
