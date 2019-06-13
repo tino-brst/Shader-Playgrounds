@@ -13,11 +13,20 @@ module.exports = {
 		"standard"
 	],
 	rules: {
-		// Replace eslint rules with Typescript aware equivalents (when available)
+		// Replace eslint rules with Typescript-aware equivalents (when available)
 		"no-unused-vars": "off",
 		"no-useless-constructor": "off",
 		"no-undef": "off",
-		"@typescript-eslint/no-unused-vars": "error",
-		"@typescript-eslint/no-useless-constructor": "error",
-	}
+		"no-useless-escape": "warn",
+		"@typescript-eslint/no-unused-vars": "warn",
+		"@typescript-eslint/no-useless-constructor": "warn",
+	},
+	overrides: [
+    {
+      files: ["*.d.ts"],
+      rules: {
+        "@typescript-eslint/no-unused-vars": "off",
+      }
+    }
+  ]
 }
