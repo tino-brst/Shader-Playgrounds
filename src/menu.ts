@@ -1,9 +1,8 @@
 import { app, Menu, MenuItemConstructorOptions, BrowserWindow, shell } from 'electron'
-import { FILE_EXTENSION, WINDOW_TYPE } from './constants'
+import { WINDOW_TYPE } from './constants'
 import * as background from './background'
 import { ShaderType } from './scripts/renderer/_constants'
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
 const ___ = 'separator'
 
 function sendAction (action: string, payload?: any) {

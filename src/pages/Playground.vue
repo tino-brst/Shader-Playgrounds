@@ -88,9 +88,9 @@ import Checkbox from '@/components/Checkbox.vue'
 import { ShaderType } from '@/scripts/renderer/_constants'
 import { StateSaveInfo } from '@/store'
 import { FILE_EXTENSION, NEW_FILE_NAME } from '@/constants'
-const { SidebarIcon } = require('vue-feather-icons')
 
-const { app, dialog } = remote
+const { SidebarIcon } = require('vue-feather-icons')
+const { dialog } = remote
 
 export default Vue.extend({
   name: 'Playground',
@@ -179,12 +179,12 @@ export default Vue.extend({
     })
   },
   methods: {
-    resizerMoveStart (event: MouseEvent) {
+    resizerMoveStart () {
       window.addEventListener('mousemove', this.resizerMove)
       window.addEventListener('mouseup', this.resizerMoveEnd)
       this.rightPanelResizing = true
     },
-    resizerMoveEnd (event: MouseEvent) {
+    resizerMoveEnd () {
       window.removeEventListener('mousemove', this.resizerMove)
       window.removeEventListener('mouseup', this.resizerMoveEnd)
       this.rightPanelResizing = false

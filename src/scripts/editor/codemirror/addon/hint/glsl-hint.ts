@@ -1,7 +1,7 @@
 import fuzzysort from 'fuzzysort'
 import CodeMirror, { Editor, Hint, Hints, Position, TextMarker } from '../../lib/codemirror'
 import { glslES100, glslES300, Name, NameWithType, NameWithParametersAndType, Docs, CodeSnippet, snippets, predefinedUniforms, predefinedAttributes } from './glsl-reference'
-import { insertPlaceholder, focusOnNextPlaceholder } from './placeholder'
+import { insertPlaceholder } from './placeholder'
 
 interface Keyword {
   name: string,

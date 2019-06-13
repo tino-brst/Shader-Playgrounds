@@ -52,9 +52,11 @@ export abstract class ShaderInput {
 }
 
 export class VertexAttribute extends ShaderInput {
+  /* eslint-disable */
   constructor (gl: WebGLRenderingContext, name: string, type: ShaderVariableType, size: number, location: number) {
     super(gl, name, type, size, location)
   }
+  /* eslint-enable */
 }
 
 export class Uniform extends ShaderInput {

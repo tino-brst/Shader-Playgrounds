@@ -22,14 +22,14 @@
 import Vue from 'vue'
 import { remote } from 'electron'
 import { EventBus } from '@/event-bus'
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import Tooltip from '@/components/Tooltip.vue'
 import UniformsEditors from '@/components/uniforms_editors/UniformsEditors.ts'
 import { ShaderType, ShaderVariableType, LanguageVersion } from '@/scripts/renderer/_constants'
-import { ShaderView, ShaderLog, UniformRange, Range } from '@/scripts/editor/ShaderView'
+import { ShaderView, UniformRange, Range } from '@/scripts/editor/ShaderView'
 import { UniformEditor } from '@/scripts/renderer/UniformEditor'
-import CodeMirror, { LineHandle, Editor, Doc, TextMarker, EditorChange, Position } from '@/scripts/editor/codemirror/lib/codemirror'
-import { focusOnNextPlaceholder, focusOnPreviousPlaceholder, isPlaceholderMarker } from '@/scripts/editor/codemirror/addon/hint/placeholder'
+import CodeMirror, { Editor } from '@/scripts/editor/codemirror/lib/codemirror'
+import { focusOnNextPlaceholder, focusOnPreviousPlaceholder } from '@/scripts/editor/codemirror/addon/hint/placeholder'
 import '@/scripts/editor/codemirror/mode/glsl/glsl'
 import '@/scripts/editor/codemirror/keymap/sublime'
 import '@/scripts/editor/codemirror/addon/selection/active-line'
@@ -223,7 +223,7 @@ export default Vue.extend({
     refresh () {
       this.editor.refresh()
     },
-    showConextMenu (editor: Editor, event: Event) {
+    showConextMenu (editor: Editor) {
       const menu = Menu.buildFromTemplate([
         { role: 'cut' },
         { role: 'copy' },
@@ -237,7 +237,6 @@ export default Vue.extend({
       if (this.hintsActive()) return
 
       const cursor = editor.getCursor()
-      const modifiersActive = event.ctrlKey || event.metaKey
 
       switch (event.key) {
         // ➡️ Look for nearby placeholders

@@ -69,7 +69,8 @@ import ModelSelect from '@/components/ModelSelect.vue'
 import Checkbox from '@/components/Checkbox.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import { Renderer, Model } from '@/scripts/renderer/Renderer'
-import { mapState, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
+
 const { RefreshCwIcon, BoxIcon } = require('vue-feather-icons')
 
 export default Vue.extend({

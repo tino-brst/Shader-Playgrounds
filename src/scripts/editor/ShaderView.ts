@@ -1,7 +1,7 @@
 import CodeMirror, { Doc, Editor, Position, TextMarker } from './codemirror/lib/codemirror'
 import { UniformEditor } from '@/scripts/renderer/UniformEditor'
 import { ShaderType } from '@/scripts/renderer/_constants'
-import { InspectorLogEntry, LogEntryType } from '@/scripts/renderer/InspectorLogEntry'
+import { LogEntryType } from '@/scripts/renderer/InspectorLogEntry'
 import ShaderLogMarker from './ShaderLogMarker'
 
 export interface ShaderLog {

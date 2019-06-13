@@ -120,7 +120,7 @@ export default Vue.extend({
       this.editing = false
       this.$forceUpdate()
     },
-    dragStart (event: MouseEvent) {
+    dragStart () {
       window.addEventListener('mousemove', this.dragMove)
       window.addEventListener('mouseup', this.dragEnd)
     },
