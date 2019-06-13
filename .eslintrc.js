@@ -17,9 +17,8 @@ module.exports = {
 		"no-unused-vars": "off",
 		"no-useless-constructor": "off",
 		"no-undef": "off",
-		"no-useless-escape": "warn",
-		"@typescript-eslint/no-unused-vars": "warn",
-		"@typescript-eslint/no-useless-constructor": "warn",
+		"no-useless-escape": "off",
+		"@typescript-eslint/no-unused-vars": "error"
 	},
 	overrides: [
     {
