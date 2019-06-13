@@ -18,15 +18,15 @@
 </template>
 
 <script lang="ts">
-import "@/styles/uniform_editor.css"
-import Vue from "vue"
-import FloatInput from "@/components/FloatInput.vue"
-import { UniformEditor } from "@/scripts/renderer/UniformEditor"
+import '@/styles/uniform_editor.css'
+import Vue from 'vue'
+import FloatInput from '@/components/FloatInput.vue'
+import { UniformEditor } from '@/scripts/renderer/UniformEditor'
 
-export default Vue.extend( {
-  name: "UniformEditorVec3",
+export default Vue.extend({
+  name: 'UniformEditorVec3',
   components: {
-    "v-float-input": FloatInput
+    'v-float-input': FloatInput
   },
   props: {
     editor: {
@@ -34,39 +34,39 @@ export default Vue.extend( {
       default: null
     }
   },
-  data: () => ( {
+  data: () => ({
     x: 0 as number,
     y: 0 as number,
     z: 0 as number,
-    vec3: new Float32Array( 3 )
-  } ),
+    vec3: new Float32Array(3)
+  }),
   computed: {
   },
   watch: {
-    x() {
+    x () {
       this.vec3[ 0 ] = this.x
-      this.editor.setValue( this.vec3 )
+      this.editor.setValue(this.vec3)
     },
-    y() {
+    y () {
       this.vec3[ 1 ] = this.y
-      this.editor.setValue( this.vec3 )
+      this.editor.setValue(this.vec3)
     },
-    z() {
+    z () {
       this.vec3[ 2 ] = this.z
-      this.editor.setValue( this.vec3 )
+      this.editor.setValue(this.vec3)
     },
-    editor() {
+    editor () {
       this.loadValue()
     }
   },
-  activated() {
+  activated () {
     this.loadValue()
   },
   methods: {
-    loadValue() {
+    loadValue () {
       this.vec3 = this.editor.getValue() as Float32Array
       [ this.x, this.y, this.z ] = this.vec3
     }
   }
-} )
+})
 </script>

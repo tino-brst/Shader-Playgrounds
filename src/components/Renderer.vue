@@ -63,161 +63,161 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import { EventBus } from "@/event-bus"
-import ModelSelect from "@/components/ModelSelect.vue"
-import Checkbox from "@/components/Checkbox.vue"
-import ProgressBar from "@/components/ProgressBar.vue"
-import { Renderer, Model } from "@/scripts/renderer/Renderer"
-import { mapState, mapGetters } from "vuex"
-const { RefreshCwIcon, BoxIcon } = require( "vue-feather-icons" )
+import Vue from 'vue'
+import { EventBus } from '@/event-bus'
+import ModelSelect from '@/components/ModelSelect.vue'
+import Checkbox from '@/components/Checkbox.vue'
+import ProgressBar from '@/components/ProgressBar.vue'
+import { Renderer, Model } from '@/scripts/renderer/Renderer'
+import { mapState, mapGetters } from 'vuex'
+const { RefreshCwIcon, BoxIcon } = require('vue-feather-icons')
 
-export default Vue.extend( {
-  name: "Renderer",
+export default Vue.extend({
+  name: 'Renderer',
   components: {
-    "v-progress-bar": ProgressBar,
-    "v-model-select": ModelSelect,
-    "v-checkbox": Checkbox,
-    "v-refresh-cw-icon": RefreshCwIcon,
-    "v-box-icon": BoxIcon
+    'v-progress-bar': ProgressBar,
+    'v-model-select': ModelSelect,
+    'v-checkbox': Checkbox,
+    'v-refresh-cw-icon': RefreshCwIcon,
+    'v-box-icon': BoxIcon
   },
-  data: () => ( {
+  data: () => ({
     renderer: {} as Renderer,
     availableModels: [] as Model[],
     modelsLoaded: false,
     compiledAtLeastOnce: false
-  } ),
+  }),
   computed: {
     model: {
-      get(): string {
+      get (): string {
         return this.$store.state.model
       },
-      set( value: string ) {
-        this.$store.commit( "SET_MODEL", value )
+      set (value: string) {
+        this.$store.commit('SET_MODEL', value)
       }
     },
     animation: {
-      get(): boolean {
+      get (): boolean {
         return this.$store.state.animation
       },
-      set( value: boolean ) {
-        this.$store.commit( "SET_ANIMATION", value )
+      set (value: boolean) {
+        this.$store.commit('SET_ANIMATION', value)
       }
     },
     wireframe: {
-      get(): boolean {
+      get (): boolean {
         return this.$store.state.wireframe
       },
-      set( value: boolean ) {
-        this.$store.commit( "SET_WIREFRAME", value )
+      set (value: boolean) {
+        this.$store.commit('SET_WIREFRAME', value)
       }
     },
-    ...mapState( [
-      "compilationSucceeded",
-      "vertexSource",
-      "fragmentSource",
-      "languageVersion",
-      "uniforms",
-      "textureUnitToUpdate",
-      "texturesLoaded",
-      "texturesToRestore",
-      "windowReady"
-    ] )
+    ...mapState([
+      'compilationSucceeded',
+      'vertexSource',
+      'fragmentSource',
+      'languageVersion',
+      'uniforms',
+      'textureUnitToUpdate',
+      'texturesLoaded',
+      'texturesToRestore',
+      'windowReady'
+    ])
   },
   watch: {
-    textureUnitToUpdate() {
+    textureUnitToUpdate () {
       // @ts-ignore
-      if ( this.renderer.setTextureForUnit( this.textureUnitToUpdate.texture, this.textureUnitToUpdate.unit ) ) {
+      if (this.renderer.setTextureForUnit(this.textureUnitToUpdate.texture, this.textureUnitToUpdate.unit)) {
         // @ts-ignore
-        this.$store.commit( "SET_TEXTURE_ASSIGNED_TO_TEXTURE_UNIT", this.textureUnitToUpdate )
+        this.$store.commit('SET_TEXTURE_ASSIGNED_TO_TEXTURE_UNIT', this.textureUnitToUpdate)
       }
     },
-    model() {
+    model () {
       this.updateModel()
     },
-    animation() {
-      this.renderer.setAnimation( this.animation )
+    animation () {
+      this.renderer.setAnimation(this.animation)
     },
-    wireframe() {
-      this.renderer.setWireframe( this.wireframe )
+    wireframe () {
+      this.renderer.setWireframe(this.wireframe)
     },
-    languageVersion() {
+    languageVersion () {
       this.updateLanguageVersion()
     }
   },
-  mounted() {
-    this.renderer = new Renderer( this.$refs.canvas as HTMLCanvasElement, this.onModelsLoaded, this.onTexturesLoaded )
+  mounted () {
+    this.renderer = new Renderer(this.$refs.canvas as HTMLCanvasElement, this.onModelsLoaded, this.onTexturesLoaded)
 
     // @ts-ignore
     this.$refs.progressBar.start()
 
     this.availableModels = this.renderer.getAvailableModels()
     this.model = this.availableModels[ 0 ].name
-    this.renderer.setAnimation( this.animation )
-    this.renderer.setWireframe( this.wireframe )
+    this.renderer.setAnimation(this.animation)
+    this.renderer.setWireframe(this.wireframe)
 
-    this.$store.commit( "SET_AVAILABLE_TEXTURE_UNITS_COUNT", this.renderer.getAvailableTextureUnitsCount() )
-    this.$store.commit( "SET_TEXTURES_ASSIGNED_TO_TEXTURE_UNITS", this.renderer.getTexturesAssignedToTextureUnits() )
+    this.$store.commit('SET_AVAILABLE_TEXTURE_UNITS_COUNT', this.renderer.getAvailableTextureUnitsCount())
+    this.$store.commit('SET_TEXTURES_ASSIGNED_TO_TEXTURE_UNITS', this.renderer.getTexturesAssignedToTextureUnits())
 
-    EventBus.$on( "compileAndRun", this.compileAndRun )
-    EventBus.$on( "saveState", this.saveState )
-    EventBus.$on( "loadState", this.loadState )
+    EventBus.$on('compileAndRun', this.compileAndRun)
+    EventBus.$on('saveState', this.saveState)
+    EventBus.$on('loadState', this.loadState)
   },
   methods: {
-    compileAndRun() {
+    compileAndRun () {
       // @ts-ignore
-      const compilationSucceeded = this.renderer.setShaderProgram( this.vertexSource, this.fragmentSource )
+      const compilationSucceeded = this.renderer.setShaderProgram(this.vertexSource, this.fragmentSource)
       const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
       const uniformsEditors = this.renderer.getUniformsEditors()
 
-      this.$store.commit( "SET_COMPILATION_SUCCEEDED", compilationSucceeded )
-      this.$store.commit( "SET_LOGS", errorsAndWarnings )
-      this.$store.commit( "SET_UNIFORMS_EDITORS", uniformsEditors )
+      this.$store.commit('SET_COMPILATION_SUCCEEDED', compilationSucceeded)
+      this.$store.commit('SET_LOGS', errorsAndWarnings)
+      this.$store.commit('SET_UNIFORMS_EDITORS', uniformsEditors)
 
       this.compiledAtLeastOnce = true
     },
-    onModelsLoaded() {
+    onModelsLoaded () {
       this.availableModels = this.renderer.getAvailableModels()
       this.modelsLoaded = true
       this.updateModel()
     },
-    onTexturesLoaded() {
+    onTexturesLoaded () {
       // @ts-ignore
-      if ( this.texturesToRestore ) {
+      if (this.texturesToRestore) {
         // @ts-ignore
-        for ( let textureUnit = 0; textureUnit < this.texturesToRestore.length; textureUnit ++ ) {
+        for (let textureUnit = 0; textureUnit < this.texturesToRestore.length; textureUnit++) {
           // @ts-ignore
-          this.renderer.setTextureForUnit( this.texturesToRestore[ textureUnit ], textureUnit )
+          this.renderer.setTextureForUnit(this.texturesToRestore[ textureUnit ], textureUnit)
         }
       }
-      this.$store.commit( "SET_AVAILABLE_TEXTURES", this.renderer.getAvailableTextures() )
-      this.$store.commit( "SET_TEXTURES_ASSIGNED_TO_TEXTURE_UNITS", this.renderer.getTexturesAssignedToTextureUnits() )
-      this.$store.commit( "SET_TEXTURES_LOADED", true )
+      this.$store.commit('SET_AVAILABLE_TEXTURES', this.renderer.getAvailableTextures())
+      this.$store.commit('SET_TEXTURES_ASSIGNED_TO_TEXTURE_UNITS', this.renderer.getTexturesAssignedToTextureUnits())
+      this.$store.commit('SET_TEXTURES_LOADED', true)
     },
-    updateModel() {
-      this.renderer.setModel( this.model )
+    updateModel () {
+      this.renderer.setModel(this.model)
 
       // the model change may generate new warnings (e.g. missing attributes)
       const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
-      this.$store.commit( "SET_LOGS", errorsAndWarnings )
+      this.$store.commit('SET_LOGS', errorsAndWarnings)
     },
-    updateLanguageVersion() {
+    updateLanguageVersion () {
       // @ts-ignore
-      this.renderer.setLanguageVersion( this.languageVersion )
+      this.renderer.setLanguageVersion(this.languageVersion)
 
       // the version change may generate new warnings (e.g. missing ins|attributes)
       const errorsAndWarnings = this.renderer.getErrorsAndWarnings()
-      this.$store.commit( "SET_LOGS", errorsAndWarnings )
+      this.$store.commit('SET_LOGS', errorsAndWarnings)
     },
-    saveState() {
-      this.$store.commit( "SET_UNIFORMS", this.renderer.getUniformsState() )
+    saveState () {
+      this.$store.commit('SET_UNIFORMS', this.renderer.getUniformsState())
     },
-    loadState() {
+    loadState () {
       // @ts-ignore
-      this.renderer.setUniformsState( this.uniforms )
+      this.renderer.setUniformsState(this.uniforms)
     }
   }
-} )
+})
 </script>
 
 <style>

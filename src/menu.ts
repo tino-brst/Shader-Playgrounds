@@ -1,184 +1,184 @@
-import { app, Menu, MenuItemConstructorOptions, BrowserWindow, shell } from "electron"
-import { FILE_EXTENSION, WINDOW_TYPE } from "./constants"
-import * as background from "./background"
-import { ShaderType } from "./scripts/renderer/_constants"
+import { app, Menu, MenuItemConstructorOptions, BrowserWindow, shell } from 'electron'
+import { FILE_EXTENSION, WINDOW_TYPE } from './constants'
+import * as background from './background'
+import { ShaderType } from './scripts/renderer/_constants'
 
-const isDevelopment = process.env.NODE_ENV !== "production"
-const ___ = "separator"
+const isDevelopment = process.env.NODE_ENV !== 'production'
+const ___ = 'separator'
 
-function sendAction( action: string, payload?: any ) {
+function sendAction (action: string, payload?: any) {
   const focusedWindow = BrowserWindow.getFocusedWindow()
 
-  if ( focusedWindow ) {
-    focusedWindow.webContents.send( action, payload )
+  if (focusedWindow) {
+    focusedWindow.webContents.send(action, payload)
   }
 }
 
-function getMenuTemplate( type: WINDOW_TYPE ) {
+function getMenuTemplate (type: WINDOW_TYPE) {
   const isPlayground = type === WINDOW_TYPE.PLAYGROUND
 
   const appSubmenu: MenuItemConstructorOptions = {
     label: app.getName(),
     submenu: [
-      { role: "about" },
+      { role: 'about' },
       { type: ___ },
-      { role: "hide" },
-      { role: "hideothers" },
-      { role: "unhide" },
+      { role: 'hide' },
+      { role: 'hideothers' },
+      { role: 'unhide' },
       { type: ___ },
-      { role: "quit" }
+      { role: 'quit' }
     ]
   }
   const fileSubmenu: MenuItemConstructorOptions = {
-    label: "File",
+    label: 'File',
     submenu: [
       {
-        label: "New",
-        accelerator: "CmdOrCtrl+N",
-        click() { background.newFile() }
+        label: 'New',
+        accelerator: 'CmdOrCtrl+N',
+        click () { background.newFile() }
       },
       {
-        label: "Open...",
-        accelerator: "CmdOrCtrl+O",
-        click() { background.showOpenFileDialog() }
+        label: 'Open...',
+        accelerator: 'CmdOrCtrl+O',
+        click () { background.showOpenFileDialog() }
       },
       {
-        role: "recentDocuments",
+        role: 'recentDocuments',
         submenu: [
           { type: ___ },
           {
-            label: "Clear Menu",
+            label: 'Clear Menu',
             click: () => { background.clearRecentDocuments() }
           }
         ]
       },
       { type: ___ },
       {
-        label: "Close",
+        label: 'Close',
         enabled: isPlayground,
-        role: "close"
+        role: 'close'
       },
       {
-        label: "Save",
+        label: 'Save',
         enabled: isPlayground,
-        accelerator: "CmdOrCtrl+S",
-        click: () => { sendAction( "save" ) }
+        accelerator: 'CmdOrCtrl+S',
+        click: () => { sendAction('save') }
       }
     ]
   }
   const editSubmenu: MenuItemConstructorOptions = {
-    label: "Edit",
+    label: 'Edit',
     submenu: [
       {
-        role: "undo",
+        role: 'undo',
         enabled: isPlayground
       },
       {
-        role: "redo",
+        role: 'redo',
         enabled: isPlayground
       },
       { type: ___ },
       {
-        role: "cut",
+        role: 'cut',
         enabled: isPlayground
       },
       {
-        role: "copy",
+        role: 'copy',
         enabled: isPlayground
       },
       {
-        role: "paste",
+        role: 'paste',
         enabled: isPlayground
       }
     ]
   }
   const toolsSubmenu: MenuItemConstructorOptions = {
-    label: "Tools",
+    label: 'Tools',
     submenu: [
       {
-        label: "Compile and Run",
+        label: 'Compile and Run',
         enabled: isPlayground,
-        accelerator: "CmdOrCtrl+R",
-        click: () => { sendAction( "compile-and-run" ) }
+        accelerator: 'CmdOrCtrl+R',
+        click: () => { sendAction('compile-and-run') }
       }
     ]
   }
   const viewSubmenu: MenuItemConstructorOptions = {
-    label: "View",
+    label: 'View',
     submenu: [
       {
-        label: "Vertex Shader",
+        label: 'Vertex Shader',
         enabled: isPlayground,
-        accelerator: "CmdOrCtrl+1",
-        click: () => { sendAction( "set-active-shader", ShaderType.Vertex ) }
+        accelerator: 'CmdOrCtrl+1',
+        click: () => { sendAction('set-active-shader', ShaderType.Vertex) }
       },
       {
-        label: "Fragment Shader",
+        label: 'Fragment Shader',
         enabled: isPlayground,
-        accelerator: "CmdOrCtrl+2",
-        click: () => { sendAction( "set-active-shader", ShaderType.Fragment ) }
+        accelerator: 'CmdOrCtrl+2',
+        click: () => { sendAction('set-active-shader', ShaderType.Fragment) }
       },
       { type: ___ },
       {
-        label: "Toggle Scene View",
+        label: 'Toggle Scene View',
         enabled: isPlayground,
-        accelerator: "CmdOrCtrl+3",
-        click: () => { sendAction( "toggle-scene-view" ) }
+        accelerator: 'CmdOrCtrl+3',
+        click: () => { sendAction('toggle-scene-view') }
       },
       { type: ___ },
-      { role: "resetzoom" },
-      { role: "zoomin" },
-      { role: "zoomout" },
+      { role: 'resetzoom' },
+      { role: 'zoomin' },
+      { role: 'zoomout' },
       { type: ___ },
       {
-        label: "Toggle Full Screen",
+        label: 'Toggle Full Screen',
         enabled: isPlayground,
-        accelerator: process.platform === "darwin" ? "Ctrl+Cmd+F" : "F11",
-        click: ( menuItem, window ) => { window.setFullScreen( ! window.isFullScreen() ) }
+        accelerator: process.platform === 'darwin' ? 'Ctrl+Cmd+F' : 'F11',
+        click: (menuItem, window) => { window.setFullScreen(!window.isFullScreen()) }
       }
     ]
   }
   const windowSubmenu: MenuItemConstructorOptions = {
-    role: "window",
-    submenu: ( process.platform === "darwin" ) ? [
-      { role: "minimize" },
-      { role: "close" },
-      { role: "zoom" },
+    role: 'window',
+    submenu: (process.platform === 'darwin') ? [
+      { role: 'minimize' },
+      { role: 'close' },
+      { role: 'zoom' },
       { type: ___ },
       {
-        label: "Welcome",
+        label: 'Welcome',
         click: () => { background.showWelcomeWindow() }
       },
       { type: ___ },
-      { role: "front" }
+      { role: 'front' }
     ] : [
-      { role: "minimize" },
-      { role: "close" },
+      { role: 'minimize' },
+      { role: 'close' },
       { type: ___ },
       {
-        label: "Welcome",
+        label: 'Welcome',
         click: () => { background.showWelcomeWindow() }
       }
     ]
   }
   const helpSubmenu: MenuItemConstructorOptions = {
-    role: "help",
+    role: 'help',
     submenu: [
       {
-        label: "Source Code",
-        click: () => { shell.openExternal( "https://github.com/AgustinBrst/Shader-Playgrounds" ) }
+        label: 'Source Code',
+        click: () => { shell.openExternal('https://github.com/AgustinBrst/Shader-Playgrounds') }
       },
       {
-        label: "Send Feedback",
-        click: () => { shell.openExternal( "https://github.com/AgustinBrst/Shader-Playgrounds/issues/new" ) }
+        label: 'Send Feedback',
+        click: () => { shell.openExternal('https://github.com/AgustinBrst/Shader-Playgrounds/issues/new') }
       },
       { type: ___ },
       {
-        label: `What's New in ${ app.getName() }`,
-        click: () => { shell.openExternal( "https://github.com/AgustinBrst/Shader-Playgrounds/releases" ) }
+        label: `What's New in ${app.getName()}`,
+        click: () => { shell.openExternal('https://github.com/AgustinBrst/Shader-Playgrounds/releases') }
       },
       { type: ___ },
-      { role: "toggledevtools" }
+      { role: 'toggledevtools' }
     ]
   }
 
@@ -191,21 +191,21 @@ function getMenuTemplate( type: WINDOW_TYPE ) {
     helpSubmenu
   ]
 
-  if ( process.platform === "darwin" ) {
-    template.unshift( appSubmenu )
+  if (process.platform === 'darwin') {
+    template.unshift(appSubmenu)
   }
 
   return template
 }
 
-function setAppMenu( type: WINDOW_TYPE ) {
-  const menu = Menu.buildFromTemplate( getMenuTemplate( type ) )
-  Menu.setApplicationMenu( menu )
+function setAppMenu (type: WINDOW_TYPE) {
+  const menu = Menu.buildFromTemplate(getMenuTemplate(type))
+  Menu.setApplicationMenu(menu)
 }
 
-function setWindowMenu( window: BrowserWindow, type: WINDOW_TYPE ) {
-  const menu = Menu.buildFromTemplate( getMenuTemplate( type ) )
-  window.setMenu( menu )
+function setWindowMenu (window: BrowserWindow, type: WINDOW_TYPE) {
+  const menu = Menu.buildFromTemplate(getMenuTemplate(type))
+  window.setMenu(menu)
 }
 
 export {

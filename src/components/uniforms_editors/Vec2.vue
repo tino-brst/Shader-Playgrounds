@@ -13,15 +13,15 @@
 </template>
 
 <script lang="ts">
-import "@/styles/uniform_editor.css"
-import Vue from "vue"
-import FloatInput from "@/components/FloatInput.vue"
-import { UniformEditor } from "@/scripts/renderer/UniformEditor"
+import '@/styles/uniform_editor.css'
+import Vue from 'vue'
+import FloatInput from '@/components/FloatInput.vue'
+import { UniformEditor } from '@/scripts/renderer/UniformEditor'
 
-export default Vue.extend( {
-  name: "UniformEditorVec2",
+export default Vue.extend({
+  name: 'UniformEditorVec2',
   components: {
-    "v-float-input": FloatInput
+    'v-float-input': FloatInput
   },
   props: {
     editor: {
@@ -29,34 +29,34 @@ export default Vue.extend( {
       default: null
     }
   },
-  data: () => ( {
+  data: () => ({
     x: 0 as number,
     y: 0 as number,
-    vec2: new Float32Array( 2 )
-  } ),
+    vec2: new Float32Array(2)
+  }),
   computed: {
   },
   watch: {
-    x() {
+    x () {
       this.vec2[ 0 ] = this.x
-      this.editor.setValue( this.vec2 )
+      this.editor.setValue(this.vec2)
     },
-    y() {
+    y () {
       this.vec2[ 1 ] = this.y
-      this.editor.setValue( this.vec2 )
+      this.editor.setValue(this.vec2)
     },
-    editor() {
+    editor () {
       this.loadValue()
     }
   },
-  activated() {
+  activated () {
     this.loadValue()
   },
   methods: {
-    loadValue() {
+    loadValue () {
       this.vec2 = this.editor.getValue() as Float32Array
       [ this.x, this.y ] = this.vec2
     }
   }
-} )
+})
 </script>

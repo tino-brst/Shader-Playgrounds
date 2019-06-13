@@ -1,5 +1,5 @@
-import { ShaderVariableType } from "./_constants"
-import { ShaderInput } from "./ShaderInputs"
+import { ShaderVariableType } from './_constants'
+import { ShaderInput } from './ShaderInputs'
 
 export interface IValueReference {
     value: any
@@ -15,7 +15,7 @@ export class UniformsCache {
   private previousContent: Map < string, IValueReference >
   private currentContent: Map < string, IValueReference >
 
-  constructor() {
+  constructor () {
     this.defaults = new Map()
     this.previousContent = new Map()
     this.currentContent = new Map()
@@ -29,45 +29,45 @@ export class UniformsCache {
 
   // 👥  Metodos Publicos
 
-  public add( name: string, type: ShaderVariableType, value?: any ) {
-    const key = this.toString( name, type )
-    const defaultValue = this.defaults.get( key )
+  public add (name: string, type: ShaderVariableType, value?: any) {
+    const key = this.toString(name, type)
+    const defaultValue = this.defaults.get(key)
 
-    if ( defaultValue !== undefined ) {
+    if (defaultValue !== undefined) {
       value = defaultValue.value
-    } else if ( value === undefined ) {
-      const previousValue = this.previousContent.get( key )
-      if ( previousValue !== undefined ) {
+    } else if (value === undefined) {
+      const previousValue = this.previousContent.get(key)
+      if (previousValue !== undefined) {
         value = previousValue.value
       } else {
-        value = ShaderInput.getDefaultValueForType( type )
+        value = ShaderInput.getDefaultValueForType(type)
       }
     }
 
     const cachedValue = { value }
-    this.currentContent.set( key, cachedValue )
+    this.currentContent.set(key, cachedValue)
 
     return cachedValue
   }
 
-  public get( name: string, type: ShaderVariableType ) {
-    const cachedValue = this.currentContent.get( this.toString( name, type ) )
+  public get (name: string, type: ShaderVariableType) {
+    const cachedValue = this.currentContent.get(this.toString(name, type))
 
-    return ( cachedValue !== undefined ) ? cachedValue.value : undefined
+    return (cachedValue !== undefined) ? cachedValue.value : undefined
   }
 
-  public addDefault( name: string, type: ShaderVariableType, value: any ) {
-    this.defaults.set( this.toString( name, type ), { value } )
+  public addDefault (name: string, type: ShaderVariableType, value: any) {
+    this.defaults.set(this.toString(name, type), { value })
   }
 
-  public clear() {
+  public clear () {
     this.previousContent = this.currentContent
     this.currentContent = new Map()
   }
 
   // ✋🏼  Metodos Privados
 
-  private toString( name: string, type: ShaderVariableType ) {
-    return `${ name }:${ type }`
+  private toString (name: string, type: ShaderVariableType) {
+    return `${name}:${type}`
   }
 }

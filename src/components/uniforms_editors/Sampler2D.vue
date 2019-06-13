@@ -52,64 +52,64 @@
 </template>
 
 <script lang="ts">
-import "@/styles/uniform_editor.css"
-import Vue from "vue"
-import { UniformEditor } from "@/scripts/renderer/UniformEditor"
-import { mapState } from "vuex"
-import { clearTimeout } from "timers"
+import '@/styles/uniform_editor.css'
+import Vue from 'vue'
+import { UniformEditor } from '@/scripts/renderer/UniformEditor'
+import { mapState } from 'vuex'
+import { clearTimeout } from 'timers'
 
-export default Vue.extend( {
-  name: "UniformEditorSampler2D",
+export default Vue.extend({
+  name: 'UniformEditorSampler2D',
   props: {
     editor: {
       type: Object as () => UniformEditor,
       default: null
     }
   },
-  data: () => ( {
+  data: () => ({
     selectedUnit: 0,
     highlightSelected: false,
     highlightSelectedTimeout: null as any
-  } ),
-  computed: mapState( [
-    "availableTextures",
-    "availableTextureUnitsCount",
-    "texturesAssignedToTextureUnits",
-    "texturesLoaded"
-  ] ),
+  }),
+  computed: mapState([
+    'availableTextures',
+    'availableTextureUnitsCount',
+    'texturesAssignedToTextureUnits',
+    'texturesLoaded'
+  ]),
   watch: {
-    selectedUnit() {
-      this.editor.setValue( this.selectedUnit )
+    selectedUnit () {
+      this.editor.setValue(this.selectedUnit)
     },
-    editor() {
+    editor () {
       this.selectedUnit = this.editor.getValue()
     }
   },
-  activated() {
+  activated () {
     this.selectedUnit = this.editor.getValue()
   },
   methods: {
-    updateTextureUnit( unit: number, texture: string ) {
-      this.$store.commit( "SET_TEXTURE_UNIT_TO_UPDATE", { unit, texture } )
+    updateTextureUnit (unit: number, texture: string) {
+      this.$store.commit('SET_TEXTURE_UNIT_TO_UPDATE', { unit, texture })
     },
-    selectUnit( unit: number ) {
+    selectUnit (unit: number) {
       const previousTexture = this.texturesAssignedToTextureUnits[ this.selectedUnit ]
       const newTexture = this.texturesAssignedToTextureUnits[ unit ]
-      const textureUnchanged = ( previousTexture === newTexture )
+      const textureUnchanged = (previousTexture === newTexture)
       const unitChanged = this.selectedUnit !== unit
 
-      if ( textureUnchanged || unitChanged ) {
+      if (textureUnchanged || unitChanged) {
         this.highlightSelected = true
-        clearTimeout( this.highlightSelectedTimeout )
-        this.highlightSelectedTimeout = setTimeout( () => {
+        clearTimeout(this.highlightSelectedTimeout)
+        this.highlightSelectedTimeout = setTimeout(() => {
           this.highlightSelected = false
-        }, 200 )
+        }, 200)
       }
 
       this.selectedUnit = unit
     }
   }
-} )
+})
 </script>
 
 <style>

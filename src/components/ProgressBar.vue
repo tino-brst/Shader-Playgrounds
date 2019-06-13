@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  name: "ProgressBar",
+  name: 'ProgressBar',
   props: {
     done: {
       type: Boolean,
@@ -23,14 +23,14 @@ export default {
     },
     info: {
       type: String,
-      default: ""
+      default: ''
     }
   },
-  data: () => ( {
+  data: () => ({
     started: false
-  } ),
+  }),
   methods: {
-    start() {
+    start () {
       this.started = true
     }
   }

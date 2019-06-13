@@ -1,24 +1,45 @@
 <template>
-  <div id="welcome" :class="[ platform, { loaded } ]">
+  <div
+    id="welcome"
+    :class="[ platform, { loaded } ]"
+  >
     <div class="info-container">
-      <button class="close-window" @click="closeWindow()" />
+      <button
+        class="close-window"
+        @click="closeWindow()"
+      />
       <div class="info">
         <img src="assets/images/icon.png">
         <h2> Welcome to </h2>
         <h1> Shader Playgrounds </h1>
         <div class="version">
-          <transition name="fade" mode="out-in">
-            <div key="downloading" v-if="(autoUpdateProgress > 0) && (autoUpdateState !== 'failed') && (autoUpdateState !== 'downloaded')">
+          <transition
+            name="fade"
+            mode="out-in"
+          >
+            <div
+              key="downloading"
+              v-if="(autoUpdateProgress > 0) && (autoUpdateState !== 'failed') && (autoUpdateState !== 'downloaded')"
+            >
               <span class="downloading-icon" />
               <h3> Downloading Update {{ autoUpdateProgress.toFixed() }}% </h3>
             </div>
-            <div key="restart" v-else-if="autoUpdateState === 'downloaded'">
-              <button class="restart" @click="quitAndInstall()">
+            <div
+              key="restart"
+              v-else-if="autoUpdateState === 'downloaded'"
+            >
+              <button
+                class="restart"
+                @click="quitAndInstall()"
+              >
                 <span class="restart-icon" />
                 <h3> Restart to update </h3>
               </button>
             </div>
-            <div key="default" v-else>
+            <div
+              key="default"
+              v-else
+            >
               <h3> Version {{ version }} </h3>
             </div>
           </transition>
@@ -39,28 +60,37 @@
             <span class="folder"> {{ item.folder }} </span>
           </li>
         </ul>
-        <div v-else class="empty">
+        <div
+          v-else
+          class="empty"
+        >
           <h3> No Recent Playgrounds </h3>
         </div>
       </div>
       <div class="buttons">
-        <button class="open-playground" @click="openFile()">
+        <button
+          class="open-playground"
+          @click="openFile()"
+        >
           Open another playground ...
         </button>
-        <button class="new-playground" @click="newFile()" />
+        <button
+          class="new-playground"
+          @click="newFile()"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import { remote, ipcRenderer as ipc, Event } from "electron"
-import path from "path"
-import { FILE_EXTENSION } from "@/constants"
+import Vue from 'vue'
+import { remote, ipcRenderer as ipc, Event } from 'electron'
+import path from 'path'
+import { FILE_EXTENSION } from '@/constants'
 
 const { app } = remote
-const homeFolder = app.getPath( "home" )
+const homeFolder = app.getPath('home')
 
 interface RecentsItem {
   name: string,
@@ -68,78 +98,78 @@ interface RecentsItem {
   path: string
 }
 
-export default Vue.extend( {
-  name: "Welcome",
-  data: () => ( {
+export default Vue.extend({
+  name: 'Welcome',
+  data: () => ({
     selectedRecent: 0,
     version: app.getVersion(),
     platform: remote.process.platform,
     window: remote.getCurrentWindow(),
     recents: [] as string[],
     autoUpdateProgress: 0,
-    autoUpdateState: "" as "" | "downloaded" | "failed",
+    autoUpdateState: '' as '' | 'downloaded' | 'failed',
     loaded: false
-  } ),
+  }),
   computed: {
-    formatedRecents(): RecentsItem[] {
+    formatedRecents (): RecentsItem[] {
       const recents: RecentsItem[] = []
 
-      for ( let filePath of this.recents ) {
-        recents.push( {
-          name: path.basename( filePath, "." + FILE_EXTENSION ),
-          folder: path.dirname( filePath ).replace( homeFolder, "~" ),
+      for (let filePath of this.recents) {
+        recents.push({
+          name: path.basename(filePath, '.' + FILE_EXTENSION),
+          folder: path.dirname(filePath).replace(homeFolder, '~'),
           path: filePath
-        } )
+        })
       }
 
       return recents
     }
   },
-  mounted() {
-    ipc.on( "recents", this.onRecentsUpdate )
-    ipc.on( "auto-update", this.onAutoUpdate )
-    window.addEventListener( "keydown", this.onKeyDown )
-    window.addEventListener( "load", () => { this.loaded = true } )
+  mounted () {
+    ipc.on('recents', this.onRecentsUpdate)
+    ipc.on('auto-update', this.onAutoUpdate)
+    window.addEventListener('keydown', this.onKeyDown)
+    window.addEventListener('load', () => { this.loaded = true })
   },
   methods: {
-    onRecentsUpdate( event: Event, recents: string[] ) {
+    onRecentsUpdate (event: Event, recents: string[]) {
       this.recents = recents
     },
-    onAutoUpdate( event: Event, value: "downloaded" | "failed" | number ) {
-      if ( typeof value === "string" ) {
+    onAutoUpdate (event: Event, value: 'downloaded' | 'failed' | number) {
+      if (typeof value === 'string') {
         this.autoUpdateState = value
       } else {
         this.autoUpdateProgress = value || 0
       }
     },
-    closeWindow() {
+    closeWindow () {
       this.window.close()
     },
-    openFile( filePath?: string ) {
-      ipc.send( "open-file", filePath )
+    openFile (filePath?: string) {
+      ipc.send('open-file', filePath)
     },
-    newFile() {
-      ipc.send( "new-file" )
+    newFile () {
+      ipc.send('new-file')
     },
-    onKeyDown( event: KeyboardEvent ) {
-      switch ( event.key ) {
-        case "ArrowUp":
+    onKeyDown (event: KeyboardEvent) {
+      switch (event.key) {
+        case 'ArrowUp':
           event.preventDefault()
-          if ( this.selectedRecent > 0 ) this.selectedRecent --
+          if (this.selectedRecent > 0) this.selectedRecent--
           break
-        case "ArrowDown":
+        case 'ArrowDown':
           event.preventDefault()
-          if ( this.selectedRecent < this.recents.length - 1 ) this.selectedRecent ++
+          if (this.selectedRecent < this.recents.length - 1) this.selectedRecent++
           break
-        case "Enter":
-          this.openFile( this.recents[ this.selectedRecent ] )
+        case 'Enter':
+          this.openFile(this.recents[ this.selectedRecent ])
       }
     },
-    quitAndInstall() {
-      ipc.send( "quit-and-install" )
+    quitAndInstall () {
+      ipc.send('quit-and-install')
     }
   }
-} )
+})
 </script>
 
 <style>

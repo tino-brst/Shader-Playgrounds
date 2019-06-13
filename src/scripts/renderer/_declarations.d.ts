@@ -1,16 +1,16 @@
 // File imports
 
-declare module "*.glsl" {
+declare module '*.glsl' {
   const content: string
   export default content
 }
 
-declare module "*.obj" {
+declare module '*.obj' {
   const content: string
   export default content
 }
 
-declare module "*.jpg" {
+declare module '*.jpg' {
   const content: string
   export default content
 }
@@ -22,4 +22,4 @@ declare type ValidItemSize = 1 | 2 | 3
 
 // Modules
 
-declare module "glsl-transpiler"
+declare module 'glsl-transpiler'

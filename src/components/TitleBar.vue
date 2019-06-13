@@ -9,21 +9,21 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import Vue from 'vue'
 
-export default Vue.extend( {
-  name: "TitleBar",
+export default Vue.extend({
+  name: 'TitleBar',
   props: {
     fileName: {
       type: String,
-      default: ""
+      default: ''
     },
     edited: {
       type: Boolean,
       default: false
     }
   }
-} )
+})
 </script>
 
 <style>

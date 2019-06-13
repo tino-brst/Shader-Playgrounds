@@ -18,37 +18,37 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import { UniformEditor } from "@/scripts/renderer/UniformEditor"
+import Vue from 'vue'
+import { UniformEditor } from '@/scripts/renderer/UniformEditor'
 
-export default Vue.extend( {
-  name: "UniformEditorOthers",
+export default Vue.extend({
+  name: 'UniformEditorOthers',
   props: {
     editor: {
       type: Object as () => UniformEditor,
       default: null
     }
   },
-  data: () => ( {
+  data: () => ({
     splitTargetName: [] as string[]
-  } ),
+  }),
   computed: {
-    identifier(): string {
-      return this.splitTargetName[ 0 ] || ""
+    identifier (): string {
+      return this.splitTargetName[ 0 ] || ''
     },
-    attribute(): string {
-      return this.splitTargetName[ 1 ] || ""
+    attribute (): string {
+      return this.splitTargetName[ 1 ] || ''
     }
   },
   watch: {
     editor: {
-      handler() {
-        this.splitTargetName = this.editor.target.split( "." )
+      handler () {
+        this.splitTargetName = this.editor.target.split('.')
       },
       immediate: true
     }
   }
-} )
+})
 </script>
 
 <style>

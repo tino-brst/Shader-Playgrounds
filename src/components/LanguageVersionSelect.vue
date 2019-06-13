@@ -35,16 +35,16 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import { mapState } from "vuex"
-import { LanguageVersion } from "@/scripts/renderer/_constants"
+import Vue from 'vue'
+import { mapState } from 'vuex'
+import { LanguageVersion } from '@/scripts/renderer/_constants'
 
-const { CheckIcon } = require( "vue-feather-icons" )
+const { CheckIcon } = require('vue-feather-icons')
 
-export default Vue.extend( {
-  name: "LanguageVersionSelect",
+export default Vue.extend({
+  name: 'LanguageVersionSelect',
   components: {
-    "v-check-icon": CheckIcon
+    'v-check-icon': CheckIcon
   },
   props: {
     autohide: {
@@ -56,45 +56,45 @@ export default Vue.extend( {
       default: false
     }
   },
-  data() {
+  data () {
     return {
       isActive: false,
       options: [
-        { text: "1.00", value: LanguageVersion.GLSL_ES100 },
-        { text: "3.00", value: LanguageVersion.GLSL_ES300 }
+        { text: '1.00', value: LanguageVersion.GLSL_ES100 },
+        { text: '3.00', value: LanguageVersion.GLSL_ES300 }
       ]
     }
   },
   computed: {
-    selected(): { text: string, value: LanguageVersion } {
+    selected (): { text: string, value: LanguageVersion } {
       // @ts-ignore
-      return ( this.languageVersion === this.options[ 0 ].value ) ? this.options[ 0 ] : this.options[ 1 ]
+      return (this.languageVersion === this.options[ 0 ].value) ? this.options[ 0 ] : this.options[ 1 ]
     },
-    ...mapState( [
-      "languageVersion"
-    ] )
+    ...mapState([
+      'languageVersion'
+    ])
   },
-  created() {
-    document.addEventListener( "mousedown", ( event ) => { this.checkOutsideClick( event ) } )
+  created () {
+    document.addEventListener('mousedown', (event) => { this.checkOutsideClick(event) })
   },
   methods: {
-    updateValue( value: LanguageVersion ) {
-      if ( this.autohide ) {
-        setTimeout( () => { this.isActive = false }, 150 )
+    updateValue (value: LanguageVersion) {
+      if (this.autohide) {
+        setTimeout(() => { this.isActive = false }, 150)
       }
-      this.$store.commit( "SET_LANGUAGE_VERSION", value )
+      this.$store.commit('SET_LANGUAGE_VERSION', value)
     },
-    checkOutsideClick( event: MouseEvent ) {
+    checkOutsideClick (event: MouseEvent) {
       const clickableArea = this.$refs.clickableArea as Element
-      if ( clickableArea !== undefined ) {
-        const clickedInside = clickableArea.contains( event.target as Node )
-        if ( ! clickedInside ) {
+      if (clickableArea !== undefined) {
+        const clickedInside = clickableArea.contains(event.target as Node)
+        if (!clickedInside) {
           this.isActive = false
         }
       }
     }
   }
-} )
+})
 </script>
 
 <style lang="stylus">

@@ -1,6 +1,6 @@
 export enum LogEntryType {
-  Warning = "warning",
-  Error = "error"
+  Warning = 'warning',
+  Error = 'error'
 }
 
 export class InspectorLogEntry {
@@ -9,7 +9,7 @@ export class InspectorLogEntry {
   public line: number
   public description: string
 
-  constructor( shader: string, type: LogEntryType, line: number, description: string ) {
+  constructor (shader: string, type: LogEntryType, line: number, description: string) {
     this.shader = shader
     this.type = type
     this.line = line

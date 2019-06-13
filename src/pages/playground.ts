@@ -1,10 +1,10 @@
-import Vue from "vue"
-import Playground from "@/pages/Playground.vue"
-import store from "@/store"
+import Vue from 'vue'
+import Playground from '@/pages/Playground.vue'
+import store from '@/store'
 
 Vue.config.productionTip = false
 
-new Vue( {
+new Vue({
   store,
-  render: h => h( Playground )
-} ).$mount( "#playground" )
+  render: h => h(Playground)
+}).$mount('#playground')

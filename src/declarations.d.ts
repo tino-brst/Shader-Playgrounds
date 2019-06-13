@@ -3,7 +3,7 @@
 declare const __static: string
 
 // webpack worker-loader: to integrate with TypeScript, you will need to define a custom module for the exports of your worker
-declare module "worker-loader!*" {
+declare module 'worker-loader!*' {
   class WebpackWorker extends Worker {
     constructor()
   }

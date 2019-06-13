@@ -1,31 +1,53 @@
 <template>
-  <div id="playground" :class="[ platform, { 'cursor-col-resize': rightPanelResizing, fullscreen } ]">
-    <v-titlebar v-if="platform === 'darwin' && ! fullscreen" :file-name="fileName" :edited="documentHasUnsavedChanges" />
+  <div
+    id="playground"
+    :class="[ platform, { 'cursor-col-resize': rightPanelResizing, fullscreen } ]"
+  >
+    <v-titlebar
+      v-if="platform === 'darwin' && ! fullscreen"
+      :file-name="fileName"
+      :edited="documentHasUnsavedChanges"
+    />
     <div class="panels">
       <div class="left-panel">
-        <div class="toolbar" @mousedown.prevent>
+        <div
+          class="toolbar"
+          @mousedown.prevent
+        >
           <v-tabs />
           <div class="tools">
             <button
-            class="compile-and-run"
-            tabindex="-1"
-            @mousedown.prevent
-            @click="compileAndRun()"
+              class="compile-and-run"
+              tabindex="-1"
+              @mousedown.prevent
+              @click="compileAndRun()"
             />
           </div>
         </div>
         <v-editor ref="editor" />
-        <div class="status-bar" @mousedown.prevent>
+        <div
+          class="status-bar"
+          @mousedown.prevent
+        >
           <div class="log-counts">
-            <div class="errors" :class="{ visible: errorsCount }">
+            <div
+              class="errors"
+              :class="{ visible: errorsCount }"
+            >
               {{ errorsCount }}
             </div>
-            <div class="warnings" :class="{ visible: warningsCount }">
+            <div
+              class="warnings"
+              :class="{ visible: warningsCount }"
+            >
               {{ warningsCount }}
             </div>
           </div>
-          <div class="space-flex"></div>
-          <v-language-version-select dropup autohide>
+          <div class="space-flex" />
+          <v-language-version-select
+            dropup
+            autohide
+          >
             GLSL ES:
           </v-language-version-select>
           <v-checkbox v-model="rightPanelVisible">
@@ -35,8 +57,15 @@
           </v-checkbox>
         </div>
       </div>
-      <div class="right-panel" ref="rightPanel" :style="rightPanelStyle">
-        <div class="resizer" @mousedown.prevent="resizerMoveStart"></div>
+      <div
+        class="right-panel"
+        ref="rightPanel"
+        :style="rightPanelStyle"
+      >
+        <div
+          class="resizer"
+          @mousedown.prevent="resizerMoveStart"
+        />
         <v-renderer />
       </div>
     </div>
@@ -44,234 +73,234 @@
 </template>
 
 <script lang="ts">
-import fs from "fs-jetpack"
-import path from "path"
-import { remote, ipcRenderer as ipc, Event } from "electron"
-import Vue from "vue"
-import { EventBus } from "@/event-bus"
-import { mapGetters, mapState } from "vuex"
-import Tabs from "@/components/Tabs.vue"
-import Editor from "@/components/Editor.vue"
-import Renderer from "@/components/Renderer.vue"
-import TitleBar from "@/components/TitleBar.vue"
-import LanguageVersionSelect from "@/components/LanguageVersionSelect.vue"
-import Checkbox from "@/components/Checkbox.vue"
-import { ShaderType } from "@/scripts/renderer/_constants"
-import { StateSaveInfo } from "@/store"
-import { FILE_EXTENSION, NEW_FILE_NAME } from "@/constants"
-const { SidebarIcon } = require( "vue-feather-icons" )
+import fs from 'fs-jetpack'
+import path from 'path'
+import { remote, ipcRenderer as ipc, Event } from 'electron'
+import Vue from 'vue'
+import { EventBus } from '@/event-bus'
+import { mapGetters, mapState } from 'vuex'
+import Tabs from '@/components/Tabs.vue'
+import Editor from '@/components/Editor.vue'
+import Renderer from '@/components/Renderer.vue'
+import TitleBar from '@/components/TitleBar.vue'
+import LanguageVersionSelect from '@/components/LanguageVersionSelect.vue'
+import Checkbox from '@/components/Checkbox.vue'
+import { ShaderType } from '@/scripts/renderer/_constants'
+import { StateSaveInfo } from '@/store'
+import { FILE_EXTENSION, NEW_FILE_NAME } from '@/constants'
+const { SidebarIcon } = require('vue-feather-icons')
 
 const { app, dialog } = remote
 
-export default Vue.extend( {
-  name: "Playground",
+export default Vue.extend({
+  name: 'Playground',
   components: {
-    "v-titlebar": TitleBar,
-    "v-editor": Editor,
-    "v-renderer": Renderer,
-    "v-tabs": Tabs,
-    "v-language-version-select": LanguageVersionSelect,
-    "v-checkbox": Checkbox,
-    "v-sidebar": SidebarIcon
+    'v-titlebar': TitleBar,
+    'v-editor': Editor,
+    'v-renderer': Renderer,
+    'v-tabs': Tabs,
+    'v-language-version-select': LanguageVersionSelect,
+    'v-checkbox': Checkbox,
+    'v-sidebar': SidebarIcon
   },
-  data: () => ( {
-    filePath: "",
+  data: () => ({
+    filePath: '',
     window: remote.getCurrentWindow(),
     fullscreen: false,
     rightPanelResizing: false,
     rightPanelVisible: true,
     rightPanelWidth: 300
-  } ),
+  }),
   computed: {
-    newFile(): boolean {
-      return ! this.filePath
+    newFile (): boolean {
+      return !this.filePath
     },
-    fileName(): string {
-      return this.filePath ? path.basename( this.filePath, "." + FILE_EXTENSION ) : NEW_FILE_NAME
+    fileName (): string {
+      return this.filePath ? path.basename(this.filePath, '.' + FILE_EXTENSION) : NEW_FILE_NAME
     },
-    windowTitle(): string {
+    windowTitle (): string {
       // @ts-ignore
-      return ( this.fileName + ( this.documentHasUnsavedChanges ? " - edited" : "" ) )
+      return (this.fileName + (this.documentHasUnsavedChanges ? ' - edited' : ''))
     },
-    rightPanelStyle(): any {
+    rightPanelStyle (): any {
       return {
-        display: this.rightPanelVisible ? "unset" : "none",
-        flexBasis: `${ this.rightPanelWidth }px`
+        display: this.rightPanelVisible ? 'unset' : 'none',
+        flexBasis: `${this.rightPanelWidth}px`
       }
     },
-    ...mapGetters( [
-      "documentHasUnsavedChanges",
-      "errorsCount",
-      "warningsCount",
-      "saveInfo"
-    ] ),
-    ...mapState( [
-      "platform"
-    ] )
+    ...mapGetters([
+      'documentHasUnsavedChanges',
+      'errorsCount',
+      'warningsCount',
+      'saveInfo'
+    ]),
+    ...mapState([
+      'platform'
+    ])
   },
   watch: {
-    documentHasUnsavedChanges() {
+    documentHasUnsavedChanges () {
       // @ts-ignore
-      this.window.setDocumentEdited( this.documentHasUnsavedChanges )
+      this.window.setDocumentEdited(this.documentHasUnsavedChanges)
     },
-    windowTitle() {
-      this.window.setTitle( this.windowTitle )
+    windowTitle () {
+      this.window.setTitle(this.windowTitle)
     },
-    rightPanelVisible() {
-      setTimeout( () => {
+    rightPanelVisible () {
+      setTimeout(() => {
         // @ts-ignore
-        ( this.$refs.editor as Vue ).refresh()
-      }, 0 )
+        (this.$refs.editor as Vue).refresh()
+      }, 0)
     }
   },
-  mounted() {
-    ipc.once( "open", this.onOpen )
-    ipc.once( "new", this.onNew )
-    ipc.on( "save", this.onSave )
-    ipc.on( "close", this.onClose )
-    ipc.on( "set-active-shader", this.setActiveShader )
-    ipc.on( "compile-and-run", this.compileAndRun )
-    ipc.on( "toggle-scene-view", () => { this.rightPanelVisible = ! this.rightPanelVisible } )
+  mounted () {
+    ipc.once('open', this.onOpen)
+    ipc.once('new', this.onNew)
+    ipc.on('save', this.onSave)
+    ipc.on('close', this.onClose)
+    ipc.on('set-active-shader', this.setActiveShader)
+    ipc.on('compile-and-run', this.compileAndRun)
+    ipc.on('toggle-scene-view', () => { this.rightPanelVisible = !this.rightPanelVisible })
 
     // @ts-ignore
-    this.window.setDocumentEdited( this.documentHasUnsavedChanges )
-    this.window.setTitle( this.windowTitle )
+    this.window.setDocumentEdited(this.documentHasUnsavedChanges)
+    this.window.setTitle(this.windowTitle)
 
     // fullscreen state changes
     this.fullscreen = this.window.isFullScreen()
-    this.window.on( "enter-full-screen", () => { this.fullscreen = true } )
-    this.window.on( "leave-full-screen", () => { this.fullscreen = false } )
+    this.window.on('enter-full-screen', () => { this.fullscreen = true })
+    this.window.on('leave-full-screen', () => { this.fullscreen = false })
 
     // handling window resize events
     let resizeTimeout: any
-    this.window.on( "resize", () => {
-      clearTimeout( resizeTimeout )
-      resizeTimeout = setTimeout( this.onWindowResizeEnd, 300 )
-    } )
+    this.window.on('resize', () => {
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(this.onWindowResizeEnd, 300)
+    })
   },
   methods: {
-    resizerMoveStart( event: MouseEvent ) {
-      window.addEventListener( "mousemove", this.resizerMove )
-      window.addEventListener( "mouseup", this.resizerMoveEnd )
+    resizerMoveStart (event: MouseEvent) {
+      window.addEventListener('mousemove', this.resizerMove)
+      window.addEventListener('mouseup', this.resizerMoveEnd)
       this.rightPanelResizing = true
     },
-    resizerMoveEnd( event: MouseEvent ) {
-      window.removeEventListener( "mousemove", this.resizerMove )
-      window.removeEventListener( "mouseup", this.resizerMoveEnd )
+    resizerMoveEnd (event: MouseEvent) {
+      window.removeEventListener('mousemove', this.resizerMove)
+      window.removeEventListener('mouseup', this.resizerMoveEnd)
       this.rightPanelResizing = false
       this.adjustRightPanelWidth();
       // @ts-ignore - update scrollbars size
-      ( this.$refs.editor as Vue ).refresh()
+      (this.$refs.editor as Vue).refresh()
     },
-    resizerMove( event: MouseEvent ) {
+    resizerMove (event: MouseEvent) {
       this.rightPanelWidth = window.innerWidth - event.clientX
     },
-    onWindowResizeEnd() {
+    onWindowResizeEnd () {
       this.adjustRightPanelWidth()
     },
-    adjustRightPanelWidth() {
+    adjustRightPanelWidth () {
       // during resize, the right panel may have reached its max/min width, adjust width value to that min/max
       const rightPanelElement = this.$refs.rightPanel as HTMLElement
       this.rightPanelWidth = rightPanelElement.offsetWidth // offsetWidth: includes border width
     },
-    compileAndRun() {
-      EventBus.$emit( "saveShadersCode" )
-      EventBus.$emit( "compileAndRun" )
+    compileAndRun () {
+      EventBus.$emit('saveShadersCode')
+      EventBus.$emit('compileAndRun')
     },
-    setActiveShader( event: Event, value: ShaderType ) {
-      this.$store.commit( "SET_ACTIVE_SHADER", value )
+    setActiveShader (event: Event, value: ShaderType) {
+      this.$store.commit('SET_ACTIVE_SHADER', value)
     },
-    onOpen( event: Event, filePath: string ) {
+    onOpen (event: Event, filePath: string) {
       this.filePath = filePath
       this.loadFile()
       this.showWindow()
     },
-    onNew() {
+    onNew () {
       this.showWindow()
     },
-    onSave() {
+    onSave () {
       this.saveFile()
     },
-    onClose() {
+    onClose () {
       // @ts-ignore
-      if ( this.documentHasUnsavedChanges ) {
+      if (this.documentHasUnsavedChanges) {
         this.showUnsavedChangesWarning()
       } else {
-        this.closeWindow( true )
+        this.closeWindow(true)
       }
     },
-    showUnsavedChangesWarning() {
+    showUnsavedChangesWarning () {
       enum options {
         save,
         cancel,
         dontSave
       }
       const optionsLabels = [
-        "Save",
-        "Cancel",
+        'Save',
+        'Cancel',
         "Don't Save"
       ]
 
-      dialog.showMessageBox( this.window, {
-        title: "Unsaved Changes",
-        message: `Do you want to save the changes you made to ${ this.filePath ? path.basename( this.filePath ) : NEW_FILE_NAME }?`,
+      dialog.showMessageBox(this.window, {
+        title: 'Unsaved Changes',
+        message: `Do you want to save the changes you made to ${this.filePath ? path.basename(this.filePath) : NEW_FILE_NAME}?`,
         detail: "Your changes will be lost if you don't save them.",
-        type: "warning",
+        type: 'warning',
         buttons: optionsLabels,
         defaultId: options.save,
         cancelId: options.cancel
-      }, ( selectedOption ) => {
-        if ( selectedOption === options.dontSave ) {
-          this.closeWindow( true )
-        } else if ( selectedOption === options.save ) {
+      }, (selectedOption) => {
+        if (selectedOption === options.dontSave) {
+          this.closeWindow(true)
+        } else if (selectedOption === options.save) {
           // if the file save is cancelled, stop window from closing
-          this.closeWindow( this.saveFile() )
+          this.closeWindow(this.saveFile())
         } else {
-          this.closeWindow( false )
+          this.closeWindow(false)
         }
-      } )
+      })
     },
-    showSaveDialog() {
-      const filePath = dialog.showSaveDialog( this.window, {
+    showSaveDialog () {
+      const filePath = dialog.showSaveDialog(this.window, {
         defaultPath: this.fileName,
         filters: [
-          { name: "Shader Playgrounds File", extensions: [ FILE_EXTENSION ] }
+          { name: 'Shader Playgrounds File', extensions: [ FILE_EXTENSION ] }
         ]
-      } )
+      })
 
       return filePath
     },
-    showWindow() {
+    showWindow () {
       this.window.show()
-      this.$store.commit( "SET_WINDOW_READY", true )
+      this.$store.commit('SET_WINDOW_READY', true)
     },
-    closeWindow( proceed: boolean ) {
-      ipc.send( "close-window", proceed, this.filePath )
+    closeWindow (proceed: boolean) {
+      ipc.send('close-window', proceed, this.filePath)
     },
-    loadFile() {
-      const savedState: StateSaveInfo = fs.read( this.filePath, "json" )
+    loadFile () {
+      const savedState: StateSaveInfo = fs.read(this.filePath, 'json')
 
-      if ( savedState ) {
-        this.$store.dispatch( "restoreState", savedState )
-        EventBus.$emit( "loadState" )
+      if (savedState) {
+        this.$store.dispatch('restoreState', savedState)
+        EventBus.$emit('loadState')
         this.compileAndRun()
         this.registerWorkingFile()
       } else {
         this.window.destroy()
       }
     },
-    saveFile(): boolean {
+    saveFile (): boolean {
       let fileSaved = true
 
-      if ( this.newFile ) {
+      if (this.newFile) {
         // ask for a location to save it
         const newFilePath = this.showSaveDialog()
 
-        if ( newFilePath ) {
+        if (newFilePath) {
           // update the store and save it
-          EventBus.$emit( "saveState" )
+          EventBus.$emit('saveState')
           // @ts-ignore
-          fs.write( newFilePath, this.saveInfo )
+          fs.write(newFilePath, this.saveInfo)
 
           // update filePath and register the file to recents, etc
           this.filePath = newFilePath
@@ -281,21 +310,21 @@ export default Vue.extend( {
         }
       } else {
         // working on an existing file, just save it
-        EventBus.$emit( "saveState" )
+        EventBus.$emit('saveState')
         // @ts-ignore
-        fs.write( this.filePath, this.saveInfo )
+        fs.write(this.filePath, this.saveInfo)
       }
 
       return fileSaved
     },
-    registerWorkingFile() {
-      if ( this.filePath ) {
-        this.window.setRepresentedFilename( this.filePath )
-        ipc.send( "opened-file", this.filePath )
+    registerWorkingFile () {
+      if (this.filePath) {
+        this.window.setRepresentedFilename(this.filePath)
+        ipc.send('opened-file', this.filePath)
       }
     }
   }
-} )
+})
 </script>
 
 <style>

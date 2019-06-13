@@ -5,15 +5,15 @@
 </template>
 
 <script lang="ts">
-import "@/styles/uniform_editor.css"
-import Vue from "vue"
-import FloatInput from "@/components/FloatInput.vue"
-import { UniformEditor } from "@/scripts/renderer/UniformEditor"
+import '@/styles/uniform_editor.css'
+import Vue from 'vue'
+import FloatInput from '@/components/FloatInput.vue'
+import { UniformEditor } from '@/scripts/renderer/UniformEditor'
 
-export default Vue.extend( {
-  name: "UniformEditorFloat",
+export default Vue.extend({
+  name: 'UniformEditorFloat',
   components: {
-    "v-float-input": FloatInput
+    'v-float-input': FloatInput
   },
   props: {
     editor: {
@@ -21,24 +21,24 @@ export default Vue.extend( {
       default: null
     }
   },
-  data: () => ( {
+  data: () => ({
     value: 0 as number
-  } ),
+  }),
   watch: {
-    value() {
-      this.editor.setValue( this.value )
+    value () {
+      this.editor.setValue(this.value)
     },
-    editor() {
+    editor () {
       this.loadValue()
     }
   },
-  activated() {
+  activated () {
     this.loadValue()
   },
   methods: {
-    loadValue() {
+    loadValue () {
       this.value = this.editor.getValue()
     }
   }
-} )
+})
 </script>

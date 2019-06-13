@@ -8,7 +8,7 @@ export class Vertex {
   public normalIndex: number | undefined
   public textureCoordinatesIndex: number | undefined
 
-  constructor( positionIndex: number, optionals?: IVertexOptionals ) {
+  constructor (positionIndex: number, optionals?: IVertexOptionals) {
     this.positionIndex = positionIndex
 
     optionals = optionals || {}
@@ -16,15 +16,15 @@ export class Vertex {
     this.textureCoordinatesIndex = optionals.textureCoordinatesIndex
   }
 
-  public static toString( positionIndex: number, optionals?: IVertexOptionals ) {
+  public static toString (positionIndex: number, optionals?: IVertexOptionals) {
     optionals = optionals || {}
 
     const vertexValues = []
 
-    vertexValues.push( positionIndex )
-    vertexValues.push( optionals.textureCoordinatesIndex )
-    vertexValues.push( optionals.normalIndex )
+    vertexValues.push(positionIndex)
+    vertexValues.push(optionals.textureCoordinatesIndex)
+    vertexValues.push(optionals.normalIndex)
 
-    return vertexValues.join( "/" )
+    return vertexValues.join('/')
   }
 }

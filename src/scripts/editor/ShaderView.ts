@@ -1,8 +1,8 @@
-import CodeMirror, { Doc, Editor, Position, TextMarker } from "./codemirror/lib/codemirror"
-import { UniformEditor } from "@/scripts/renderer/UniformEditor"
-import { ShaderType } from "@/scripts/renderer/_constants"
-import { InspectorLogEntry, LogEntryType } from "@/scripts/renderer/InspectorLogEntry"
-import ShaderLogMarker from "./ShaderLogMarker"
+import CodeMirror, { Doc, Editor, Position, TextMarker } from './codemirror/lib/codemirror'
+import { UniformEditor } from '@/scripts/renderer/UniformEditor'
+import { ShaderType } from '@/scripts/renderer/_constants'
+import { InspectorLogEntry, LogEntryType } from '@/scripts/renderer/InspectorLogEntry'
+import ShaderLogMarker from './ShaderLogMarker'
 
 export interface ShaderLog {
   errors: Array <[ number, string[] ]>,
@@ -29,9 +29,9 @@ export class ShaderView {
   private highlightTimeout: null | number
   private changeGeneration: number
 
-  constructor( type: ShaderType ) {
+  constructor (type: ShaderType) {
     this.type = type
-    this.doc = CodeMirror.Doc( "" )
+    this.doc = CodeMirror.Doc('')
     this.log = { errors: [], warnings: [] }
     this.markedLines = []
     this.uniformsButtons = []
@@ -44,122 +44,122 @@ export class ShaderView {
 
   // 👥 Metodos Publicos
 
-  public setValue( value: string = "" ) {
-    this.doc.setValue( value )
+  public setValue (value: string = '') {
+    this.doc.setValue(value)
   }
 
-  public getValue() {
+  public getValue () {
     return this.doc.getValue()
   }
 
-  public clearHistory() {
+  public clearHistory () {
     this.doc.clearHistory()
   }
 
-  public markClean() {
+  public markClean () {
     this.changeGeneration = this.doc.changeGeneration()
   }
 
-  public isClean() {
-    return this.doc.isClean( this.changeGeneration )
+  public isClean () {
+    return this.doc.isClean(this.changeGeneration)
   }
 
-  public setLog( log: ShaderLog ) {
+  public setLog (log: ShaderLog) {
     this.clearLog()
     this.log = log
 
-    if ( this.log.errors.length > 0 ) {
-      this.showLog( LogEntryType.Error )
-    } else if ( this.log.warnings.length > 0 ) {
-      this.showLog( LogEntryType.Warning )
+    if (this.log.errors.length > 0) {
+      this.showLog(LogEntryType.Error)
+    } else if (this.log.warnings.length > 0) {
+      this.showLog(LogEntryType.Warning)
     }
   }
 
-  public enableUniformsTools( uniformsEditors: UniformEditor[], onUniformClick: ( target: HTMLElement, editor: UniformEditor, range: Range ) => void, onUniformDoubleClick: ( event: MouseEvent ) => void ) {
+  public enableUniformsTools (uniformsEditors: UniformEditor[], onUniformClick: (target: HTMLElement, editor: UniformEditor, range: Range) => void, onUniformDoubleClick: (event: MouseEvent) => void) {
     const editor = this.doc.getEditor()
 
     // enable tools only if the shader document is the current editor document ( i.e. getEditor() returns something )
-    if ( editor ) {
+    if (editor) {
       // clean-up previously enabled uniforms buttons
-      if ( this.toolsEnabled ) {
+      if (this.toolsEnabled) {
         this.disableUniformsTools()
       }
-      const uniformsRanges = this.findUniformsRanges( uniformsEditors, editor )
-      this.addUniformsButtons( uniformsRanges, onUniformClick, onUniformDoubleClick )
+      const uniformsRanges = this.findUniformsRanges(uniformsEditors, editor)
+      this.addUniformsButtons(uniformsRanges, onUniformClick, onUniformDoubleClick)
       this.toolsEnabled = true
     }
   }
 
-  public disableUniformsTools() {
+  public disableUniformsTools () {
     this.removeUniformsButtons()
     this.toolsEnabled = false
   }
 
-  public highlightUniformsFound() {
+  public highlightUniformsFound () {
     // highlight found uniforms if they arent already being highlighted
-    if ( this.highlightTimeout === null ) {
-      for ( let button of this.uniformsButtons ) {
-        button.classList.add( "highlighted" )
+    if (this.highlightTimeout === null) {
+      for (let button of this.uniformsButtons) {
+        button.classList.add('highlighted')
       }
 
-      const timeout = 700;
+      const timeout = 700
 
-      this.highlightTimeout = window.setTimeout( () => {
-        for ( let button of this.uniformsButtons ) {
-          button.classList.remove( "highlighted" )
+      this.highlightTimeout = window.setTimeout(() => {
+        for (let button of this.uniformsButtons) {
+          button.classList.remove('highlighted')
         }
         this.highlightTimeout = null
-      }, timeout )
+      }, timeout)
     }
   }
 
-  public clearSelectedUniform() {
+  public clearSelectedUniform () {
     this.clearActiveUniformButton()
   }
 
   // ✋🏼 Metodos Privados
 
-  private showLog( type: LogEntryType ) {
-    const log = ( type === LogEntryType.Error ) ? this.log.errors : this.log.warnings
+  private showLog (type: LogEntryType) {
+    const log = (type === LogEntryType.Error) ? this.log.errors : this.log.warnings
 
-    for ( let [ lineNumber, descriptions ] of log ) {
-      const marker = new ShaderLogMarker( this, lineNumber, descriptions, type )
-      this.markedLines.push( marker )
+    for (let [ lineNumber, descriptions ] of log) {
+      const marker = new ShaderLogMarker(this, lineNumber, descriptions, type)
+      this.markedLines.push(marker)
     }
   }
 
-  private clearLog() {
-    for ( let marker of this.markedLines ) {
+  private clearLog () {
+    for (let marker of this.markedLines) {
       marker.clear()
     }
     this.markedLines = []
   }
 
-  private findUniformsRanges( uniformsEditors: UniformEditor[], editor: Editor ): UniformRange[] {
+  private findUniformsRanges (uniformsEditors: UniformEditor[], editor: Editor): UniformRange[] {
     const ranges: UniformRange[] = []
-    const [ basicUniforms, structUniforms ] = this.classifyUniformsEditors( uniformsEditors )
+    const [ basicUniforms, structUniforms ] = this.classifyUniformsEditors(uniformsEditors)
 
-    for ( let lineNumber = 0; lineNumber < this.doc.lineCount(); lineNumber ++ ) {
-      const lineTokens = editor.getLineTokens( lineNumber )
-      for ( let tokenNumber = 0; tokenNumber < lineTokens.length; tokenNumber ++ ) {
+    for (let lineNumber = 0; lineNumber < this.doc.lineCount(); lineNumber++) {
+      const lineTokens = editor.getLineTokens(lineNumber)
+      for (let tokenNumber = 0; tokenNumber < lineTokens.length; tokenNumber++) {
         const token = lineTokens[ tokenNumber ]
-        if ( token.type === "identifier" ) {
-          if ( basicUniforms.has( token.string ) ) {
+        if (token.type === 'identifier') {
+          if (basicUniforms.has(token.string)) {
             const from: Position = { line: lineNumber, ch: token.start }
-            const to: Position   = { line: lineNumber, ch: token.end }
+            const to: Position = { line: lineNumber, ch: token.end }
             const range = { from, to }
-            const editor = basicUniforms.get( token.string ) as UniformEditor
-            ranges.push( { range, editor } )
+            const editor = basicUniforms.get(token.string) as UniformEditor
+            ranges.push({ range, editor })
           } else {
-            const structComponents = structUniforms.get( token.string )
-            if ( structComponents !== undefined ) {
+            const structComponents = structUniforms.get(token.string)
+            if (structComponents !== undefined) {
               const possibleAttribute = lineTokens[ tokenNumber + 2 ] // [ ... "light", ".", >"position"< ... ]
-              if ( possibleAttribute && possibleAttribute.type === "attribute" && structComponents.has( possibleAttribute.string ) ) {
+              if (possibleAttribute && possibleAttribute.type === 'attribute' && structComponents.has(possibleAttribute.string)) {
                 const from: Position = { line: lineNumber, ch: token.start }
-                const to: Position   = { line: lineNumber, ch: possibleAttribute.end }
+                const to: Position = { line: lineNumber, ch: possibleAttribute.end }
                 const range = { from, to }
-                const editor = structComponents.get( possibleAttribute.string ) as UniformEditor
-                ranges.push( { range, editor } )
+                const editor = structComponents.get(possibleAttribute.string) as UniformEditor
+                ranges.push({ range, editor })
               }
             }
           }
@@ -170,39 +170,39 @@ export class ShaderView {
     return ranges
   }
 
-  private classifyUniformsEditors( uniformsEditors: UniformEditor[] ) {
+  private classifyUniformsEditors (uniformsEditors: UniformEditor[]) {
     const uniformsEditorsMap: Map <string, UniformEditor> = new Map()
     const uniformsNames: string[] = []
 
-    for ( let editor of uniformsEditors ) {
-      uniformsEditorsMap.set( editor.target, editor )
-      uniformsNames.push( editor.target )
+    for (let editor of uniformsEditors) {
+      uniformsEditorsMap.set(editor.target, editor)
+      uniformsNames.push(editor.target)
     }
 
     // clasifico uniforms como "basicos" y "estructuras" (con sus componentes)
     const basic: Map <string, UniformEditor> = new Map()
     const structs: Map <string, Map <string, UniformEditor> > = new Map()
 
-    for ( let name of uniformsNames ) {
+    for (let name of uniformsNames) {
       // descompongo nombre del uniform:
       //  • si es basico: "viewMatrix"     -> [ "viewMatrix" ]
       //  • si es struct: "light.position" -> [ "light", "position" ]
-      const splitName = name.split( "." )
-      if ( splitName.length === 1 ) {
+      const splitName = name.split('.')
+      if (splitName.length === 1) {
         const identifier = splitName[ 0 ]
-        const editor = uniformsEditorsMap.get( name ) as UniformEditor
-        basic.set( identifier, editor )
+        const editor = uniformsEditorsMap.get(name) as UniformEditor
+        basic.set(identifier, editor)
       } else {
         const structIdentifier = splitName[ 0 ]
         const structAttribute = splitName[ 1 ]
-        const editor = uniformsEditorsMap.get( name ) as UniformEditor
-        let structAttributes = structs.get( structIdentifier )
-        if ( structAttributes !== undefined ) {
-          structAttributes.set( structAttribute, editor )
+        const editor = uniformsEditorsMap.get(name) as UniformEditor
+        let structAttributes = structs.get(structIdentifier)
+        if (structAttributes !== undefined) {
+          structAttributes.set(structAttribute, editor)
         } else {
           structAttributes = new Map()
-          structAttributes.set( structAttribute, editor )
-          structs.set( structIdentifier, structAttributes )
+          structAttributes.set(structAttribute, editor)
+          structs.set(structIdentifier, structAttributes)
         }
       }
     }
@@ -210,45 +210,45 @@ export class ShaderView {
     return [ basic, structs ] as [ Map <string, UniformEditor>, Map <string, Map <string, UniformEditor> > ]
   }
 
-  private addUniformsButtons( uniformsRanges: UniformRange[], onUniformClick: ( target: HTMLElement, editor: UniformEditor, range: Range ) => void, onUniformDoubleClick: ( event: MouseEvent ) => void ) {
+  private addUniformsButtons (uniformsRanges: UniformRange[], onUniformClick: (target: HTMLElement, editor: UniformEditor, range: Range) => void, onUniformDoubleClick: (event: MouseEvent) => void) {
     this.uniformsButtons = []
     this.uniformsButtonsMarkers = []
 
-    for ( let uniform of uniformsRanges ) {
-      const splitUniformName = uniform.editor.target.split( "." )
+    for (let uniform of uniformsRanges) {
+      const splitUniformName = uniform.editor.target.split('.')
 
-      const uniformButton = document.createElement( "span" )
-      uniformButton.className = "uniform-button"
-      uniformButton.innerHTML = `<span class="cm-identifier uniform">${ splitUniformName[ 0 ] }</span>`
-      uniformButton.innerHTML += splitUniformName[ 1 ] ? `<span class="cm-punctuation uniform">.</span><span class="cm-attribute uniform">${ splitUniformName[ 1 ] }</span>` : ""
+      const uniformButton = document.createElement('span')
+      uniformButton.className = 'uniform-button'
+      uniformButton.innerHTML = `<span class="cm-identifier uniform">${splitUniformName[ 0 ]}</span>`
+      uniformButton.innerHTML += splitUniformName[ 1 ] ? `<span class="cm-punctuation uniform">.</span><span class="cm-attribute uniform">${splitUniformName[ 1 ]}</span>` : ''
 
       let timer: NodeJS.Timeout
       let prevent = false
       const delay = 150
 
-      uniformButton.addEventListener( "click", () => {
-        timer = setTimeout( () => {
-          if ( ! prevent ) {
-            this.setActiveUniformButton( uniformButton )
-            onUniformClick( uniformButton, uniform.editor, uniform.range )
+      uniformButton.addEventListener('click', () => {
+        timer = setTimeout(() => {
+          if (!prevent) {
+            this.setActiveUniformButton(uniformButton)
+            onUniformClick(uniformButton, uniform.editor, uniform.range)
           }
           prevent = false
-        }, delay )
-      } )
+        }, delay)
+      })
 
-      uniformButton.addEventListener("dblclick", ( event ) => {
-        clearTimeout( timer )
+      uniformButton.addEventListener('dblclick', (event) => {
+        clearTimeout(timer)
         prevent = true
-        onUniformDoubleClick( event )
-      } )
+        onUniformDoubleClick(event)
+      })
 
-      this.uniformsButtons.push( uniformButton )
-      this.uniformsButtonsMarkers.push( this.doc.markText( uniform.range.from, uniform.range.to, { replacedWith: uniformButton } ) )
+      this.uniformsButtons.push(uniformButton)
+      this.uniformsButtonsMarkers.push(this.doc.markText(uniform.range.from, uniform.range.to, { replacedWith: uniformButton }))
     }
   }
 
-  private removeUniformsButtons() {
-    for ( let button of this.uniformsButtonsMarkers ) {
+  private removeUniformsButtons () {
+    for (let button of this.uniformsButtonsMarkers) {
       button.clear()
     }
 
@@ -256,15 +256,15 @@ export class ShaderView {
     this.uniformsButtonsMarkers = []
   }
 
-  private setActiveUniformButton( button: HTMLElement ) {
+  private setActiveUniformButton (button: HTMLElement) {
     this.clearActiveUniformButton()
     this.activeUniformButton = button
-    this.activeUniformButton.classList.add( "active" )
+    this.activeUniformButton.classList.add('active')
   }
 
-  private clearActiveUniformButton() {
-    if ( this.activeUniformButton ) {
-      this.activeUniformButton.classList.remove( "active" )
+  private clearActiveUniformButton () {
+    if (this.activeUniformButton) {
+      this.activeUniformButton.classList.remove('active')
       this.activeUniformButton = null
     }
   }

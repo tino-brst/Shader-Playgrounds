@@ -1,7 +1,7 @@
-import CodeMirror from "../../lib/codemirror"
+import CodeMirror from '../../lib/codemirror'
 
-declare module "../../lib/codemirror" {
-    var commands: any
+declare module '../../lib/codemirror' {
+  var commands: any
 
     /** Provides a framework for showing autocompletion hints. Defines editor.showHint, which takes an optional
     options object, and pops up a widget that allows the user to select a completion. Finding hints is done with
@@ -9,65 +9,65 @@ declare module "../../lib/codemirror" {
     and return a {list, from, to} object, where list is an array of strings or objects (the completions), and
     from and to give the start and end of the token that is being completed as {line, ch} objects. An optional
     selectedHint property (an integer) can be added to the completion object to control the initially selected hint. */
-    function showHint( cm: CodeMirror.Editor, hinter?: HintFunction, options?: ShowHintOptions ): void
+    function showHint(cm: CodeMirror.Editor, hinter?: HintFunction, options?: ShowHintOptions): void
 
     interface Hints {
-        from: Position
-        to: Position
-        list: ( Hint | string )[]
+      from: Position
+      to: Position
+      list: (Hint | string)[]
     }
 
     /** Interface used by showHint.js Codemirror add-on
     When completions aren't simple strings, they should be objects with the following properties: */
     interface Hint {
-        text: string
-        className?: string
-        displayText?: string
-        from?: Position
-        to?: Position
-        /** Called if a completion is picked. If provided *you* are responsible for applying the completion */
-        hint?: ( cm: CodeMirror.Editor, data: Hints, cur: Hint ) => void
-        render?: ( element: HTMLLIElement, data: Hints, cur: Hint ) => void
-        /** Indexes in the text property that match the search (used in render for highlighting) */
-        indexes?: number[]
-        docs?: string
-        snippet?: string
+      text: string
+      className?: string
+      displayText?: string
+      from?: Position
+      to?: Position
+      /** Called if a completion is picked. If provided *you* are responsible for applying the completion */
+      hint?: (cm: CodeMirror.Editor, data: Hints, cur: Hint) => void
+      render?: (element: HTMLLIElement, data: Hints, cur: Hint) => void
+      /** Indexes in the text property that match the search (used in render for highlighting) */
+      indexes?: number[]
+      docs?: string
+      snippet?: string
     }
 
     interface Editor {
-        /** An extension of the existing CodeMirror typings for the Editor.on("keyup", func) syntax */
-        showHint: ( options: ShowHintOptions ) => void
+      /** An extension of the existing CodeMirror typings for the Editor.on("keyup", func) syntax */
+      showHint: (options: ShowHintOptions) => void
     }
 
     interface HintFunction {
-        ( cm: CodeMirror.Editor ): Hints
+      (cm: CodeMirror.Editor): Hints
     }
 
     interface AsyncHintFunction {
-        ( cm: CodeMirror.Editor, callback: ( hints: Hints ) => any ): any
-        async?: boolean
+      (cm: CodeMirror.Editor, callback: (hints: Hints) => any): any
+      async?: boolean
     }
 
     interface ShowHintOptions {
-        hint?: HintFunction | AsyncHintFunction
-        completeSingle?: boolean
-        alignWithWord?: boolean
-        trigger?: string
+      hint?: HintFunction | AsyncHintFunction
+      completeSingle?: boolean
+      alignWithWord?: boolean
+      trigger?: string
     }
 
     /** The Handle used to interact with the autocomplete dialog box. */
     interface Handle {
-        moveFocus( n: number, avoidWrap: boolean ): void
-        setFocus( n: number ): void
-        menuSize(): number
-        length: number
-        close(): void
-        pick(): void
-        data: any
+      moveFocus(n: number, avoidWrap: boolean): void
+      setFocus(n: number): void
+      menuSize(): number
+      length: number
+      close(): void
+      pick(): void
+      data: any
     }
 
     interface EditorConfiguration {
-        showHint?: boolean
-        hintOptions?: ShowHintOptions
+      showHint?: boolean
+      hintOptions?: ShowHintOptions
     }
-}
+  }

@@ -17,12 +17,12 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-const { CheckIcon } = require( "vue-feather-icons" )
+import Vue from 'vue'
+const { CheckIcon } = require('vue-feather-icons')
 
-export default Vue.extend( {
+export default Vue.extend({
   components: {
-    "v-check-icon": CheckIcon
+    'v-check-icon': CheckIcon
   },
   props: {
     value: {
@@ -35,13 +35,13 @@ export default Vue.extend( {
     }
   },
   methods: {
-    updateValue() {
-      if ( ! this.disabled ) {
-        this.$emit( "input", ! this.value )
+    updateValue () {
+      if (!this.disabled) {
+        this.$emit('input', !this.value)
       }
     }
   }
-} )
+})
 </script>
 
 <style lang="stylus">

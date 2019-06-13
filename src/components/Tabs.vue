@@ -31,24 +31,24 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import { mapState } from "vuex"
-import { ShaderType } from "@/scripts/renderer/_constants"
+import Vue from 'vue'
+import { mapState } from 'vuex'
+import { ShaderType } from '@/scripts/renderer/_constants'
 
-export default Vue.extend( {
-  name: "Tabs",
-  computed: mapState( [
-    "activeShader",
-    "vertexLog",
-    "fragmentLog",
-    "platform"
-  ] ),
+export default Vue.extend({
+  name: 'Tabs',
+  computed: mapState([
+    'activeShader',
+    'vertexLog',
+    'fragmentLog',
+    'platform'
+  ]),
   methods: {
-    updateValue( value: ShaderType ) {
-      this.$store.commit( "SET_ACTIVE_SHADER", value )
+    updateValue (value: ShaderType) {
+      this.$store.commit('SET_ACTIVE_SHADER', value)
     }
   }
-} )
+})
 </script>
 
 <style>

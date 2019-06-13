@@ -20,13 +20,13 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
+import Vue from 'vue'
 
 const TARGET_OFFSET = 8
 const VIEWPORT_MARGIN = 5
 
-export default Vue.extend( {
-  name: "Tooltip",
+export default Vue.extend({
+  name: 'Tooltip',
   props: {
     show: {
       type: Boolean,
@@ -37,33 +37,33 @@ export default Vue.extend( {
       required: true
     }
   },
-  data: () => ( {
+  data: () => ({
     visible: false,
     below: false,
-    tooltipStyle: { top: "", left: "" },
-    tipStyle: { left: "" }
-  } ),
+    tooltipStyle: { top: '', left: '' },
+    tipStyle: { left: '' }
+  }),
   watch: {
-    show() {
-      if ( this.show ) {
-        this.$nextTick( () => {
+    show () {
+      if (this.show) {
+        this.$nextTick(() => {
           this.adjustForViewportOverlap()
           this.visible = true
-        } )
+        })
       } else {
         this.visible = false
       }
     },
-    target() {
-      this.$nextTick( () => {
-        if ( this.visible ) {
+    target () {
+      this.$nextTick(() => {
+        if (this.visible) {
           this.adjustForViewportOverlap()
         }
-      } )
+      })
     }
   },
   methods: {
-    adjustForViewportOverlap() {
+    adjustForViewportOverlap () {
       // ajustes del contenido principal ... tiene que haber forma mas prolija 🤮
       const tooltip = this.$refs.tooltip as HTMLElement
       const targetBounds = this.target.getBoundingClientRect()
@@ -71,37 +71,37 @@ export default Vue.extend( {
 
       // ajuste horizontal
       const left = targetBounds.left + targetBounds.width / 2 - tooltip.clientWidth / 2
-      if ( left < VIEWPORT_MARGIN ) {
-        pastMargin = Math.max( 0, VIEWPORT_MARGIN - left )
-        this.tooltipStyle.left = VIEWPORT_MARGIN + "px"
+      if (left < VIEWPORT_MARGIN) {
+        pastMargin = Math.max(0, VIEWPORT_MARGIN - left)
+        this.tooltipStyle.left = VIEWPORT_MARGIN + 'px'
       } else {
-        const right = window.innerWidth - ( left + tooltip.clientWidth )
-        if ( right < VIEWPORT_MARGIN ) {
-          pastMargin = - Math.max( 0, VIEWPORT_MARGIN - right )
-          this.tooltipStyle.left = window.innerWidth - tooltip.clientWidth - VIEWPORT_MARGIN + "px"
+        const right = window.innerWidth - (left + tooltip.clientWidth)
+        if (right < VIEWPORT_MARGIN) {
+          pastMargin = -Math.max(0, VIEWPORT_MARGIN - right)
+          this.tooltipStyle.left = window.innerWidth - tooltip.clientWidth - VIEWPORT_MARGIN + 'px'
         } else {
-          this.tooltipStyle.left = left + "px"
+          this.tooltipStyle.left = left + 'px'
         }
       }
 
       // ajuste vertical
-      const fitsAbove = ( targetBounds.top - tooltip.clientHeight - TARGET_OFFSET - VIEWPORT_MARGIN * 2 ) > 0
-      if ( fitsAbove ) {
-        this.tooltipStyle.top = ( targetBounds.top - tooltip.clientHeight - TARGET_OFFSET ) + "px"
+      const fitsAbove = (targetBounds.top - tooltip.clientHeight - TARGET_OFFSET - VIEWPORT_MARGIN * 2) > 0
+      if (fitsAbove) {
+        this.tooltipStyle.top = (targetBounds.top - tooltip.clientHeight - TARGET_OFFSET) + 'px'
         this.below = false
       } else {
-        this.tooltipStyle.top = ( targetBounds.bottom + TARGET_OFFSET ) + "px"
+        this.tooltipStyle.top = (targetBounds.bottom + TARGET_OFFSET) + 'px'
         this.below = true
       }
 
       // ajustes del tip
       const tip = this.$refs.tip as HTMLElement
       this.tipStyle = {
-        left: tooltip.clientWidth / 2 - tip.clientWidth / 2 - pastMargin + "px"
+        left: tooltip.clientWidth / 2 - tip.clientWidth / 2 - pastMargin + 'px'
       }
     }
   }
-} )
+})
 </script>
 
 <style>

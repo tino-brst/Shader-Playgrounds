@@ -45,15 +45,15 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import roundTo from "round-to"
-const { ChevronDownIcon } = require( "vue-feather-icons" )
-const { ChevronUpIcon } = require( "vue-feather-icons" )
+import Vue from 'vue'
+import roundTo from 'round-to'
+const { ChevronDownIcon } = require('vue-feather-icons')
+const { ChevronUpIcon } = require('vue-feather-icons')
 
-export default Vue.extend( {
+export default Vue.extend({
   components: {
-    "v-chevron-down-icon": ChevronDownIcon,
-    "v-chevron-up-icon": ChevronUpIcon
+    'v-chevron-down-icon': ChevronDownIcon,
+    'v-chevron-up-icon': ChevronUpIcon
   },
   props: {
     value: {
@@ -62,7 +62,7 @@ export default Vue.extend( {
     },
     label: {
       type: String,
-      default: ""
+      default: ''
     },
     step: {
       type: Number,
@@ -77,78 +77,78 @@ export default Vue.extend( {
       default: 2
     }
   },
-  data() {
+  data () {
     return {
       editing: false,
       dragging: false
     }
   },
   computed: {
-    roundedValue(): number {
-      return roundTo( this.value, this.decimals )
+    roundedValue (): number {
+      return roundTo(this.value, this.decimals)
     }
   },
   methods: {
-    stepUp( event: MouseEvent ) {
-      if ( ! this.dragging ) {
-        const step = ( event.shiftKey ) ? this.step * this.stepMultiplier : this.step
-        this.updateValue( this.value + step )
+    stepUp (event: MouseEvent) {
+      if (!this.dragging) {
+        const step = (event.shiftKey) ? this.step * this.stepMultiplier : this.step
+        this.updateValue(this.value + step)
       }
     },
-    stepDown( event: MouseEvent ) {
-      if ( ! this.dragging ) {
-        const step = ( event.shiftKey ) ? this.step * this.stepMultiplier : this.step
-        this.updateValue( this.value - step )
+    stepDown (event: MouseEvent) {
+      if (!this.dragging) {
+        const step = (event.shiftKey) ? this.step * this.stepMultiplier : this.step
+        this.updateValue(this.value - step)
       }
     },
-    enterEditingMode() {
+    enterEditingMode () {
       this.editing = true
       const input = this.$refs.input as HTMLInputElement
       input.select()
     },
-    saveEdit() {
+    saveEdit () {
       const input = this.$refs.input as HTMLInputElement
-      const valueString = input.value.replace( ",", "." )
-      if ( valueString === "" ) {
-        this.updateValue( 0 )
+      const valueString = input.value.replace(',', '.')
+      if (valueString === '') {
+        this.updateValue(0)
       } else {
-        const value = parseFloat( valueString )
-        if ( ! isNaN( value ) ) {
-          this.updateValue( value )
+        const value = parseFloat(valueString)
+        if (!isNaN(value)) {
+          this.updateValue(value)
         }
       }
       this.editing = false
       this.$forceUpdate()
     },
-    dragStart( event: MouseEvent ) {
-      window.addEventListener( "mousemove", this.dragMove )
-      window.addEventListener( "mouseup", this.dragEnd )
+    dragStart (event: MouseEvent) {
+      window.addEventListener('mousemove', this.dragMove)
+      window.addEventListener('mouseup', this.dragEnd)
     },
-    dragMove( event: MouseEvent ) {
-      if ( ! this.dragging ) {
+    dragMove (event: MouseEvent) {
+      if (!this.dragging) {
         this.dragging = true
       }
-      const step = ( event.shiftKey ) ? this.step * this.stepMultiplier : this.step
-      this.updateValue( this.value - step * event.movementY * 0.1 )
+      const step = (event.shiftKey) ? this.step * this.stepMultiplier : this.step
+      this.updateValue(this.value - step * event.movementY * 0.1)
     },
-    dragEnd( event: MouseEvent ) {
+    dragEnd (event: MouseEvent) {
       this.dragging = false
       event.preventDefault()
-      window.removeEventListener( "mousemove", this.dragMove )
-      window.removeEventListener( "mouseup", this.dragEnd )
+      window.removeEventListener('mousemove', this.dragMove)
+      window.removeEventListener('mouseup', this.dragEnd)
     },
-    onScroll( event: WheelEvent ) {
-      if ( this.editing ) {
+    onScroll (event: WheelEvent) {
+      if (this.editing) {
         this.saveEdit()
       }
-      const step = ( event.shiftKey ) ? this.step * this.stepMultiplier : this.step
-      this.updateValue( this.value - step * event.movementY * 0.1 )
+      const step = (event.shiftKey) ? this.step * this.stepMultiplier : this.step
+      this.updateValue(this.value - step * event.movementY * 0.1)
     },
-    updateValue( newValue: number ) {
-      this.$emit( "input", roundTo( newValue, this.decimals ) )
+    updateValue (newValue: number) {
+      this.$emit('input', roundTo(newValue, this.decimals))
     }
   }
-} )
+})
 </script>
 
 <style>

@@ -1,7 +1,7 @@
-import CodeMirror from "../lib/codemirror"
+import CodeMirror from '../lib/codemirror'
 
-declare module "../../lib/codemirror" {
-    interface EditorConfiguration {
-        keyMap?: "default" | "sublime";
-    }
+declare module '../../lib/codemirror' {
+  interface EditorConfiguration {
+    keyMap?: 'default' | 'sublime';
+  }
 }

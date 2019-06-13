@@ -41,19 +41,19 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue"
-import { Model } from "@/scripts/renderer/Renderer"
-const { CheckIcon } = require( "vue-feather-icons" )
+import Vue from 'vue'
+import { Model } from '@/scripts/renderer/Renderer'
+const { CheckIcon } = require('vue-feather-icons')
 
-export default Vue.extend( {
-  name: "ModelSelect",
+export default Vue.extend({
+  name: 'ModelSelect',
   components: {
-    "v-check-icon": CheckIcon
+    'v-check-icon': CheckIcon
   },
   props: {
     value: {
       type: String,
-      default: ""
+      default: ''
     },
     models: {
       type: Array as () => Model[],
@@ -68,32 +68,32 @@ export default Vue.extend( {
       default: false
     }
   },
-  data() {
+  data () {
     return {
       isActive: false
     }
   },
-  created() {
-    document.addEventListener( "mousedown", ( event ) => { this.checkOutsideClick( event ) } )
+  created () {
+    document.addEventListener('mousedown', (event) => { this.checkOutsideClick(event) })
   },
   methods: {
-    updateValue( model: string ) {
-      if ( this.autohide ) {
+    updateValue (model: string) {
+      if (this.autohide) {
         this.isActive = false
       }
-      this.$emit( "input", model )
+      this.$emit('input', model)
     },
-    checkOutsideClick( event: MouseEvent ) {
+    checkOutsideClick (event: MouseEvent) {
       const clickableArea = this.$refs.clickableArea as Element
-      if ( clickableArea !== undefined ) {
-        const clickedInside = clickableArea.contains( event.target as Node )
-        if ( ! clickedInside ) {
+      if (clickableArea !== undefined) {
+        const clickedInside = clickableArea.contains(event.target as Node)
+        if (!clickedInside) {
           this.isActive = false
         }
       }
     }
   }
-} )
+})
 </script>
 
 <style lang="stylus">
