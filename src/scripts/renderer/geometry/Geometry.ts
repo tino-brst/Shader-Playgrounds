@@ -27,8 +27,6 @@ export class Geometry {
         this.computePerFaceVertexNormals()
       }
 
-      this.normalize()
-
       this.loadArrays()
     }
   }
