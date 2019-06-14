@@ -55,7 +55,7 @@ export class Renderer {
     this.model = new BuffersGeometry(this.gl)
 
     // setup de camara
-    this.camera = new Camera().setPosition(4, 4, 4)
+    this.camera = new Camera().setPosition(5, 5, 5)
     this.cameraOrbitControls = new CameraOrbitControls(this.camera, this.canvas)
 
     // uniforms por defecto
