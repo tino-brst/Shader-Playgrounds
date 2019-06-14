@@ -18,7 +18,9 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "electron:serve": "vue-cli-service electron:serve",
-    "electron:build": "vue-cli-service electron:build",
+    "electron:build": "vue-cli-service electron:build --x64 -mw",
+    "electron:build:mac": "vue-cli-service electron:build --x64 -m",
+    "electron:build:windows": "vue-cli-service electron:build --x64 -w",
     "electron:publish": "vue-cli-service electron:build --x64 -mw -p always",
     "postinstall": "electron-builder install-app-deps"
   },
