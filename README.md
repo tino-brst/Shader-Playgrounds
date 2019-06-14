@@ -10,6 +10,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/platform-windows%20%7C%20macos-lightgrey.svg"/>
+  <img src="https://img.shields.io/badge/code_style-standard-brightgreen.svg"/>
 </p>
 
 <p align="center">
