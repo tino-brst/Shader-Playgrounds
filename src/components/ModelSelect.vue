@@ -28,9 +28,10 @@
         >
           <div class="model-info">
             <span> {{ model.name }} </span>
-            <span
+            <img
               v-if="model.attributes.textureCoordinates"
-              class="textures"
+              class="texture-support"
+              src="/assets/icons/texture-support.svg"
             />
           </div>
           <v-check-icon class="icon" />
@@ -237,23 +238,13 @@ accent-color = royalblue
           display: flex;
           align-items: center;
 
-          .textures {
+          .texture-support {
             width: 12px;
             height: 12px;
             margin-left: 8px;
             margin-right: 15px;
-            border-radius: 2px;
-            background: rgba(255, 255, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            opacity: 0.5;
             transition: all 0.1s
-          }
-
-          .textures::after  {
-            font-size: 11px;
-            content: "T";
-            color: rgb(30, 30, 30);
           }
         }
 
@@ -264,17 +255,11 @@ accent-color = royalblue
           background: accent-color
 
           .icon {
-
             opacity: 1
-
           }
 
-          .textures {
-            background: rgba(255, 255, 255, 0.8);
-          }
-
-          .textures::after  {
-            color: royalblue;
+          .texture-support {
+            opacity: 1
           }
 
         }
@@ -284,8 +269,8 @@ accent-color = royalblue
           background-color: rgba(255, 255, 255, 0.05)
           color: white
 
-          .textures {
-            background: rgba(255, 255, 255, 0.8);
+          .texture-support {
+            opacity: 1;
           }
 
         }
@@ -306,6 +291,15 @@ accent-color = royalblue
 
   }
 
+}
+
+/* Windows specific tweaks */
+
+#playground.win32 .model-select .texture-support {
+  margin-top: 3px;
+}
+#playground.win32 .model-select .model {
+  padding: 0.3rem 0.5rem 0.4rem 0.5rem;
 }
 
 </style>
