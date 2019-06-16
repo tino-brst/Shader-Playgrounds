@@ -67,7 +67,8 @@ export class Renderer {
       ['modelViewMatrix', { type: ShaderVariableType.mat4, getValue: () => this.model.modelViewMatrix }],
       ['normalMatrix', { type: ShaderVariableType.mat4, getValue: () => this.model.normalMatrix }],
       ['viewMatrix', { type: ShaderVariableType.mat4, getValue: () => this.camera.viewMatrix }],
-      ['projectionMatrix', { type: ShaderVariableType.mat4, getValue: () => this.camera.projectionMatrix }]
+      ['projectionMatrix', { type: ShaderVariableType.mat4, getValue: () => this.camera.projectionMatrix }],
+      ['time', { type: ShaderVariableType.float, getValue: () => (performance.now() - this.lastCompilationTime) * 0.001 }]
     ])
 
     // cache de uniforms

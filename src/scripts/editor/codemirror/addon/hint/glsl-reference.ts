@@ -40,7 +40,8 @@ const predefinedUniforms: Variables = [
   [ 'viewMatrix: mat4' ],
   [ 'modelViewMatrix: mat4' ],
   [ 'projectionMatrix: mat4' ],
-  [ 'normalMatrix: mat4', 'Inverse transpose of the modelViewMatrix.' ]
+  [ 'normalMatrix: mat4', 'Inverse transpose of the modelViewMatrix.' ],
+  [ 'time: float', 'Time since compilation (in seconds).' ]
 ]
 
 const glslES100 = {
