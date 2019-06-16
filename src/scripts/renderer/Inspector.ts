@@ -133,11 +133,11 @@ export class Inspector {
     }
   }
 
-  public updateDefaultUniforms (uniforms: Array < { name: string, type: ShaderVariableType, value: any } >) {
+  public setDefaultUniforms (uniforms: Map <string, { type: ShaderVariableType }>) {
     this.defaultUniforms.clear()
 
-    for (const uniform of uniforms) {
-      this.defaultUniforms.set(uniform.name, uniform.type)
+    for (const [name, { type }] of uniforms) {
+      this.defaultUniforms.set(name, type)
     }
   }
 

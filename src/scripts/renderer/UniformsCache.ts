@@ -11,12 +11,10 @@ export interface UniformState {
 }
 
 export class UniformsCache {
-  private defaults: Map < string, IValueReference >
   private previousContent: Map < string, IValueReference >
   private currentContent: Map < string, IValueReference >
 
   constructor () {
-    this.defaults = new Map()
     this.previousContent = new Map()
     this.currentContent = new Map()
 
@@ -31,11 +29,8 @@ export class UniformsCache {
 
   public add (name: string, type: ShaderVariableType, value?: any) {
     const key = this.toString(name, type)
-    const defaultValue = this.defaults.get(key)
 
-    if (defaultValue !== undefined) {
-      value = defaultValue.value
-    } else if (value === undefined) {
+    if (value === undefined) {
       const previousValue = this.previousContent.get(key)
       if (previousValue !== undefined) {
         value = previousValue.value
@@ -54,10 +49,6 @@ export class UniformsCache {
     const cachedValue = this.currentContent.get(this.toString(name, type))
 
     return (cachedValue !== undefined) ? cachedValue.value : undefined
-  }
-
-  public addDefault (name: string, type: ShaderVariableType, value: any) {
-    this.defaults.set(this.toString(name, type), { value })
   }
 
   public clear () {

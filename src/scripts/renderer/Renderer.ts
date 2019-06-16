@@ -28,6 +28,8 @@ export class Renderer {
   private state: RendererState
   private inspector: Inspector
   private program: Program
+  private lastCompilationTime: number
+  private defaultUniforms: Map < string, { type: ShaderVariableType, getValue: () => mat4 | number } >
   private uniformsCache: UniformsCache
   private uniformsEditors: Map < string, UniformEditor >
   private camera: Camera
@@ -43,6 +45,7 @@ export class Renderer {
 
     // seguimiento de estado ( valores que se mantienen de un loop al siguiente )
     this.state = new RendererState(this.gl)
+    this.lastCompilationTime = performance.now()
 
     // asset managers
     this.geometriesManager = new GeometriesManager(onGeometriesLoaded)
@@ -59,21 +62,20 @@ export class Renderer {
     this.cameraOrbitControls = new CameraOrbitControls(this.camera, this.canvas)
 
     // uniforms por defecto
-    const defaultUniforms: Array < { name: string, type: ShaderVariableType, value: any } > = [
-      { name: 'modelMatrix', type: ShaderVariableType.mat4, value: this.model.modelMatrix },
-      { name: 'modelViewMatrix', type: ShaderVariableType.mat4, value: this.model.modelViewMatrix },
-      { name: 'normalMatrix', type: ShaderVariableType.mat4, value: this.model.normalMatrix },
-      { name: 'viewMatrix', type: ShaderVariableType.mat4, value: this.camera.viewMatrix },
-      { name: 'projectionMatrix', type: ShaderVariableType.mat4, value: this.camera.projectionMatrix }
-    ]
+    this.defaultUniforms = new Map([
+      ['modelMatrix', { type: ShaderVariableType.mat4, getValue: () => this.model.modelMatrix }],
+      ['modelViewMatrix', { type: ShaderVariableType.mat4, getValue: () => this.model.modelViewMatrix }],
+      ['normalMatrix', { type: ShaderVariableType.mat4, getValue: () => this.model.normalMatrix }],
+      ['viewMatrix', { type: ShaderVariableType.mat4, getValue: () => this.camera.viewMatrix }],
+      ['projectionMatrix', { type: ShaderVariableType.mat4, getValue: () => this.camera.projectionMatrix }]
+    ])
 
     // cache de uniforms
     this.uniformsCache = new UniformsCache()
-    this.initUniformsCache(defaultUniforms)
 
     // inspector de programa
     this.inspector = new Inspector()
-    this.inspector.updateDefaultUniforms(defaultUniforms)
+    this.inspector.setDefaultUniforms(this.defaultUniforms)
 
     // editores de uniforms
     this.uniformsEditors = new Map()
@@ -89,6 +91,7 @@ export class Renderer {
 
     this.program.setShadersSourceAndLink(vertexSaderSource, fragmentShaderSource)
     this.inspector.inspect(this.program)
+    this.lastCompilationTime = performance.now()
 
     if (this.program.usable) {
       this.program.use()
@@ -164,12 +167,10 @@ export class Renderer {
 
     if (this.program.usable) {
       for (let [ name, editor ] of this.uniformsEditors) {
-        if (!editor.locked) {
-          const type = editor.type
-          const rawValue = editor.getValue()
-          const value = rawValue instanceof Float32Array ? Array.from(rawValue) : rawValue
-          uniformsState.push({ name, type, value })
-        }
+        const type = editor.type
+        const rawValue = editor.getValue()
+        const value = rawValue instanceof Float32Array ? Array.from(rawValue) : rawValue
+        uniformsState.push({ name, type, value })
       }
     }
 
@@ -248,7 +249,7 @@ export class Renderer {
     this.updateMatrices(model, this.camera)
 
     // seteamos uniforms por defecto
-    this.updateUniformValuesFromCache(this.program.activeUniforms, this.uniformsCache)
+    this.updateUniformValues(this.program.activeUniforms, this.uniformsCache)
 
     // reconeccion de nuevos buffers de atributos ante cambios en la geometria o programa
     if (this.state.attributeBuffersNeedUpdate) {
@@ -275,9 +276,13 @@ export class Renderer {
     mat4.transpose(model.normalMatrix, model.normalMatrix)
   }
 
-  private updateUniformValuesFromCache (uniforms: Map < string, Uniform >, cache: UniformsCache) {
+  private updateUniformValues (uniforms: Map < string, Uniform >, cache: UniformsCache) {
     for (const [ name, info ] of uniforms) {
-      const value = cache.get(name, info.type)
+      const defaultUniform = this.defaultUniforms.get(name)
+
+      const value = (defaultUniform && defaultUniform.type === info.type)
+        ? defaultUniform.getValue()
+        : cache.get(name, info.type)
 
       if (value !== undefined) {
         info.setValue(value)
@@ -318,16 +323,9 @@ export class Renderer {
     this.clearUniformsCacheAndEditors()
 
     for (const [ name, type ] of uniformsInfo) {
-      if (type in ShaderVariableType) {
+      if (type in ShaderVariableType && !this.inspector.defaultUniforms.has(name)) {
         const cachedValue = this.uniformsCache.add(name, type as ShaderVariableType)
-        const locked = this.inspector.defaultUniforms.has(name)
-        const uniformEditor = new UniformEditor(
-          name,
-          type as ShaderVariableType,
-          locked,
-          cachedValue
-        )
-
+        const uniformEditor = new UniformEditor(name, type as ShaderVariableType, cachedValue)
         this.uniformsEditors.set(name, uniformEditor)
       }
     }
@@ -345,12 +343,6 @@ export class Renderer {
 
       this.camera.setAspect(displayWidth / displayHeight)
       this.state.setViewport(displayWidth, displayHeight)
-    }
-  }
-
-  private initUniformsCache (uniforms: Array < { name: string, type: ShaderVariableType, value: any } >) {
-    for (const uniform of uniforms) {
-      this.uniformsCache.addDefault(uniform.name, uniform.type, uniform.value)
     }
   }
 
